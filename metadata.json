@@ -1,0 +1,6 @@
+{
+  "name": "CV IA Angola - Lumina Resume",
+  "description": "Plataforma profissional de criação de currículos com inteligência artificial para o mercado angolano, cadastro com e-mail ou telemóvel (OTP SMS), foto passe 3:4 e pagamentos via Multicaixa Xpress e BAI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
