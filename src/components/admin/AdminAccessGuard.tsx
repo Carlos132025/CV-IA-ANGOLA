@@ -17,7 +17,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
   onSwitchUser,
   users,
 }) => {
-  const [email, setEmail] = useState('admin.prospekta@gmail.com');
+  const [email, setEmail] = useState('cv.ia.angola@gmail.com');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -28,9 +28,10 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check if the email is strictly admin.prospekta@gmail.com
-    if (cleanEmail !== 'admin.prospekta@gmail.com') {
-      setErrorMsg('Acesso não autorizado. Apenas a conta admin.prospekta@gmail.com possui privilégios de administração.');
+    // Check if the email is strictly cv.ia.angola@gmail.com (or admin.prospekta@gmail.com)
+    const isValidAdminEmail = cleanEmail === 'cv.ia.angola@gmail.com' || cleanEmail === 'admin.prospekta@gmail.com';
+    if (!isValidAdminEmail) {
+      setErrorMsg('Acesso não autorizado. Apenas a conta cv.ia.angola@gmail.com possui privilégios de administração.');
       return;
     }
 
@@ -39,13 +40,13 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
 
     if (!adminUser) {
       adminUser = {
-        id: 'usr-admin-prospekta',
-        name: 'Admin Prospekta',
-        email: 'admin.prospekta@gmail.com',
-        phone: '+244 923 845 779',
-        password: password || 'admin.prospekta',
+        id: 'usr-admin-cviaangola',
+        name: 'Admin CV IA Angola',
+        email: cleanEmail,
+        phone: '+244 957 427 090',
+        password: password || 'admin.cviaangola',
         role: 'admin',
-        initials: 'AP',
+        initials: 'CV',
         registrationDate: '01 Jan 2024',
         cvsGenerated: 0,
         status: 'Ativo',
@@ -62,7 +63,10 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
   };
 
   const isNonAdminLoggedIn = Boolean(
-    currentUser && currentUser.email?.toLowerCase().trim() !== 'admin.prospekta@gmail.com' && currentUser.role !== 'admin'
+    currentUser &&
+      currentUser.email?.toLowerCase().trim() !== 'cv.ia.angola@gmail.com' &&
+      currentUser.email?.toLowerCase().trim() !== 'admin.prospekta@gmail.com' &&
+      currentUser.role !== 'admin'
   );
 
   return (
@@ -115,7 +119,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
             <div className="p-3.5 rounded-2xl bg-error-container/40 border border-error/30 text-xs text-on-error-container flex items-start gap-2.5">
               <span className="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">block</span>
               <p className="leading-snug">
-                Apenas <strong>admin.prospekta@gmail.com</strong> tem autorização para gerir transações, utilizadores e configurações do sistema.
+                Apenas <strong>cv.ia.angola@gmail.com</strong> tem autorização para gerir transações, utilizadores e configurações do sistema.
               </p>
             </div>
 
@@ -163,13 +167,13 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin.prospekta@gmail.com"
+                  placeholder="cv.ia.angola@gmail.com"
                   className="w-full bg-surface-container-low border border-surface-border rounded-xl pl-9 pr-3 py-3 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-medium"
                   required
                 />
               </div>
               <p className="text-[11px] text-on-surface-variant mt-1">
-                Apenas a conta registada <strong>admin.prospekta@gmail.com</strong> tem acesso.
+                Apenas a conta registada <strong>cv.ia.angola@gmail.com</strong> tem acesso.
               </p>
             </div>
 

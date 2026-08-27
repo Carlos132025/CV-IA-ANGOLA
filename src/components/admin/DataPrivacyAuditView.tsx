@@ -24,11 +24,11 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
       ? 'Dados expurgados e eliminados com sucesso da base em conformidade com o Direito ao Esquecimento (Lei 22/11).'
       : 'Pedido recusado por pendência financeira ou obrigação fiscal de conservação.';
 
-    updateDeletionRequestStatus(req.id, status, currentUserEmail || 'admin.prospekta@gmail.com', notes);
+    updateDeletionRequestStatus(req.id, status, currentUserEmail || 'cv.ia.angola@gmail.com', notes);
 
     // Record Audit Log
     recordAuditLog({
-      accessedBy: currentUserEmail || 'admin.prospekta@gmail.com',
+      accessedBy: currentUserEmail || 'cv.ia.angola@gmail.com',
       actorRole: 'Administrador de Dados (DPO)',
       targetUserId: req.userId,
       targetUserName: req.userName,
@@ -65,7 +65,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
             Auditoria & Proteção de Dados Pessoais
           </h2>
           <p className="text-xs text-on-surface-variant">
-            Acesso exclusivo à conta oficial <strong>admin.prospekta@gmail.com</strong>. Registo de acessos a dados sensíveis e pedidos de eliminação.
+            Acesso exclusivo à conta oficial <strong>cv.ia.angola@gmail.com</strong>. Registo de acessos a dados sensíveis e pedidos de eliminação.
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
           </div>
           <div>
             <div className="text-xs font-bold text-on-surface">Acesso Restrito DPO</div>
-            <div className="text-[11px] text-on-surface-variant font-mono">admin.prospekta@gmail.com</div>
+            <div className="text-[11px] text-on-surface-variant font-mono">cv.ia.angola@gmail.com</div>
           </div>
         </div>
       </div>

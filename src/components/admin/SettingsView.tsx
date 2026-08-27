@@ -39,7 +39,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col w-full max-w-[1000px] mx-auto p-8 gap-8">
+    <div className="flex flex-col w-full max-w-[1000px] mx-auto p-0 sm:p-2 lg:p-4 gap-6 sm:gap-8">
       {/* Header */}
       <div>
         <h1 className="font-display text-3xl font-bold text-on-surface tracking-tight">

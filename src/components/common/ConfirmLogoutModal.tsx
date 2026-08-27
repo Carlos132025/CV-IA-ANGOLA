@@ -44,7 +44,7 @@ export const ConfirmLogoutModal: React.FC<ConfirmLogoutModalProps> = ({
             </h3>
             <p className="text-xs text-on-surface-variant leading-relaxed px-2">
               {isAdmin
-                ? 'A sua sessão administrativa de admin.prospekta@gmail.com será encerrada com segurança.'
+                ? 'A sua sessão administrativa de cv.ia.angola@gmail.com será encerrada com segurança.'
                 : description}
             </p>
           </div>

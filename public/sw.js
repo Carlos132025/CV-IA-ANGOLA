@@ -1,10 +1,10 @@
-// CV IA Angola - Service Worker v1.3.0 (High Performance Mobile)
+// CV IA Angola - Service Worker v1.4.0 (High Performance Mobile)
 // Otimizado para redes móveis em Angola (Unitel / Africell / Movicel):
 // 1. 'Network-First' com fallback instantâneo de cache para HTML
 // 2. 'Stale-While-Revalidate' para CSS/JS/Imagens estáticas com limite de armazenamento
 // 3. 'Network-Only' para APIs (/api/*)
 
-const CACHE_VERSION = 'cvia-angola-v1.3.0';
+const CACHE_VERSION = 'cvia-angola-v1.4.0';
 const STATIC_CACHE = `cvia-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `cvia-dynamic-${CACHE_VERSION}`;
 
@@ -17,7 +17,11 @@ const CORE_ASSETS = [
   '/logo-full.svg',
   '/favicon-32x32.png',
   '/favicon.ico',
-  '/pwa-192x192.png'
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
+  '/pwa-maskable-512x512.png',
+  '/apple-touch-icon.png',
+  '/splash-icon.png'
 ];
 
 // Install Event - Pre-cache minimal core shell

@@ -253,7 +253,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Active Template Showcase Banner - Real Document Preview */}
             {activeTemplate && (
               <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-center">
-                <div className="lg:col-span-7 bg-slate-100 rounded-2xl overflow-hidden border border-surface-border relative group shadow-sm flex flex-col items-center justify-start min-h-[320px] sm:min-h-[380px] max-h-[460px] p-2">
+                <div className="lg:col-span-7 bg-slate-100 rounded-2xl overflow-hidden border border-surface-border relative group shadow-sm flex flex-col items-center justify-start h-[340px] sm:h-[400px] md:h-[460px] p-2">
                   {/* Real CV Document Rendering with scale */}
                   <div
                     className="w-full h-full overflow-hidden flex items-start justify-center relative cursor-pointer"

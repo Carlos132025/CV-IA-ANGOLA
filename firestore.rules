@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'admin.prospekta@gmail.com' ||
+        request.auth.token.role == 'admin'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Connection ping test
+    match /_connection_test/{docId} {
+      allow read, write: if true;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isValidId(userId);
+      allow update, delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Resumes Collection
+    match /resumes/{resumeId} {
+      allow read: if isValidId(resumeId);
+      allow create: if isValidId(resumeId);
+      allow update, delete: if isValidId(resumeId);
+    }
+
+    // Transactions / Payments Collection
+    match /transactions/{transactionId} {
+      allow read: if isValidId(transactionId);
+      allow create: if isValidId(transactionId);
+      allow update: if isValidId(transactionId);
+      allow delete: if isAdmin();
+    }
+
+    // Reviews Collection
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create, update: if isValidId(reviewId);
+      allow delete: if isAdmin();
+    }
+
+    // Support Tickets Collection
+    match /tickets/{ticketId} {
+      allow read, create, update: if isValidId(ticketId);
+      allow delete: if isAdmin();
+    }
+
+    // Platform Settings
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Security & Compliance Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isValidId(logId);
+      allow update, delete: if false;
+    }
+  }
+}

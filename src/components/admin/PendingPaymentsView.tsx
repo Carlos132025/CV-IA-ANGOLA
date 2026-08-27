@@ -26,7 +26,10 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
 
   // Filter pending transactions and sort them FIFO: oldest to newest
   const pendingTransactions = transactions
-    .filter((t) => t.status === 'Pendente')
+    .filter((t) => {
+      const s = (t.status || '').toLowerCase();
+      return s === 'pendente' || s === 'pending';
+    })
     .filter((t) => {
       if (selectedMethodFilter !== 'all' && t.method !== selectedMethodFilter) return false;
       if (!searchQuery.trim()) return true;
@@ -334,7 +337,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                         type="button"
                         onClick={() => {
                           recordAuditLog({
-                            accessedBy: 'admin.prospekta@gmail.com',
+                            accessedBy: 'cv.ia.angola@gmail.com',
                             actorRole: 'Administrador de Dados (DPO)',
                             targetUserId: tx.userId || tx.userEmail,
                             targetUserName: tx.userName,

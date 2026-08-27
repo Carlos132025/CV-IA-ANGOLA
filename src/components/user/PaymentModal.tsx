@@ -97,11 +97,47 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     setReceiptMimeType(file.type);
     setReceiptUploadedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
+    // Compress receipt image before saving to avoid large base64 payloads
     const reader = new FileReader();
     reader.onload = (event) => {
-      if (event.target?.result) {
-        setReceiptDataUrl(event.target.result as string);
-      }
+      const result = event.target?.result as string;
+      if (!result) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const maxWidth = 900;
+        const maxHeight = 900;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          setReceiptDataUrl(compressedDataUrl);
+        } else {
+          setReceiptDataUrl(result);
+        }
+      };
+      img.onerror = () => {
+        setReceiptDataUrl(result);
+      };
+      img.src = result;
     };
     reader.readAsDataURL(file);
   };
@@ -134,7 +170,31 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     const refCode = method === 'Multicaixa' ? mcxTxCode.trim() || generatedId : baiReference.trim() || generatedId;
     const finalPhone = userPhone.trim() ? (userPhone.startsWith('+244') ? userPhone : `+244 ${userPhone}`) : undefined;
 
-    // Send Discord Webhook notification via server API
+    const paymentData: SubmittedPaymentData = {
+      method,
+      txId: generatedId,
+      userPhone: finalPhone,
+      referenceCode: refCode,
+      senderLast4: effectiveLast4,
+      senderName: method === 'Transferência' ? baiSenderName.trim() : undefined,
+      receiptFileName: receiptFileName || undefined,
+      receiptFileSize: receiptFileSize || undefined,
+      receiptMimeType: receiptMimeType || undefined,
+      receiptUploadedAt: receiptUploadedAt || undefined,
+      receiptUrl: receiptDataUrl || undefined,
+    };
+
+    // ACTION (a): Gravar IMEDIATAMENTE o registo do pagamento no estado 'pendente' na base de dados
+    try {
+      if (onPaymentSubmitted) {
+        onPaymentSubmitted(paymentData);
+      }
+    } catch (dbErr) {
+      console.error('Erro ao registar pagamento no sistema local/cloud:', dbErr);
+      alert('Aviso: Ocorreu uma lentidão ao sincronizar com a base de dados, mas o seu pedido foi retido localmente.');
+    }
+
+    // ACTION (b): Enviar a notificação para o Discord Webhook
     try {
       await sendPaymentDiscordNotification({
         userName,
@@ -166,23 +226,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       origin: { y: 0.6 },
     });
 
-    const paymentData: SubmittedPaymentData = {
-      method,
-      txId: generatedId,
-      userPhone: finalPhone,
-      referenceCode: refCode,
-      senderLast4: effectiveLast4,
-      senderName: method === 'Transferência' ? baiSenderName.trim() : undefined,
-      receiptFileName: receiptFileName || undefined,
-      receiptFileSize: receiptFileSize || undefined,
-      receiptMimeType: receiptMimeType || undefined,
-      receiptUploadedAt: receiptUploadedAt || undefined,
-      receiptUrl: receiptDataUrl || undefined,
-    };
-
+    // Auto-close modal after user sees the confirmation screen
     setTimeout(() => {
-      onPaymentSubmitted(paymentData);
-    }, 1800);
+      onClose();
+    }, 2200);
   };
 
   return (

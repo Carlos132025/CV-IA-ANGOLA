@@ -1,80 +1,95 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="pwaDocGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0256c4" />
-      <stop offset="35%" stop-color="#0066d6" />
-      <stop offset="70%" stop-color="#008f88" />
-      <stop offset="100%" stop-color="#00ab66" />
+    <!-- Dark Navy Background Gradient -->
+    <linearGradient id="iconBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050e20" />
+      <stop offset="50%" stop-color="#040a18" />
+      <stop offset="100%" stop-color="#02060f" />
     </linearGradient>
-    <linearGradient id="pwaFoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#004899" />
-      <stop offset="100%" stop-color="#003570" />
+
+    <!-- Document Vibrant Blue to Turquoise Gradient -->
+    <linearGradient id="iconDocGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0052cc" />
+      <stop offset="30%" stop-color="#0066e6" />
+      <stop offset="65%" stop-color="#00a8c6" />
+      <stop offset="100%" stop-color="#00d896" />
     </linearGradient>
-    <filter id="pwaShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0256c4" flood-opacity="0.25" />
+
+    <!-- Flap Cyan Gradient -->
+    <linearGradient id="iconFlapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38ef7d" />
+      <stop offset="50%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#00b4d8" />
+    </linearGradient>
+
+    <!-- Document Drop Shadow -->
+    <filter id="docShadow" x="-25%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000000" flood-opacity="0.8" />
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#00b4d8" flood-opacity="0.3" />
+    </filter>
+
+    <!-- Circle Drop Shadow -->
+    <filter id="circleShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.4" />
     </filter>
   </defs>
 
-  <!-- Clean neutral canvas / background with soft safe padding -->
-  <rect width="512" height="512" rx="112" fill="#ffffff" />
-  
-  <!-- Subtle gradient accent circle for depth -->
-  <circle cx="256" cy="256" r="236" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" />
+  <!-- Dark Navy Blue Canvas with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="url(#iconBgGrad)" />
 
-  <!-- Document Card shape with Folded Top-Right Corner -->
-  <g filter="url(#pwaShadow)">
-    <!-- Main document body path with 3 rounded corners and 1 folded corner -->
+  <!-- Document Silhouette -->
+  <g filter="url(#docShadow)">
+    <!-- Document Body with 3 rounded corners and top right angled fold cutout -->
     <path d="
-      M 166 86 
-      L 316 86 
-      L 366 136 
-      L 366 406 
-      C 366 422 353 435 337 435 
-      L 166 435 
-      C 150 435 137 422 137 406 
-      L 137 115 
-      C 137 99 150 86 166 86 
+      M 154 78 
+      L 310 78 
+      L 374 142 
+      L 374 416 
+      C 374 436 358 450 338 450 
+      L 154 450 
+      C 134 450 118 436 118 416 
+      L 118 114 
+      C 118 94 134 78 154 78 
       Z" 
-      fill="url(#pwaDocGrad)" 
+      fill="url(#iconDocGrad)" 
     />
 
-    <!-- Dog-ear Fold at top right -->
+    <!-- Folded Flap Corner (Top Right) with Cyan Gradient and realistic shadow -->
     <path d="
-      M 316 86 
-      L 316 122 
-      C 316 130 322 136 330 136 
-      L 366 136 
+      M 310 78 
+      L 310 120 
+      C 310 132 322 142 334 142 
+      L 374 142 
       Z" 
-      fill="url(#pwaFoldGrad)" 
-      opacity="0.95"
+      fill="url(#iconFlapGrad)" 
     />
-    <path d="M 316 86 L 366 136" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+    <path d="M 310 78 L 374 142" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" />
+
+    <!-- White Circular Badge with 'CV' -->
+    <g filter="url(#circleShadow)">
+      <circle cx="246" cy="204" r="62" fill="#ffffff" />
+      <circle cx="246" cy="204" r="59" fill="none" stroke="#e0f2fe" stroke-width="2" />
+    </g>
+
+    <!-- 'CV' Bold Typography inside White Circle -->
+    <text 
+      x="246" 
+      y="207" 
+      text-anchor="middle" 
+      dominant-baseline="central" 
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
+      font-weight="900" 
+      font-size="52" 
+      fill="#040a18" 
+      letter-spacing="-1"
+    >CV</text>
+
+    <!-- 3 Dark Blue-Navy Horizontal Lines -->
+    <!-- Line 1 (Longest) -->
+    <rect x="170" y="296" width="152" height="14" rx="7" fill="#040a18" opacity="0.95" />
+    <!-- Line 2 (Medium) -->
+    <rect x="170" y="326" width="118" height="13" rx="6.5" fill="#040a18" opacity="0.95" />
+    <!-- Line 3 (Shortest) -->
+    <rect x="170" y="356" width="84" height="12" rx="6" fill="#040a18" opacity="0.95" />
   </g>
-
-  <!-- White AI Circle in upper portion of the document -->
-  <circle cx="251" cy="180" r="54" fill="#f8fafc" />
-  <text 
-    x="251" 
-    y="182" 
-    text-anchor="middle" 
-    dominant-baseline="central" 
-    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
-    font-weight="800" 
-    font-size="34" 
-    fill="#0256c4" 
-    letter-spacing="-0.5"
-  >AI</text>
-
-  <!-- Neural Network / AI Nodes inside the document (lower portion) -->
-  <!-- Connecting Lines -->
-  <line x1="206" y1="305" x2="232" y2="330" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-  <line x1="232" y1="330" x2="260" y2="295" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-
-  <!-- Node Circles -->
-  <circle cx="206" cy="305" r="9" fill="#ffffff" />
-  <circle cx="260" cy="295" r="11" fill="#ffffff" />
-  <circle cx="232" cy="330" r="8" fill="#ffffff" />
-
-  <!-- Horizontal baseline bar -->
-  <rect x="195" y="365" width="68" height="5.5" rx="2.75" fill="#ffffff" />
 </svg>

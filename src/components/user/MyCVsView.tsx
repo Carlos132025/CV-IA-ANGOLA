@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CVTemplate, ResumeData, AppUser } from '../../types';
+import { CVTemplate, ResumeData, AppUser, Transaction } from '../../types';
 import { CVPreviewDoc } from './CVPreviewDoc';
 import { PaymentModal, SubmittedPaymentData } from './PaymentModal';
 import { createNewEmptyResume } from '../../data/initialData';
@@ -15,6 +15,8 @@ interface MyCVsViewProps {
   currentUser: AppUser | null;
   templates: CVTemplate[];
   basePriceKz: number;
+  transactions?: Transaction[];
+  onApproveTransaction?: (txId: string) => void;
   onSelectResume: (cv: ResumeData) => void;
   onCreateNewResume: (newCV: ResumeData) => void;
   onDuplicateResume: (cv: ResumeData) => void;
@@ -32,6 +34,8 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
   currentUser,
   templates,
   basePriceKz,
+  transactions = [],
+  onApproveTransaction,
   onSelectResume,
   onCreateNewResume,
   onDuplicateResume,
@@ -104,6 +108,8 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
     );
   }
 
+  const isAdmin = currentUser?.role === 'admin';
+
   // Filter list by current user & search
   const userFilteredCVs = resumes.filter((cv) => {
     // Search query filter
@@ -114,11 +120,11 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
       return false;
     }
 
-    const hasUnpaidEdits = checkIfCvHasUnpaidEdits(cv);
-    const isPaid = (cv.isPaid || cv.paymentStatus === 'approved') && !hasUnpaidEdits;
-    const isModifiedAfterPayment = Boolean(cv.paidSnapshot) && hasUnpaidEdits;
-    const isPending = !isPaid && !isModifiedAfterPayment && (cv.paymentStatus === 'pending' || Boolean(cv.pendingTransactionId));
-    const isDraft = !isPaid && !isModifiedAfterPayment && !isPending;
+    const hasUnpaidEdits = !isAdmin && checkIfCvHasUnpaidEdits(cv);
+    const isPaid = isAdmin || ((cv.isPaid === true || cv.paymentStatus === 'approved') && !hasUnpaidEdits);
+    const isModifiedAfterPayment = !isAdmin && Boolean(cv.paidSnapshot) && hasUnpaidEdits;
+    const isPending = !isAdmin && !isPaid && !isModifiedAfterPayment && !cv.isPaid && cv.paymentStatus !== 'approved' && (cv.paymentStatus === 'pending' || Boolean(cv.pendingTransactionId));
+    const isDraft = !isAdmin && !isPaid && !isModifiedAfterPayment && !isPending;
 
     if (filterStatus === 'paid') return isPaid;
     if (filterStatus === 'modified') return isModifiedAfterPayment;
@@ -129,10 +135,10 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
   });
 
   const totalCount = resumes.length;
-  const paidCount = resumes.filter((c) => (c.isPaid || c.paymentStatus === 'approved') && !checkIfCvHasUnpaidEdits(c)).length;
-  const modifiedCount = resumes.filter((c) => Boolean(c.paidSnapshot) && checkIfCvHasUnpaidEdits(c)).length;
-  const pendingCount = resumes.filter((c) => (c.paymentStatus === 'pending' || Boolean(c.pendingTransactionId)) && c.paymentStatus !== 'approved').length;
-  const draftCount = totalCount - paidCount - modifiedCount - pendingCount;
+  const paidCount = resumes.filter((c) => isAdmin || ((c.isPaid === true || c.paymentStatus === 'approved') && !checkIfCvHasUnpaidEdits(c))).length;
+  const modifiedCount = isAdmin ? 0 : resumes.filter((c) => Boolean(c.paidSnapshot) && checkIfCvHasUnpaidEdits(c)).length;
+  const pendingCount = isAdmin ? 0 : resumes.filter((c) => !c.isPaid && c.paymentStatus !== 'approved' && (c.paymentStatus === 'pending' || Boolean(c.pendingTransactionId))).length;
+  const draftCount = Math.max(0, totalCount - paidCount - modifiedCount - pendingCount);
 
   // Handle creating new CV
   const handleConfirmCreateCV = (e: React.FormEvent) => {
@@ -360,12 +366,15 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {userFilteredCVs.map((cv) => {
             const template = templates.find((t) => t.id === cv.templateId) || templates[0];
-            const hasUnpaidEdits = checkIfCvHasUnpaidEdits(cv);
-            const isFullyPaid = (cv.isPaid || cv.paymentStatus === 'approved') && !hasUnpaidEdits;
-            const isModifiedAfterPayment = Boolean(cv.paidSnapshot) && hasUnpaidEdits;
+            const hasUnpaidEdits = !isAdmin && checkIfCvHasUnpaidEdits(cv);
+            const isFullyPaid = isAdmin || ((cv.isPaid === true || cv.paymentStatus === 'approved') && !hasUnpaidEdits);
+            const isModifiedAfterPayment = !isAdmin && Boolean(cv.paidSnapshot) && hasUnpaidEdits;
             const isPending =
+              !isAdmin &&
               !isFullyPaid &&
               !isModifiedAfterPayment &&
+              !cv.isPaid &&
+              cv.paymentStatus !== 'approved' &&
               (cv.paymentStatus === 'pending' || Boolean(cv.pendingTransactionId));
 
             return (
@@ -535,14 +544,44 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                       </button>
                     </div>
                   ) : isPending ? (
-                    <button
-                      type="button"
-                      onClick={() => onSelectResume(cv)}
-                      className="w-full py-2 px-4 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-display font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">hourglass_top</span>
-                      Aguardando Validação (Ver)
-                    </button>
+                    <div className="space-y-1.5">
+                      <button
+                        type="button"
+                        onClick={() => onSelectResume(cv)}
+                        className="w-full py-2 px-4 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-display font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">hourglass_top</span>
+                        Aguardando Validação (Ver)
+                      </button>
+                      {(currentUser?.role === 'admin' ||
+                        currentUser?.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+                        currentUser?.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com' ||
+                        currentUser?.email?.toLowerCase().trim() === 'carlos.nfd3.amaral@gmail.com') &&
+                        onApproveTransaction && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const matchingTx = transactions.find(
+                                (t) =>
+                                  t.id === cv.pendingTransactionId ||
+                                  t.id === cv.id ||
+                                  t.referenceCode === cv.submittedReference ||
+                                  (t.userName &&
+                                    cv.personalInfo.fullName &&
+                                    t.userName.toLowerCase().trim() === cv.personalInfo.fullName.toLowerCase().trim())
+                              );
+                              const targetTxId = matchingTx?.id || cv.pendingTransactionId || 'BAI-59842';
+                              onApproveTransaction(targetTxId);
+                              onToast(`Pagamento do CV "${cv.title}" aprovado em modo Admin.`);
+                            }}
+                            className="w-full py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                            title="Aprovar e liberar download imediatamente como Administrador"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                            ⚡ Aprovar Pagamento (Admin)
+                          </button>
+                        )}
+                    </div>
                   ) : (
                     <div className="flex items-center gap-2">
                       <button

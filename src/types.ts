@@ -236,7 +236,7 @@ export interface SupportTicket {
 
 export interface DataAuditLog {
   id: string;
-  accessedBy: string; // e.g. admin.prospekta@gmail.com
+  accessedBy: string; // e.g. cv.ia.angola@gmail.com
   actorRole: string; // e.g. Administrador de Dados (DPO)
   targetUserId: string;
   targetUserName: string;

@@ -27,17 +27,25 @@ export const SalesView: React.FC<SalesViewProps> = ({
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  const totalRevenue = transactions.reduce(
-    (acc, t) => acc + (t.status === 'Concluído' ? t.amount : 0),
-    3240500
+  // Filter out any admin generated transactions from financial metrics
+  const customerTransactions = transactions.filter(
+    (t) =>
+      t.userEmail?.toLowerCase() !== 'cv.ia.angola@gmail.com' &&
+      t.userEmail?.toLowerCase() !== 'admin.prospekta@gmail.com' &&
+      t.userId !== 'usr-admin-cviaangola'
   );
-  const totalTransactionsCount = transactions.length + 1427;
-  const averageTicket = totalTransactionsCount > 0 ? Math.round(totalRevenue / totalTransactionsCount) : 2000;
-  const pendingCount = transactions.filter((t) => t.status === 'Pendente').length;
-  const approvedCount = transactions.filter((t) => t.status === 'Concluído').length;
-  const rejectedCount = transactions.filter((t) => t.status === 'Cancelado').length;
 
-  const filteredTransactions = transactions.filter((t) => {
+  const totalRevenue = customerTransactions.reduce(
+    (acc, t) => acc + (t.status === 'Concluído' ? t.amount : 0),
+    0
+  );
+  const totalTransactionsCount = customerTransactions.length;
+  const averageTicket = totalTransactionsCount > 0 ? Math.round(totalRevenue / totalTransactionsCount) : 2000;
+  const pendingCount = customerTransactions.filter((t) => t.status === 'Pendente').length;
+  const approvedCount = customerTransactions.filter((t) => t.status === 'Concluído').length;
+  const rejectedCount = customerTransactions.filter((t) => t.status === 'Cancelado').length;
+
+  const filteredTransactions = customerTransactions.filter((t) => {
     const matchesSearch =
       t.id.toLowerCase().includes(searchTx.toLowerCase()) ||
       t.userName.toLowerCase().includes(searchTx.toLowerCase()) ||
@@ -255,7 +263,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
           </div>
           <div class="meta">
             <strong>Data de Emissão:</strong> ${formattedDate}<br>
-            <strong>Operador:</strong> admin.prospekta@gmail.com<br>
+            <strong>Operador:</strong> cv.ia.angola@gmail.com<br>
             <strong>Período:</strong> ${period} (${methodFilter})
           </div>
         </div>
@@ -334,7 +342,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8 gap-6 sm:gap-8">
+    <div className="flex flex-col w-full max-w-[1240px] mx-auto p-0 sm:p-2 lg:p-4 gap-6 sm:gap-8">
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -380,7 +388,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             </div>
           </div>
           <h2 className="text-3xl font-extrabold text-on-surface font-display">
-            3.240.500 <span className="text-sm font-medium text-on-surface-variant">KZS</span>
+            {totalRevenue.toLocaleString('pt-AO')} <span className="text-sm font-medium text-on-surface-variant">KZS</span>
           </h2>
           <div className="flex items-center gap-1.5 mt-3 text-xs font-semibold text-emerald-600">
             <span className="material-symbols-outlined text-[16px]">trending_up</span>
@@ -571,15 +579,18 @@ export const SalesView: React.FC<SalesViewProps> = ({
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          <span className="material-symbols-outlined text-emerald-400 text-[22px]">check_circle</span>
-          <span className="text-xs font-medium">{toastMessage}</span>
+        <div className="fixed top-20 inset-x-3 mx-auto w-[calc(100vw-24px)] max-w-sm sm:max-w-md sm:inset-x-auto sm:right-6 z-50 bg-slate-900 text-white px-4 sm:px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="material-symbols-outlined text-emerald-400 text-[22px] shrink-0">check_circle</span>
+            <span className="text-xs font-medium text-slate-100 break-words">{toastMessage}</span>
+          </div>
           <button
             type="button"
             onClick={() => setToastMessage(null)}
-            className="text-slate-400 hover:text-white ml-2 p-1 cursor-pointer"
+            aria-label="Fechar notificação"
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">close</span>
+            <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
       )}

@@ -1,161 +1,163 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 240" width="540" height="240">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="680" height="280">
   <defs>
-    <linearGradient id="fullDocGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0256c4" />
-      <stop offset="35%" stop-color="#0066d6" />
-      <stop offset="70%" stop-color="#008f88" />
-      <stop offset="100%" stop-color="#00ab66" />
+    <!-- Background Gradient for standalone rendering -->
+    <linearGradient id="fullBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050e20" />
+      <stop offset="50%" stop-color="#040a18" />
+      <stop offset="100%" stop-color="#02060f" />
     </linearGradient>
-    <linearGradient id="fullFoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#004899" />
-      <stop offset="100%" stop-color="#003570" />
+
+    <!-- Document Vibrant Blue to Turquoise Gradient -->
+    <linearGradient id="fullDocGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0052cc" />
+      <stop offset="30%" stop-color="#0066e6" />
+      <stop offset="65%" stop-color="#00a8c6" />
+      <stop offset="100%" stop-color="#00d896" />
     </linearGradient>
-    <filter id="fullShadow" x="-15%" y="-15%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0256c4" flood-opacity="0.2" />
+
+    <!-- Flap Cyan Gradient -->
+    <linearGradient id="fullFlapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38ef7d" />
+      <stop offset="50%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#00b4d8" />
+    </linearGradient>
+
+    <!-- Checkmark V Gradient -->
+    <linearGradient id="checkVGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d896" />
+      <stop offset="60%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#38ef7d" />
+    </linearGradient>
+
+    <!-- IA Gradient -->
+    <linearGradient id="iaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b4d8" />
+      <stop offset="50%" stop-color="#0077b6" />
+      <stop offset="100%" stop-color="#0256c4" />
+    </linearGradient>
+
+    <!-- O Circle Glow & Ring Gradient -->
+    <linearGradient id="oRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b4d8" />
+      <stop offset="100%" stop-color="#0052cc" />
+    </linearGradient>
+
+    <!-- Arrow Inside O Gradient -->
+    <linearGradient id="oArrowGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#00b4d8" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+
+    <!-- Divider Line Glow -->
+    <linearGradient id="dividerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0" />
+      <stop offset="45%" stop-color="#00f2fe" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="1" />
+      <stop offset="55%" stop-color="#00f2fe" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#00f2fe" stop-opacity="0" />
+    </linearGradient>
+
+    <filter id="fullDocShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6" />
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#00b4d8" flood-opacity="0.35" />
+    </filter>
+
+    <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#00f2fe" flood-opacity="0.45" />
     </filter>
   </defs>
 
-  <!-- Left Side: Document Icon -->
-  <g transform="translate(18, 16)" filter="url(#fullShadow)">
-    <!-- Document Body -->
+  <!-- Left: Document Icon (1:1 with Image 2) -->
+  <g transform="translate(30, 32) scale(0.42)" filter="url(#fullDocShadow)">
     <path d="
-      M 16 12 
-      L 74 12 
-      L 98 36 
-      L 98 184 
-      C 98 193 91 200 82 200 
-      L 16 200 
-      C 7 200 0 193 0 184 
-      L 0 28 
-      C 0 19 7 12 16 12 
+      M 154 78 
+      L 310 78 
+      L 374 142 
+      L 374 416 
+      C 374 436 358 450 338 450 
+      L 154 450 
+      C 134 450 118 436 118 416 
+      L 118 114 
+      C 118 94 134 78 154 78 
       Z" 
       fill="url(#fullDocGrad)" 
     />
 
-    <!-- Dog-ear fold top-right -->
     <path d="
-      M 74 12 
-      L 74 30 
-      C 74 34 78 36 82 36 
-      L 98 36 
+      M 310 78 
+      L 310 120 
+      C 310 132 322 142 334 142 
+      L 374 142 
       Z" 
-      fill="url(#fullFoldGrad)" 
-      opacity="0.95"
+      fill="url(#fullFlapGrad)" 
     />
-    <path d="M 74 12 L 98 36" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
+    <path d="M 310 78 L 374 142" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" />
 
-    <!-- AI Circle at top -->
-    <circle cx="49" cy="65" r="28" fill="#f8fafc" />
+    <!-- White Circle with 'CV' or 'AI' -->
+    <circle cx="246" cy="204" r="62" fill="#ffffff" />
     <text 
-      x="49" 
-      y="66" 
+      x="246" 
+      y="207" 
       text-anchor="middle" 
       dominant-baseline="central" 
-      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-      font-weight="800" 
-      font-size="18" 
-      fill="#0256c4" 
-      letter-spacing="-0.3"
-    >AI</text>
-
-    <!-- AI Network nodes at bottom -->
-    <line x1="28" y1="135" x2="42" y2="148" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
-    <line x1="42" y1="148" x2="57" y2="129" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
-    <circle cx="28" cy="135" r="5" fill="#ffffff" />
-    <circle cx="57" cy="129" r="6" fill="#ffffff" />
-    <circle cx="42" cy="148" r="4.5" fill="#ffffff" />
-
-    <!-- Horizontal baseline -->
-    <rect x="23" y="166" width="38" height="3" rx="1.5" fill="#ffffff" />
-  </g>
-
-  <!-- Right Side: Brand Typography & Tech Graphics -->
-  <g transform="translate(142, 0)">
-    <!-- Top Row: "CV [Pulse Wave] IA" -->
-    <!-- CV Text -->
-    <text 
-      x="0" 
-      y="90" 
-      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-      font-weight="800" 
-      font-size="64" 
-      fill="#1d4ed8" 
+      font-family="system-ui, -apple-system, sans-serif" 
+      font-weight="900" 
+      font-size="48" 
+      fill="#040a18" 
       letter-spacing="-1"
     >CV</text>
 
-    <!-- Teal Heartbeat Pulse Waveform -->
-    <path 
-      d="M 102 62 L 122 62 L 132 46 L 144 88 L 158 62 L 174 62" 
-      fill="none" 
-      stroke="#0d9488" 
-      stroke-width="5" 
-      stroke-linecap="round" 
-      stroke-linejoin="round" 
-    />
+    <!-- 3 Horizontal Lines -->
+    <rect x="170" y="296" width="152" height="14" rx="7" fill="#040a18" opacity="0.95" />
+    <rect x="170" y="326" width="118" height="13" rx="6.5" fill="#040a18" opacity="0.95" />
+    <rect x="170" y="356" width="84" height="12" rx="6" fill="#040a18" opacity="0.95" />
+  </g>
 
-    <!-- IA Text -->
-    <text 
-      x="184" 
-      y="90" 
-      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-      font-weight="800" 
-      font-size="64" 
-      fill="#1d4ed8" 
-      letter-spacing="-1"
-    >IA</text>
+  <!-- Right: Typography -->
+  <!-- Top Line: CVIA -->
+  <g transform="translate(230, 96)">
+    <!-- Letter 'C' in bold white -->
+    <text x="0" y="0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="78" fill="#ffffff" letter-spacing="-2">C</text>
 
-    <!-- Middle Row: "ANG [Tech Emblem] LA" -->
-    <!-- ANG Text -->
-    <text 
-      x="0" 
-      y="152" 
-      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-      font-weight="800" 
-      font-size="44" 
-      fill="#1e293b" 
-      letter-spacing="1"
-    >ANG</text>
+    <!-- Stylized Checkmark 'V' in vibrant turquoise/cyan gradient -->
+    <path d="M 54 -18 L 84 10 L 140 -56 L 126 -56 L 82 -2 L 64 -18 Z" fill="url(#checkVGrad)" filter="url(#glowEffect)" />
 
-    <!-- Tech Emblem replacing 'O' in ANGOLA -->
-    <g transform="translate(144, 137)">
-      <!-- Outer circular ring with nodes -->
-      <circle cx="0" cy="0" r="22" fill="none" stroke="#1e293b" stroke-width="3" />
-      
-      <!-- 6 perimeter dots -->
-      <circle cx="0" cy="-22" r="3.5" fill="#0d9488" />
-      <circle cx="19" cy="-11" r="3.5" fill="#0d9488" />
-      <circle cx="19" cy="11" r="3.5" fill="#0d9488" />
-      <circle cx="0" cy="22" r="3.5" fill="#0d9488" />
-      <circle cx="-19" cy="11" r="3.5" fill="#0d9488" />
-      <circle cx="-19" cy="-11" r="3.5" fill="#0d9488" />
+    <!-- 'IA' in electric cyan-to-blue gradient -->
+    <text x="146" y="0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="78" fill="url(#iaGrad)" letter-spacing="-2">IA</text>
+  </g>
 
-      <!-- Center Teal Chevron / House-arrow icon -->
-      <path 
-        d="M 0 -10 L 10 0 L 10 9 C 10 10.5 8.5 11.5 7 11.5 L -7 11.5 C -8.5 11.5 -10 10.5 -10 9 L -10 0 Z" 
-        fill="#0d9488" 
-      />
+  <!-- Bottom Line: ANGOLA -->
+  <g transform="translate(230, 168)">
+    <!-- 'ANG' in bold white -->
+    <text x="0" y="0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="54" fill="#ffffff" letter-spacing="1">ANG</text>
+
+    <!-- 'O' with blue glowing ring and upward cyan arrow -->
+    <g transform="translate(142, -18)">
+      <!-- Outer Glowing Ring -->
+      <circle cx="24" cy="0" r="23" fill="none" stroke="url(#oRingGrad)" stroke-width="4.5" filter="url(#glowEffect)" />
+      <!-- House / Arrow Icon inside -->
+      <path d="M 24 -12 L 35 0 L 30 0 L 30 11 L 18 11 L 18 0 L 13 0 Z" fill="url(#oArrowGrad)" />
     </g>
 
-    <!-- LA Text -->
-    <text 
-      x="172" 
-      y="152" 
-      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-      font-weight="800" 
-      font-size="44" 
-      fill="#1e293b" 
-      letter-spacing="1"
-    >LA</text>
-
-    <!-- Subtitle: CURRÍCULO PROFISSIONAL COM IA -->
-    <text 
-      x="0" 
-      y="190" 
-      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-      font-weight="700" 
-      font-size="14" 
-      fill="#475569" 
-      letter-spacing="2.2"
-    >CURRÍCULO PROFISSIONAL COM IA</text>
+    <!-- 'LA' in bold white -->
+    <text x="198" y="0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="54" fill="#ffffff" letter-spacing="1">LA</text>
   </g>
+
+  <!-- Sleek Glowing Divider Line -->
+  <line x1="230" y1="196" x2="620" y2="196" stroke="url(#dividerGrad)" stroke-width="1.8" />
+  <polygon points="425,193 429,196 425,199 421,196" fill="#ffffff" filter="url(#glowEffect)" />
+
+  <!-- Subtitle: CURRÍCULO PROFISSIONAL COM IA -->
+  <text 
+    x="425" 
+    y="226" 
+    text-anchor="middle" 
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+    font-weight="800" 
+    font-size="15" 
+    fill="#ffffff" 
+    letter-spacing="5.5"
+  >
+    CURRÍCULO PROFISSIONAL <tspan fill="#00f2fe">COM IA</tspan>
+  </text>
 </svg>

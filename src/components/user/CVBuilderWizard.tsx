@@ -1,5 +1,5 @@
 import React, { useState, Suspense, lazy } from 'react';
-import { BuilderStep, CVTemplate, ResumeData } from '../../types';
+import { BuilderStep, CVTemplate, ResumeData, AppUser, Transaction } from '../../types';
 import { CVPreviewDoc } from './CVPreviewDoc';
 import { LoadingFallback } from '../common/LoadingFallback';
 import type { AISuggestionMode } from './AISuggestionModal';
@@ -15,12 +15,16 @@ const CVOnboardingModal = lazy(() => import('./CVOnboardingModal').then(m => ({ 
 import {
   checkIfCvHasUnpaidEdits,
   getPaidSnapshotAsResume,
+  createPaidSnapshot,
 } from '../../utils/cvHelpers';
 
 interface CVBuilderWizardProps {
   resume: ResumeData;
   setResume: React.Dispatch<React.SetStateAction<ResumeData>>;
   templates: CVTemplate[];
+  currentUser?: AppUser | null;
+  transactions?: Transaction[];
+  onApproveTransaction?: (txId: string) => void;
   onPaymentSuccess?: (method: 'Multicaixa' | 'Transferência', txId: string) => void;
   onPaymentSubmitted?: (data: SubmittedPaymentData) => void;
   basePriceKz?: number;
@@ -31,6 +35,9 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
   resume,
   setResume,
   templates,
+  currentUser,
+  transactions = [],
+  onApproveTransaction,
   onPaymentSuccess,
   onPaymentSubmitted,
   basePriceKz = 2000,
@@ -337,7 +344,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
   };
 
   const handleDownloadPDF = () => {
-    const isUnlocked = resume.isPaid || (resume.downloadsRemaining ?? 0) > 0 || resume.paymentStatus === 'approved';
+    const isUnlocked = isAdmin || resume.isPaid || (resume.downloadsRemaining ?? 0) > 0 || resume.paymentStatus === 'approved';
     if (!isUnlocked) {
       setShowPaymentModal(true);
       return;
@@ -351,7 +358,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
     // Track download count while maintaining unlocked status
     setResume((prev) => ({
       ...prev,
-      isPaid: true,
+      isPaid: isAdmin ? true : prev.isPaid,
       downloadCount: (prev.downloadCount ?? 0) + 1,
     }));
   };
@@ -374,16 +381,18 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
     'Kikongo',
   ];
 
-  const hasUnpaidEdits = checkIfCvHasUnpaidEdits(resume);
-  const isFullyPaid = (resume.isPaid || resume.paymentStatus === 'approved') && !hasUnpaidEdits;
-  const isModifiedAfterPayment = Boolean(resume.paidSnapshot) && hasUnpaidEdits;
+  const isAdmin = currentUser?.role === 'admin';
+  const hasUnpaidEdits = !isAdmin && checkIfCvHasUnpaidEdits(resume);
+  const isFullyPaid = isAdmin || ((resume.isPaid || resume.paymentStatus === 'approved') && !hasUnpaidEdits);
+  const isModifiedAfterPayment = !isAdmin && Boolean(resume.paidSnapshot) && hasUnpaidEdits;
   const isUnlockedForDownload = isFullyPaid;
   const isPendingPayment =
+    !isAdmin &&
     !isFullyPaid &&
     !isModifiedAfterPayment &&
     (resume.paymentStatus === 'pending' ||
       (Boolean(resume.pendingTransactionId) && resume.paymentStatus !== 'rejected'));
-  const isRejectedPayment = !isFullyPaid && resume.paymentStatus === 'rejected';
+  const isRejectedPayment = !isAdmin && !isFullyPaid && resume.paymentStatus === 'rejected';
 
   // Snapshot print modal/target for downloading previous paid version for free
   const [snapshotToPrint, setSnapshotToPrint] = useState<ResumeData | null>(null);
@@ -405,7 +414,37 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
     setStatusCheckMessage(null);
     setTimeout(() => {
       setCheckingStatus(false);
-      if (isUnlockedForDownload) {
+      const matchingTx = transactions.find(
+        (t) =>
+          t.id === resume.pendingTransactionId ||
+          t.id === resume.id ||
+          t.referenceCode === resume.submittedReference ||
+          (t.userName &&
+            resume.personalInfo.fullName &&
+            t.userName.toLowerCase().trim() === resume.personalInfo.fullName.toLowerCase().trim())
+      );
+
+      if (matchingTx && matchingTx.status === 'Concluído') {
+        const snapshot = createPaidSnapshot(resume, matchingTx.id);
+        setResume((prev) => ({
+          ...prev,
+          paymentStatus: 'approved',
+          isPaid: true,
+          paidSnapshot: snapshot,
+          hasUnpaidEdits: false,
+          lastPaidDate: snapshot.paidAt,
+          downloadsRemaining: 99,
+          pendingTransactionId: undefined,
+        }));
+        setStatusCheckMessage('Pagamento aprovado com sucesso! O seu CV foi desbloqueado.');
+      } else if (matchingTx && matchingTx.status === 'Cancelado') {
+        setResume((prev) => ({
+          ...prev,
+          paymentStatus: 'rejected',
+          rejectionReason: matchingTx.rejectionReason || 'Comprovativo não validado.',
+        }));
+        setStatusCheckMessage('O comprovativo foi rejeitado. Consulte o motivo.');
+      } else if (isUnlockedForDownload) {
         setStatusCheckMessage('Pagamento aprovado! O seu CV está agora desbloqueado.');
       } else if (isRejectedPayment) {
         setStatusCheckMessage('O comprovativo foi rejeitado. Consulte o motivo abaixo.');
@@ -413,7 +452,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
         setStatusCheckMessage('O pagamento continua em análise pelo administrador. Notificado via Discord.');
       }
       setTimeout(() => setStatusCheckMessage(null), 5000);
-    }, 1000);
+    }, 800);
   };
 
   const handleSaveTitle = () => {
@@ -1825,7 +1864,46 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                    {(currentUser?.role === 'admin' ||
+                      currentUser?.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+                      currentUser?.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com' ||
+                      currentUser?.email?.toLowerCase().trim() === 'carlos.nfd3.amaral@gmail.com') &&
+                      onApproveTransaction && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const matchingTx = transactions.find(
+                              (t) =>
+                                t.id === resume.pendingTransactionId ||
+                                t.id === resume.id ||
+                                t.referenceCode === resume.submittedReference ||
+                                (t.userName &&
+                                  resume.personalInfo.fullName &&
+                                  t.userName.toLowerCase().trim() === resume.personalInfo.fullName.toLowerCase().trim())
+                            );
+                            const targetTxId = matchingTx?.id || resume.pendingTransactionId || 'BAI-59842';
+                            onApproveTransaction(targetTxId);
+                            const snapshot = createPaidSnapshot(resume, targetTxId);
+                            setResume((prev) => ({
+                              ...prev,
+                              paymentStatus: 'approved',
+                              isPaid: true,
+                              paidSnapshot: snapshot,
+                              hasUnpaidEdits: false,
+                              lastPaidDate: snapshot.paidAt,
+                              downloadsRemaining: 99,
+                              pendingTransactionId: undefined,
+                            }));
+                            setStatusCheckMessage('Pagamento aprovado em modo Admin! CV desbloqueado.');
+                          }}
+                          className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          title="Aprovar e desbloquear download imediatamente como Administrador"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                          ⚡ Aprovar (Admin)
+                        </button>
+                      )}
                     <button
                       type="button"
                       onClick={handleCheckStatus}

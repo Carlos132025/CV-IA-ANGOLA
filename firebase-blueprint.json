@@ -1,0 +1,137 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user profile with role and credentials",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "status": { "type": "string", "enum": ["Ativo", "Suspenso"] },
+        "registrationDate": { "type": "string" },
+        "cvsGenerated": { "type": "number" },
+        "initials": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "phone"]
+    },
+    "Resume": {
+      "title": "Resume",
+      "description": "Curriculum Vitae document data",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "templateId": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "isPaid": { "type": "boolean" },
+        "paymentStatus": { "type": "string", "enum": ["none", "pending", "approved", "rejected"] },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "templateId", "accentColor", "isPaid", "personalInfo"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Payment proof and order verification records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["Multicaixa", "Transferência"] },
+        "status": { "type": "string", "enum": ["Concluído", "Pendente", "Cancelado"] },
+        "date": { "type": "string" },
+        "time": { "type": "string" }
+      },
+      "required": ["id", "userId", "userName", "userEmail", "amount", "method", "status"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer testimonial and rating",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "date": { "type": "string" },
+        "isVerifiedBuyer": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "userName", "rating", "comment", "date"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "User helpdesk inquiries and responses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "subject": { "type": "string" },
+        "status": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "userId", "userName", "subject", "status"]
+    },
+    "SystemSetting": {
+      "title": "SystemSetting",
+      "description": "Platform configuration settings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "cvPrice": { "type": "number" },
+        "multicaixaPhone": { "type": "string" },
+        "baiIban": { "type": "string" }
+      },
+      "required": ["id"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Security and admin action audit records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "by": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "action", "by", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user profiles and authentication accounts"
+    },
+    "/resumes/{resumeId}": {
+      "schema": "Resume",
+      "description": "Collection of user CV documents"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Collection of Multicaixa and BAI bank transfer payments"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Collection of user ratings and reviews"
+    },
+    "/tickets/{ticketId}": {
+      "schema": "SupportTicket",
+      "description": "Collection of customer support tickets"
+    },
+    "/settings/{settingId}": {
+      "schema": "SystemSetting",
+      "description": "Collection of system settings"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Collection of security and GDPR/Lei 22/11 compliance audit logs"
+    }
+  }
+}

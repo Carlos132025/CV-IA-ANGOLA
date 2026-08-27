@@ -25,73 +25,70 @@ export const Logo: React.FC<LogoProps> = ({
     return (
       <div className={`relative inline-flex items-center justify-center shrink-0 ${iconDimensions} ${className}`}>
         <svg
-          viewBox="0 0 100 130"
-          className="w-full h-full drop-shadow-xs"
+          viewBox="0 0 100 120"
+          className="w-full h-full drop-shadow-sm"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="logoIconGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#0256c4" />
-              <stop offset="35%" stopColor="#0066d6" />
-              <stop offset="70%" stopColor="#008f88" />
-              <stop offset="100%" stopColor="#00ab66" />
+            <linearGradient id="reactIconDocGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0052cc" />
+              <stop offset="30%" stopColor="#0066e6" />
+              <stop offset="65%" stopColor="#00a8c6" />
+              <stop offset="100%" stopColor="#00d896" />
             </linearGradient>
-            <linearGradient id="logoFoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#004899" />
-              <stop offset="100%" stopColor="#003570" />
+            <linearGradient id="reactIconFlapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38ef7d" />
+              <stop offset="50%" stopColor="#00f2fe" />
+              <stop offset="100%" stopColor="#00b4d8" />
             </linearGradient>
           </defs>
 
           {/* Document Body with 3 rounded corners and 1 folded corner */}
           <path
-            d="M 12 6 L 68 6 L 88 26 L 88 118 C 88 123.5 83.5 128 78 128 L 12 128 C 6.5 128 2 123.5 2 118 L 2 16 C 2 10.5 6.5 6 12 6 Z"
-            fill="url(#logoIconGrad)"
+            d="M 12 6 L 68 6 L 88 26 L 88 110 C 88 115.5 83.5 120 78 120 L 12 120 C 6.5 120 2 115.5 2 110 L 2 16 C 2 10.5 6.5 6 12 6 Z"
+            fill="url(#reactIconDocGrad)"
           />
 
           {/* Fold at top right */}
           <path
             d="M 68 6 L 68 22 C 68 24.2 69.8 26 72 26 L 88 26 Z"
-            fill="url(#logoFoldGrad)"
+            fill="url(#reactIconFlapGrad)"
           />
           <path d="M 68 6 L 88 26" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
 
-          {/* AI Circle at top */}
-          <circle cx="45" cy="42" r="18" fill="#f8fafc" />
+          {/* White Circle with CV */}
+          <circle cx="45" cy="45" r="19" fill="#ffffff" />
           <text
             x="45"
-            y="43"
+            y="46"
             textAnchor="middle"
             dominantBaseline="central"
             fontFamily="system-ui, -apple-system, sans-serif"
-            fontWeight="800"
-            fontSize="12"
-            fill="#0256c4"
+            fontWeight="900"
+            fontSize="14"
+            fill="#040a18"
+            letterSpacing="-0.5"
           >
-            AI
+            CV
           </text>
 
-          {/* AI Network nodes at bottom */}
-          <line x1="30" y1="88" x2="40" y2="98" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="40" y1="98" x2="52" y2="84" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="30" cy="88" r="3.5" fill="#ffffff" />
-          <circle cx="52" cy="84" r="4.2" fill="#ffffff" />
-          <circle cx="40" cy="98" r="3" fill="#ffffff" />
-
-          {/* Baseline */}
-          <rect x="26" y="110" width="28" height="2.5" rx="1.25" fill="#ffffff" />
+          {/* Resume Accent Bars */}
+          <rect x="20" y="74" width="48" height="4" rx="2" fill="#040a18" opacity="0.9" />
+          <rect x="20" y="83" width="36" height="3.5" rx="1.75" fill="#040a18" opacity="0.9" />
+          <rect x="20" y="92" width="26" height="3.5" rx="1.75" fill="#040a18" opacity="0.9" />
         </svg>
       </div>
     );
   }
 
-  // Full Logo (Document Icon on Left + Complete Typography & Waveform on Right)
+  // Full Logo (Document Icon on Left + Complete Typography from Image 2)
   const fullScales = {
-    xs: { h: 'h-7', icon: 'w-6 h-7', title: 'text-sm', sub: 'text-[7px]', space: 'gap-2' },
-    sm: { h: 'h-9', icon: 'w-7 h-9', title: 'text-base', sub: 'text-[8.5px]', space: 'gap-2.5' },
-    md: { h: 'h-11', icon: 'w-9 h-11', title: 'text-xl', sub: 'text-[9.5px]', space: 'gap-3' },
-    lg: { h: 'h-14', icon: 'w-11 h-14', title: 'text-2xl', sub: 'text-[11px]', space: 'gap-3.5' },
-    xl: { h: 'h-20', icon: 'w-16 h-20', title: 'text-3xl sm:text-4xl', sub: 'text-xs sm:text-sm', space: 'gap-4' },
+    xs: { h: 'h-7', icon: 'w-6 h-7', title: 'text-xs', angola: 'text-[9.5px]', sub: 'text-[6.5px]', space: 'gap-1.5' },
+    sm: { h: 'h-9', icon: 'w-7 h-9', title: 'text-sm', angola: 'text-[11.5px]', sub: 'text-[7.5px]', space: 'gap-2' },
+    md: { h: 'h-11', icon: 'w-9 h-11', title: 'text-base sm:text-lg', angola: 'text-xs sm:text-sm', sub: 'text-[8.5px] sm:text-[9.5px]', space: 'gap-2.5' },
+    lg: { h: 'h-14', icon: 'w-11 h-14', title: 'text-xl sm:text-2xl', angola: 'text-base sm:text-lg', sub: 'text-[10px] sm:text-xs', space: 'gap-3' },
+    xl: { h: 'h-20', icon: 'w-16 h-20', title: 'text-3xl sm:text-4xl', angola: 'text-2xl sm:text-3xl', sub: 'text-xs sm:text-sm', space: 'gap-4' },
   }[size];
 
   return (
@@ -99,115 +96,122 @@ export const Logo: React.FC<LogoProps> = ({
       {/* Document Icon */}
       <div className={`relative shrink-0 ${fullScales.icon}`}>
         <svg
-          viewBox="0 0 100 130"
-          className="w-full h-full drop-shadow-xs"
+          viewBox="0 0 100 120"
+          className="w-full h-full drop-shadow-sm"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="logoFullDocGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#0256c4" />
-              <stop offset="35%" stopColor="#0066d6" />
-              <stop offset="70%" stopColor="#008f88" />
-              <stop offset="100%" stopColor="#00ab66" />
+            <linearGradient id="reactFullDocGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0052cc" />
+              <stop offset="30%" stopColor="#0066e6" />
+              <stop offset="65%" stopColor="#00a8c6" />
+              <stop offset="100%" stopColor="#00d896" />
             </linearGradient>
-            <linearGradient id="logoFullFoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#004899" />
-              <stop offset="100%" stopColor="#003570" />
+            <linearGradient id="reactFullFlapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38ef7d" />
+              <stop offset="50%" stopColor="#00f2fe" />
+              <stop offset="100%" stopColor="#00b4d8" />
             </linearGradient>
           </defs>
 
           {/* Document Body */}
           <path
-            d="M 12 6 L 68 6 L 88 26 L 88 118 C 88 123.5 83.5 128 78 128 L 12 128 C 6.5 128 2 123.5 2 118 L 2 16 C 2 10.5 6.5 6 12 6 Z"
-            fill="url(#logoFullDocGrad)"
+            d="M 12 6 L 68 6 L 88 26 L 88 110 C 88 115.5 83.5 120 78 120 L 12 120 C 6.5 120 2 115.5 2 110 L 2 16 C 2 10.5 6.5 6 12 6 Z"
+            fill="url(#reactFullDocGrad)"
           />
 
           {/* Fold */}
           <path
             d="M 68 6 L 68 22 C 68 24.2 69.8 26 72 26 L 88 26 Z"
-            fill="url(#logoFullFoldGrad)"
+            fill="url(#reactFullFlapGrad)"
           />
           <path d="M 68 6 L 88 26" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
 
-          {/* AI Circle */}
-          <circle cx="45" cy="42" r="18" fill="#f8fafc" />
+          {/* White Circle with CV */}
+          <circle cx="45" cy="45" r="19" fill="#ffffff" />
           <text
             x="45"
-            y="43"
+            y="46"
             textAnchor="middle"
             dominantBaseline="central"
             fontFamily="system-ui, -apple-system, sans-serif"
-            fontWeight="800"
-            fontSize="12"
-            fill="#0256c4"
+            fontWeight="900"
+            fontSize="14"
+            fill="#040a18"
+            letterSpacing="-0.5"
           >
-            AI
+            CV
           </text>
 
-          {/* AI Nodes */}
-          <line x1="30" y1="88" x2="40" y2="98" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="40" y1="98" x2="52" y2="84" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="30" cy="88" r="3.5" fill="#ffffff" />
-          <circle cx="52" cy="84" r="4.2" fill="#ffffff" />
-          <circle cx="40" cy="98" r="3" fill="#ffffff" />
-
-          {/* Baseline */}
-          <rect x="26" y="110" width="28" height="2.5" rx="1.25" fill="#ffffff" />
+          {/* Resume Accent Bars */}
+          <rect x="20" y="74" width="48" height="4" rx="2" fill="#040a18" opacity="0.9" />
+          <rect x="20" y="83" width="36" height="3.5" rx="1.75" fill="#040a18" opacity="0.9" />
+          <rect x="20" y="92" width="26" height="3.5" rx="1.75" fill="#040a18" opacity="0.9" />
         </svg>
       </div>
 
-      {/* Brand Typography & Tech Wave */}
-      <div className="flex flex-col justify-center leading-tight">
-        {/* Row 1: CV [Pulse] IA */}
-        <div className="flex items-center gap-1">
-          <span className={`font-black font-display tracking-tight text-primary ${fullScales.title}`}>
-            CV
+      {/* Brand Typography (C + Checkmark V + IA / ANG + Arrow-in-O + LA) */}
+      <div className="flex flex-col justify-center leading-none">
+        {/* Row 1: C + Checkmark V + IA */}
+        <div className="flex items-center">
+          <span className={`font-black font-display tracking-tight text-slate-900 dark:text-white ${fullScales.title}`}>
+            C
           </span>
-          {/* Teal Heartbeat Wave */}
-          <svg className="w-5 h-3 sm:w-6 sm:h-3.5 shrink-0" viewBox="0 0 40 20" fill="none">
-            <path
-              d="M 2 10 L 10 10 L 14 3 L 20 17 L 26 10 L 38 10"
-              stroke="#0d9488"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span className={`font-black font-display tracking-tight text-primary ${fullScales.title}`}>
+          {/* Stylized Checkmark V */}
+          <span className="inline-flex items-center justify-center -mx-0.5">
+            <svg
+              className={size === 'xl' ? 'w-8 h-8' : size === 'lg' ? 'w-6 h-6' : size === 'md' ? 'w-5 h-5' : size === 'sm' ? 'w-4 h-4' : 'w-3 h-3'}
+              viewBox="0 0 40 40"
+              fill="none"
+            >
+              <defs>
+                <linearGradient id="checkVReact" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#00d896" />
+                  <stop offset="50%" stopColor="#00f2fe" />
+                  <stop offset="100%" stopColor="#38ef7d" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M 6 18 L 16 32 L 36 6 L 30 6 L 16 26 L 10 18 Z"
+                fill="url(#checkVReact)"
+              />
+            </svg>
+          </span>
+          {/* IA in vibrant cyan-blue gradient */}
+          <span className={`font-black font-display tracking-tight bg-gradient-to-r from-[#00b4d8] via-[#0077b6] to-[#0256c4] bg-clip-text text-transparent ${fullScales.title}`}>
             IA
           </span>
         </div>
 
-        {/* Row 2: ANG [Tech Emblem] LA */}
-        <div className="flex items-center gap-0.5">
-          <span className={`font-bold font-display tracking-wide text-slate-800 dark:text-slate-200 ${size === 'xl' ? 'text-2xl sm:text-3xl' : size === 'lg' ? 'text-lg sm:text-xl' : size === 'md' ? 'text-sm sm:text-base' : 'text-xs'}`}>
+        {/* Row 2: ANG + [Arrow-O] + LA */}
+        <div className="flex items-center mt-0.5">
+          <span className={`font-bold font-display tracking-wider text-slate-800 dark:text-slate-200 ${fullScales.angola}`}>
             ANG
           </span>
-          {/* Tech Emblem for 'O' */}
-          <div className="relative inline-flex items-center justify-center mx-0.5 shrink-0">
-            <svg className={size === 'xl' ? 'w-6 h-6' : size === 'lg' ? 'w-5 h-5' : size === 'md' ? 'w-4 h-4' : 'w-3 h-3'} viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="#1e293b" strokeWidth="2" />
-              <circle cx="12" cy="3" r="1.8" fill="#0d9488" />
-              <circle cx="20" cy="7.5" r="1.8" fill="#0d9488" />
-              <circle cx="20" cy="16.5" r="1.8" fill="#0d9488" />
-              <circle cx="12" cy="21" r="1.8" fill="#0d9488" />
-              <circle cx="4" cy="16.5" r="1.8" fill="#0d9488" />
-              <circle cx="4" cy="7.5" r="1.8" fill="#0d9488" />
-              {/* Teal Chevron House */}
-              <path d="M 12 7 L 16.5 12 L 16.5 16 C 16.5 16.5 16 17 15 17 L 9 17 C 8 17 7.5 16.5 7.5 16 L 7.5 12 Z" fill="#0d9488" />
+          {/* Circular ring with upward cyan arrow inside */}
+          <span className="inline-flex items-center justify-center mx-0.5">
+            <svg
+              className={size === 'xl' ? 'w-5 h-5' : size === 'lg' ? 'w-4 h-4' : size === 'md' ? 'w-3.5 h-3.5' : size === 'sm' ? 'w-3 h-3' : 'w-2.5 h-2.5'}
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle cx="12" cy="12" r="10" stroke="#00b4d8" strokeWidth="2.5" />
+              <path d="M 12 5 L 18 12 L 15 12 L 15 18 L 9 18 L 9 12 L 6 12 Z" fill="#00f2fe" />
             </svg>
-          </div>
-          <span className={`font-bold font-display tracking-wide text-slate-800 dark:text-slate-200 ${size === 'xl' ? 'text-2xl sm:text-3xl' : size === 'lg' ? 'text-lg sm:text-xl' : size === 'md' ? 'text-sm sm:text-base' : 'text-xs'}`}>
+          </span>
+          <span className={`font-bold font-display tracking-wider text-slate-800 dark:text-slate-200 ${fullScales.angola}`}>
             LA
           </span>
         </div>
 
         {/* Row 3: Subtitle */}
         {showSubtitle && (
-          <span className={`font-bold uppercase tracking-wider text-slate-500 mt-0.5 whitespace-nowrap ${fullScales.sub}`}>
-            Currículo Profissional com IA
-          </span>
+          <div className="mt-1 flex items-center gap-1">
+            <span className={`font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap ${fullScales.sub}`}>
+              Currículo Profissional <span className="text-[#00b4d8] font-extrabold">com IA</span>
+            </span>
+          </div>
         )}
       </div>
     </div>

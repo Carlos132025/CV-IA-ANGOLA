@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Ensure Material Symbols & Material Icons font-faces are imported in all contexts */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round&display=block');
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* 
@@ -111,9 +116,12 @@ html, body {
   background: #94a3b8;
 }
 
-/* Material Symbols alignment helper */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+/* Material Symbols & Material Icons alignment helper */
+.material-symbols-outlined,
+.material-symbols-rounded,
+.material-icons,
+.material-icons-outlined {
+  font-family: 'Material Symbols Outlined', 'Material Symbols Rounded', 'Material Icons', 'Material Icons Outlined' !important;
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -124,13 +132,16 @@ html, body {
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  -webkit-font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga' 1;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga' 1;
   vertical-align: middle;
+  user-select: none;
 }
 
 .material-symbols-filled {
-  font-family: 'Material Symbols Outlined';
+  font-family: 'Material Symbols Outlined', 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
 }

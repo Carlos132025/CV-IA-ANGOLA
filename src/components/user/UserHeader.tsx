@@ -11,6 +11,8 @@ interface UserHeaderProps {
   onOpenAuth: (mode?: 'login' | 'register_input' | 'profile') => void;
   onOpenAccountModal?: () => void;
   savedCVsCount?: number;
+  onNavigateAdmin?: () => void;
+  isSpecificAdmin?: boolean;
 }
 
 export const UserHeader: React.FC<UserHeaderProps> = ({
@@ -20,6 +22,8 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
   onOpenAuth,
   onOpenAccountModal,
   savedCVsCount = 0,
+  onNavigateAdmin,
+  isSpecificAdmin = false,
 }) => {
   const [showPWAInstallModal, setShowPWAInstallModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,6 +35,20 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
     });
     return unsubscribe;
   }, []);
+
+  // Automatically close mobile menu when user scrolls or resizes window to prevent sticky overlapping
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleCloseMenu = () => {
+      setMobileMenuOpen(false);
+    };
+    window.addEventListener('scroll', handleCloseMenu, { passive: true });
+    window.addEventListener('resize', handleCloseMenu, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleCloseMenu);
+      window.removeEventListener('resize', handleCloseMenu);
+    };
+  }, [mobileMenuOpen]);
 
   const handleInstallClick = async () => {
     const outcome = await promptPWAInstall();
@@ -53,8 +71,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
           onClick={() => handleNavClick('home')}
           className="flex items-center cursor-pointer shrink-0 select-none group transition-transform active:scale-95"
         >
-          <Logo variant="full" size="sm" showSubtitle={false} className="hidden sm:inline-flex" />
-          <Logo variant="full" size="xs" showSubtitle={false} className="inline-flex sm:hidden" />
+          <Logo variant="full" size="sm" showSubtitle={false} />
         </div>
 
         {/* Desktop Navigation Links */}
@@ -168,6 +185,22 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
 
           {currentUser ? (
             <div className="flex items-center gap-2">
+              {/* Direct Admin Portal Button for authenticated admin */}
+              {isSpecificAdmin && onNavigateAdmin && (
+                <button
+                  id="header-admin-portal-btn"
+                  type="button"
+                  onClick={onNavigateAdmin}
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-900 font-bold text-xs shadow-xs transition-all cursor-pointer group"
+                  title="Aceder ao Painel de Administração"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-amber-600 group-hover:scale-110 transition-transform">
+                    admin_panel_settings
+                  </span>
+                  <span className="hidden sm:inline">Painel Admin</span>
+                </button>
+              )}
+
               {/* Direct Meus CVs Button */}
               <button
                 id="header-my-cvs-btn"
@@ -247,103 +280,127 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
         </div>
       </div>
 
-      {/* Mobile Drawer Dropdown Menu */}
+      {/* Mobile Drawer Dropdown Menu with Full Dimmed Backdrop Overlay */}
       {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-16 left-0 right-0 bg-surface-container-lowest/98 backdrop-blur-xl border-b border-surface-border shadow-xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleNavClick('home')}
-              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
-                currentView === 'home' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px]">home</span>
-              Início
-            </button>
-            <button
-              onClick={() => handleNavClick('reviews')}
-              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
-                currentView === 'reviews' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-              Avaliações
-            </button>
-          </div>
+        <>
+          {/* Backdrop to prevent clicking on elements underneath and close on outside tap */}
+          <div
+            className="fixed inset-0 top-16 bg-slate-950/60 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-200"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
 
-          <div className="space-y-1.5 pt-1 border-t border-surface-border/60">
-            <a
-              href="#modelos"
-              onClick={() => {
-                if (currentView !== 'home') setCurrentView('home');
-                setMobileMenuOpen(false);
-              }}
-              className="block p-2 text-xs font-semibold text-on-surface hover:bg-surface-container rounded-lg"
-            >
-              Modelos de CV Aprovados
-            </a>
-            <a
-              href="#como-funciona"
-              onClick={() => {
-                if (currentView !== 'home') setCurrentView('home');
-                setMobileMenuOpen(false);
-              }}
-              className="block p-2 text-xs font-semibold text-on-surface hover:bg-surface-container rounded-lg"
-            >
-              Como Funciona o Processo
-            </a>
-            <a
-              href="#precos"
-              onClick={() => {
-                if (currentView !== 'home') setCurrentView('home');
-                setMobileMenuOpen(false);
-              }}
-              className="block p-2 text-xs font-semibold text-on-surface hover:bg-surface-container rounded-lg"
-            >
-              Preço Único: 2.000 Kz
-            </a>
-          </div>
-
-          <div className="pt-2 border-t border-surface-border/60 flex flex-col gap-2">
-            {!standalone && (
+          <div className="lg:hidden absolute top-16 left-0 right-0 bg-surface-container-lowest border-b border-surface-border shadow-2xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            {/* Admin portal direct button for admin in mobile */}
+            {isSpecificAdmin && onNavigateAdmin && (
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  handleInstallClick();
+                  onNavigateAdmin();
                 }}
-                className="w-full py-2.5 px-3 bg-blue-50 text-blue-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-blue-200"
+                className="w-full p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 border border-amber-500/30 shadow-xs transition-all cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[18px] text-blue-600">install_mobile</span>
-                Instalar App no Telemóvel
+                <span className="material-symbols-outlined text-[18px] text-amber-600">admin_panel_settings</span>
+                <span>Aceder ao Painel Administrativo</span>
               </button>
             )}
 
-            <a
-              href="https://wa.me/244957427090?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20meu%20curr%C3%ADculo%20no%20CV%20IA%20Angola."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-2.5 px-3 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-emerald-200"
-            >
-              <span className="material-symbols-outlined text-[18px] text-emerald-600">support_agent</span>
-              Suporte WhatsApp: 957 427 090
-            </a>
-
-            {!currentUser && (
+            <div className="grid grid-cols-2 gap-2">
               <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAuth('login');
-                }}
-                className="w-full py-2.5 px-3 bg-surface-container-high text-on-surface font-bold text-xs rounded-xl flex items-center justify-center gap-2"
+                onClick={() => handleNavClick('home')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  currentView === 'home' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface'
+                }`}
               >
-                <span className="material-symbols-outlined text-[18px]">login</span>
-                Já Tenho Conta (Entrar)
+                <span className="material-symbols-outlined text-[18px]">home</span>
+                Início
               </button>
-            )}
+              <button
+                onClick={() => handleNavClick('reviews')}
+                className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  currentView === 'reviews' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[18px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                Avaliações
+              </button>
+            </div>
+
+            <div className="space-y-1.5 pt-1 border-t border-surface-border/60">
+              <a
+                href="#modelos"
+                onClick={() => {
+                  if (currentView !== 'home') setCurrentView('home');
+                  setMobileMenuOpen(false);
+                }}
+                className="block p-2 text-xs font-semibold text-on-surface hover:bg-surface-container rounded-lg"
+              >
+                Modelos de CV Aprovados
+              </a>
+              <a
+                href="#como-funciona"
+                onClick={() => {
+                  if (currentView !== 'home') setCurrentView('home');
+                  setMobileMenuOpen(false);
+                }}
+                className="block p-2 text-xs font-semibold text-on-surface hover:bg-surface-container rounded-lg"
+              >
+                Como Funciona o Processo
+              </a>
+              <a
+                href="#precos"
+                onClick={() => {
+                  if (currentView !== 'home') setCurrentView('home');
+                  setMobileMenuOpen(false);
+                }}
+                className="block p-2 text-xs font-semibold text-on-surface hover:bg-surface-container rounded-lg"
+              >
+                Preço Único: 2.000 Kz
+              </a>
+            </div>
+
+            <div className="pt-2 border-t border-surface-border/60 flex flex-col gap-2">
+              {!standalone && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleInstallClick();
+                  }}
+                  className="w-full py-2.5 px-3 bg-blue-50 text-blue-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-blue-200"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-blue-600">install_mobile</span>
+                  Instalar App no Telemóvel
+                </button>
+              )}
+
+              <a
+                href="https://wa.me/244957427090?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20meu%20curr%C3%ADculo%20no%20CV%20IA%20Angola."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 px-3 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-emerald-200"
+              >
+                <span className="material-symbols-outlined text-[18px] text-emerald-600">support_agent</span>
+                Suporte WhatsApp: 957 427 090
+              </a>
+
+              {!currentUser && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth('login');
+                  }}
+                  className="w-full py-2.5 px-3 bg-surface-container-high text-on-surface font-bold text-xs rounded-xl flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">login</span>
+                  Já Tenho Conta (Entrar)
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* PWA Installation & Step by Step Guide Modal */}

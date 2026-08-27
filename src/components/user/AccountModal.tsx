@@ -15,6 +15,7 @@ interface AccountModalProps {
   onOpenPrivacyPolicy?: () => void;
   onOpenTerms?: () => void;
   onNavigateMyCVs?: () => void;
+  onNavigateAdmin?: () => void;
   savedCVsCount?: number;
 }
 
@@ -27,6 +28,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   onOpenPrivacyPolicy,
   onOpenTerms,
   onNavigateMyCVs,
+  onNavigateAdmin,
   savedCVsCount = 0,
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -101,6 +103,38 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         {/* Content */}
         {!showDeleteConfirm ? (
           <div className="py-5 space-y-5 text-xs sm:text-sm">
+            {/* Admin Portal Quick Access if Admin */}
+            {(user.role === 'admin' ||
+              user.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+              user.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com') && onNavigateAdmin && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-900 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[22px] text-amber-700">admin_panel_settings</span>
+                  </div>
+                  <div>
+                    <h4 className="font-display font-bold text-xs sm:text-sm text-amber-950">
+                      Painel Administrativo
+                    </h4>
+                    <p className="text-[11px] text-amber-900/80">
+                      Gerir pagamentos, vendas, utilizadores e modelos
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onNavigateAdmin();
+                  }}
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold font-display shadow-xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                >
+                  <span>Abrir Painel</span>
+                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </button>
+              </div>
+            )}
+
             {/* Quick Link to My CVs */}
             <div className="p-4 rounded-2xl bg-surface-container-high/60 border border-surface-border flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -300,7 +334,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                   Pedido Registado com Sucesso!
                 </h4>
                 <p className="text-xs text-emerald-800 leading-relaxed max-w-md mx-auto">
-                  O seu pedido de eliminação foi registado nos termos da Lei 22/11 e encaminhado com carimbo de auditoria para <strong>admin.prospekta@gmail.com</strong>.
+                  O seu pedido de eliminação foi registado nos termos da Lei 22/11 e encaminhado com carimbo de auditoria para <strong>cv.ia.angola@gmail.com</strong>.
                 </p>
                 <button
                   type="button"

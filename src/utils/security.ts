@@ -74,7 +74,7 @@ export function getAuditLogs(): DataAuditLog[] {
   return [
     {
       id: 'log-001',
-      accessedBy: 'admin.prospekta@gmail.com',
+      accessedBy: 'cv.ia.angola@gmail.com',
       actorRole: 'Administrador de Dados (DPO)',
       targetUserId: 'usr-1',
       targetUserName: 'João Silva',
@@ -86,7 +86,7 @@ export function getAuditLogs(): DataAuditLog[] {
     },
     {
       id: 'log-002',
-      accessedBy: 'admin.prospekta@gmail.com',
+      accessedBy: 'cv.ia.angola@gmail.com',
       actorRole: 'Administrador de Dados (DPO)',
       targetUserId: 'usr-4',
       targetUserName: 'Ana Costa',
@@ -98,7 +98,7 @@ export function getAuditLogs(): DataAuditLog[] {
     },
     {
       id: 'log-003',
-      accessedBy: 'admin.prospekta@gmail.com',
+      accessedBy: 'cv.ia.angola@gmail.com',
       actorRole: 'Administrador de Dados (DPO)',
       targetUserId: 'usr-6',
       targetUserName: 'Sofia Costa',

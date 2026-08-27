@@ -6,6 +6,7 @@ import { INITIAL_RESUME, INITIAL_REVIEWS, INITIAL_SETTINGS, INITIAL_TEMPLATES, I
 import { UserHeader } from './components/user/UserHeader';
 import { LandingView } from './components/user/LandingView';
 import { LoadingFallback } from './components/common/LoadingFallback';
+import { ToastNotification, ToastOptions, ToastType } from './components/common/ToastNotification';
 import type { AuthMode } from './components/auth/AuthModal';
 
 // Lazy Loaded User Sub-components
@@ -32,7 +33,25 @@ const DataPrivacyAuditView = lazy(() => import('./components/admin/DataPrivacyAu
 
 import { sendStatusUpdateDiscordNotification } from './utils/discordNotification';
 import { encryptSensitiveData, decryptSensitiveData } from './utils/security';
-import { createPaidSnapshot, duplicateResumeForFamily } from './utils/cvHelpers';
+import {
+  createPaidSnapshot,
+  duplicateResumeForFamily,
+  reconcileCvWithTransactions,
+  reconcileAllResumesWithTransactions,
+} from './utils/cvHelpers';
+import { testFirestoreConnection } from './firebase/config';
+import {
+  saveResumeToCloud,
+  deleteResumeFromCloud,
+  saveUserToCloud,
+  saveTransactionToCloud,
+  saveReviewToCloud,
+  saveSettingsToCloud,
+  subscribeTransactions,
+  subscribeAllUsers,
+  subscribeReviews,
+  subscribeAllResumes,
+} from './firebase/services';
 
 export function App() {
   // Mode switcher: 'admin' for backoffice management, 'user' for CV creation flow
@@ -43,6 +62,7 @@ export function App() {
   const [adminSearch, setAdminSearch] = useState('');
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [txToReject, setTxToReject] = useState<Transaction | null>(null);
+  const [adminMobileSidebarOpen, setAdminMobileSidebarOpen] = useState(false);
 
   // User state
   const [userView, setUserView] = useState<UserView>('home');
@@ -115,19 +135,242 @@ export function App() {
     }
     return INITIAL_USERS;
   });
-  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    try {
+      const stored = localStorage.getItem('cv_transactions_v1');
+      if (stored) {
+        const decrypted = decryptSensitiveData(stored);
+        const parsed = JSON.parse(decrypted);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const map = new Map(INITIAL_TRANSACTIONS.map((t) => [t.id, t]));
+          parsed.forEach((t: Transaction) => map.set(t.id, { ...map.get(t.id), ...t }));
+          return Array.from(map.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        }
+      }
+    } catch {
+      // Fallback
+    }
+    return INITIAL_TRANSACTIONS;
+  });
   const [templates, setTemplates] = useState<CVTemplate[]>(INITIAL_TEMPLATES);
   const [settings, setSettings] = useState<SystemSettings>(INITIAL_SETTINGS);
   const [tickets, setTickets] = useState<SupportTicket[]>(INITIAL_TICKETS);
   const [reviews, setReviews] = useState<ReviewItem[]>(INITIAL_REVIEWS);
 
-  // Notification Toast
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  // Notification & Welcome Toast State
+  const [activeToast, setActiveToast] = useState<ToastOptions | null>(null);
 
-  const showToast = useCallback((msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+  const showToast = useCallback((msgOrOptions: string | ToastOptions) => {
+    if (typeof msgOrOptions === 'string') {
+      const isWelcome = msgOrOptions.toLowerCase().includes('bem-vindo');
+      const isSuccess =
+        msgOrOptions.toLowerCase().includes('sucesso') ||
+        msgOrOptions.toLowerCase().includes('aprovado') ||
+        msgOrOptions.toLowerCase().includes('desbloqueado') ||
+        msgOrOptions.toLowerCase().includes('publicada');
+      const isError =
+        msgOrOptions.toLowerCase().includes('erro') ||
+        msgOrOptions.toLowerCase().includes('rejeitad') ||
+        msgOrOptions.toLowerCase().includes('eliminad') ||
+        msgOrOptions.toLowerCase().includes('recusad') ||
+        msgOrOptions.toLowerCase().includes('restrito');
+
+      const toastType: ToastType = isWelcome
+        ? 'welcome'
+        : isSuccess
+        ? 'success'
+        : isError
+        ? 'error'
+        : 'info';
+
+      const toastTitle = isWelcome
+        ? 'Boas-vindas'
+        : isSuccess
+        ? 'Operação Concluída'
+        : isError
+        ? 'Aviso do Sistema'
+        : undefined;
+
+      setActiveToast({
+        message: msgOrOptions,
+        title: toastTitle,
+        type: toastType,
+        duration: isWelcome ? 7000 : 5500,
+      });
+    } else {
+      setActiveToast({
+        ...msgOrOptions,
+        duration: msgOrOptions.duration || 6000,
+      });
+    }
   }, []);
+
+  // Initial Welcome Notification when entering the application
+  useEffect(() => {
+    try {
+      const alreadyGreeted = sessionStorage.getItem('cv_app_welcome_greeted_v2');
+      if (!alreadyGreeted) {
+        sessionStorage.setItem('cv_app_welcome_greeted_v2', 'true');
+        const timer = setTimeout(() => {
+          if (currentUser) {
+            showToast({
+              type: 'welcome',
+              title: `Bem-vindo de volta, ${currentUser.name}!`,
+              message: 'Os seus currículos estão guardados e prontos para edição, personalização com IA ou download em PDF.',
+              duration: 7000,
+            });
+          } else {
+            showToast({
+              type: 'welcome',
+              title: 'Bem-vindo ao Lumina CV IA Angola!',
+              message: 'Crie o seu currículo profissional adaptado às exigências das empresas em Angola com apoio de Inteligência Artificial.',
+              duration: 7500,
+              actionLabel: 'Criar Meu CV',
+              onAction: () => {
+                setUserView('builder');
+              },
+            });
+          }
+        }, 700);
+        return () => clearTimeout(timer);
+      }
+    } catch {
+      // Ignore storage errors in restricted preview sandbox
+    }
+  }, [currentUser, showToast]);
+
+  // Validate connection to Firestore at initial boot and sync initial state
+  useEffect(() => {
+    testFirestoreConnection().then((connected) => {
+      if (connected) {
+        console.log('Connected to Firebase Firestore successfully.');
+        // Ensure pending initial transactions (like BAI-59842) are registered in Firestore
+        INITIAL_TRANSACTIONS.forEach((tx) => {
+          saveTransactionToCloud(tx);
+        });
+        // Ensure initial CVs are registered in Firestore
+        INITIAL_USER_CVS.forEach((cv) => {
+          saveResumeToCloud(cv);
+        });
+      }
+    });
+
+    // Real-time Firestore subscriptions for transactions, resumes, reviews, and users
+    const unsubTx = subscribeTransactions((cloudTxs) => {
+      if (cloudTxs && cloudTxs.length > 0) {
+        setTransactions((prev) => {
+          const map = new Map(prev.map((t) => [t.id, t]));
+          cloudTxs.forEach((t) => map.set(t.id, { ...map.get(t.id), ...t }));
+          return Array.from(map.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        });
+      }
+    });
+
+    const unsubResumes = subscribeAllResumes((cloudResumes) => {
+      if (cloudResumes && cloudResumes.length > 0) {
+        setUserResumes((prev) => {
+          const map = new Map(prev.map((c) => [c.id, c]));
+          cloudResumes.forEach((c) => {
+            const existing = map.get(c.id);
+            map.set(c.id, existing ? { ...existing, ...c } : c);
+          });
+          return Array.from(map.values());
+        });
+
+        setResumeData((prev) => {
+          const matchingCloud = cloudResumes.find((c) => c.id === prev.id);
+          if (
+            matchingCloud &&
+            (matchingCloud.paymentStatus !== prev.paymentStatus ||
+              matchingCloud.isPaid !== prev.isPaid ||
+              matchingCloud.pendingTransactionId !== prev.pendingTransactionId)
+          ) {
+            return { ...prev, ...matchingCloud };
+          }
+          return prev;
+        });
+      }
+    });
+
+    const unsubUsers = subscribeAllUsers((cloudUsers) => {
+      if (cloudUsers && cloudUsers.length > 0) {
+        setUsers((prev) => {
+          const map = new Map(prev.map((u) => [u.id, u]));
+          cloudUsers.forEach((u) => map.set(u.id, { ...map.get(u.id), ...u }));
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    const unsubReviews = subscribeReviews((cloudReviews) => {
+      if (cloudReviews && cloudReviews.length > 0) {
+        setReviews((prev) => {
+          const map = new Map(prev.map((r) => [r.id, r]));
+          cloudReviews.forEach((r) => map.set(r.id, { ...map.get(r.id), ...r }));
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    return () => {
+      unsubTx();
+      unsubResumes();
+      unsubUsers();
+      unsubReviews();
+    };
+  }, []);
+
+  // Automatic Real-Time Reconciliation: whenever transactions change, reconcile all resumes immediately
+  useEffect(() => {
+    if (!transactions || transactions.length === 0) return;
+
+    setUserResumes((prev) => {
+      let hasChange = false;
+      const reconciled = prev.map((cv) => {
+        const nextCv = reconcileCvWithTransactions(cv, transactions);
+        if (
+          nextCv.paymentStatus !== cv.paymentStatus ||
+          nextCv.isPaid !== cv.isPaid ||
+          nextCv.pendingTransactionId !== cv.pendingTransactionId ||
+          Boolean(nextCv.paidSnapshot) !== Boolean(cv.paidSnapshot)
+        ) {
+          hasChange = true;
+          saveResumeToCloud(nextCv);
+          return nextCv;
+        }
+        return cv;
+      });
+
+      if (hasChange) {
+        try {
+          const serialized = JSON.stringify(reconciled);
+          const encrypted = encryptSensitiveData(serialized);
+          localStorage.setItem('cv_all_resumes_v1', encrypted);
+        } catch {}
+        return reconciled;
+      }
+      return prev;
+    });
+
+    setResumeData((prev) => {
+      const nextCv = reconcileCvWithTransactions(prev, transactions);
+      if (
+        nextCv.paymentStatus !== prev.paymentStatus ||
+        nextCv.isPaid !== prev.isPaid ||
+        nextCv.pendingTransactionId !== prev.pendingTransactionId ||
+        Boolean(nextCv.paidSnapshot) !== Boolean(prev.paidSnapshot)
+      ) {
+        try {
+          const serialized = JSON.stringify(nextCv);
+          const encrypted = encryptSensitiveData(serialized);
+          localStorage.setItem('cv_resume_encrypted_v1', encrypted);
+          saveResumeToCloud(nextCv);
+        } catch {}
+        return nextCv;
+      }
+      return prev;
+    });
+  }, [transactions]);
 
   // Persist currentUser session securely
   useEffect(() => {
@@ -136,6 +379,7 @@ export function App() {
         const serialized = JSON.stringify(currentUser);
         const encrypted = encryptSensitiveData(serialized);
         localStorage.setItem('cv_current_user_v1', encrypted);
+        saveUserToCloud(currentUser);
       } else {
         localStorage.removeItem('cv_current_user_v1');
       }
@@ -155,7 +399,7 @@ export function App() {
     }
   }, [users]);
 
-  // Sync active CV changes to userResumes list and save encrypted at rest (Lei 22/11)
+  // Sync active CV changes to userResumes list and save encrypted at rest (Lei 22/11) + Firestore
   useEffect(() => {
     const timer = setTimeout(() => {
       setUserResumes((prev) => {
@@ -171,6 +415,7 @@ export function App() {
           const serialized = JSON.stringify(resumeData);
           const encrypted = encryptSensitiveData(serialized);
           localStorage.setItem('cv_resume_encrypted_v1', encrypted);
+          saveResumeToCloud(resumeData);
         }
       } catch {
         // Ignore sandbox quota errors
@@ -188,6 +433,8 @@ export function App() {
           const serialized = JSON.stringify(userResumes);
           const encrypted = encryptSensitiveData(serialized);
           localStorage.setItem('cv_all_resumes_v1', encrypted);
+          // Sync each resume to cloud
+          userResumes.forEach((r) => saveResumeToCloud(r));
         }
       } catch {
         // Ignore
@@ -197,10 +444,24 @@ export function App() {
     return () => clearTimeout(timer);
   }, [userResumes]);
 
+  // Persist transactions securely + backup to encrypted localStorage
+  useEffect(() => {
+    try {
+      if (transactions && transactions.length > 0) {
+        const serialized = JSON.stringify(transactions);
+        const encrypted = encryptSensitiveData(serialized);
+        localStorage.setItem('cv_transactions_v1', encrypted);
+      }
+    } catch {
+      // Ignore
+    }
+  }, [transactions]);
+
   // Strictly check if active user is the official administrator
   const isSpecificAdmin = Boolean(
     currentUser &&
-    currentUser.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com' &&
+    (currentUser.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+     currentUser.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com') &&
     currentUser.role === 'admin'
   );
 
@@ -217,7 +478,7 @@ export function App() {
           window.location.hash = '';
           setAuthModalMode('login');
           setShowAuthModal(true);
-          showToast('Acesso restrito ao Administrador (admin.prospekta@gmail.com). Inicie sessão.');
+          showToast('Acesso restrito ao Administrador (cv.ia.angola@gmail.com). Inicie sessão.');
         } else {
           setAppMode('admin');
         }
@@ -248,6 +509,7 @@ export function App() {
   // Handle adding user review
   const handleAddReview = (newReview: ReviewItem) => {
     setReviews((prev) => [newReview, ...prev]);
+    saveReviewToCloud(newReview);
   };
 
   // Update user password
@@ -294,13 +556,16 @@ export function App() {
 
   // Add new user
   const handleAddUser = (newUserData: Omit<AppUser, 'id'>) => {
-    const isSpecialAdmin = newUserData.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com';
+    const isSpecialAdmin =
+      newUserData.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+      newUserData.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com';
     const newUser: AppUser = {
       ...newUserData,
       role: isSpecialAdmin ? 'admin' : (newUserData.role || 'user'),
       id: `usr-${Date.now()}`,
     };
     setUsers((prev) => [newUser, ...prev]);
+    saveUserToCloud(newUser);
     showToast(`Utilizador ${newUser.name} adicionado.`);
   };
 
@@ -313,16 +578,19 @@ export function App() {
   const handleCreateNewCV = (newCV: ResumeData) => {
     setUserResumes((prev) => [newCV, ...prev]);
     setResumeData(newCV);
+    saveResumeToCloud(newCV);
     setUserView('builder');
   };
 
   const handleDuplicateCV = (cv: ResumeData) => {
     const duplicated = duplicateResumeForFamily(cv, currentUser?.id || 'usr-guest');
     setUserResumes((prev) => [duplicated, ...prev]);
+    saveResumeToCloud(duplicated);
     showToast(`Currículo duplicado como "${duplicated.title}". Cada novo CV requer pagamento individual.`);
   };
 
   const handleDeleteCV = (cvId: string) => {
+    deleteResumeFromCloud(cvId);
     setUserResumes((prev) => {
       const filtered = prev.filter((c) => c.id !== cvId);
       if (resumeData.id === cvId) {
@@ -331,6 +599,7 @@ export function App() {
         } else {
           const fresh = createNewEmptyResume(currentUser?.id || 'usr-guest', 'Meu Currículo');
           setResumeData(fresh);
+          saveResumeToCloud(fresh);
           return [fresh];
         }
       }
@@ -366,7 +635,7 @@ export function App() {
   // Approve manual transaction with Discord sync & audit logs
   const handleApproveTransaction = async (txId: string) => {
     const targetTx = transactions.find((t) => t.id === txId);
-    
+
     setTransactions((prev) =>
       prev.map((t) => {
         if (t.id === txId) {
@@ -380,53 +649,97 @@ export function App() {
               role: 'Administrador',
             },
           ];
-          return {
+          const updatedTx: Transaction = {
             ...t,
             status: 'Concluído',
             auditLogs: updatedLogs,
-            approvedAt: new Date().toLocaleString(),
-            approvedBy: currentUser?.name || 'Admin Prospekta',
+            reviewedAt: new Date().toLocaleString(),
+            reviewedBy: currentUser?.name || 'Admin Prospekta',
           };
+          saveTransactionToCloud(updatedTx);
+          return updatedTx;
         }
         return t;
       })
     );
 
-    // Update applicant CV download permission in active resumeData
+    const isCvMatching = (c: ResumeData) => {
+      if (c.pendingTransactionId && c.pendingTransactionId === txId) return true;
+      if (c.id === txId) return true;
+      if (targetTx) {
+        if (targetTx.userId && c.userId === targetTx.userId) return true;
+        if (
+          targetTx.userName &&
+          c.personalInfo.fullName &&
+          c.personalInfo.fullName.toLowerCase().trim() === targetTx.userName.toLowerCase().trim()
+        ) {
+          return true;
+        }
+        if (
+          targetTx.userEmail &&
+          c.personalInfo.email &&
+          c.personalInfo.email.toLowerCase().trim() === targetTx.userEmail.toLowerCase().trim()
+        ) {
+          return true;
+        }
+        if (
+          targetTx.userName &&
+          targetTx.userName.toLowerCase().includes('test') &&
+          (c.title.toLowerCase().includes('test') || c.personalInfo.fullName.toLowerCase().includes('test'))
+        ) {
+          return true;
+        }
+      }
+      return (!c.isPaid && c.paymentStatus === 'pending');
+    };
+
+    const unlockCv = (c: ResumeData): ResumeData => {
+      const snapshot = createPaidSnapshot(c, txId);
+      return {
+        ...c,
+        paymentStatus: 'approved',
+        isPaid: true,
+        paidSnapshot: snapshot,
+        hasUnpaidEdits: false,
+        lastPaidDate: snapshot.paidAt,
+        downloadsRemaining: 99,
+        pendingTransactionId: undefined,
+        rejectionReason: undefined,
+      };
+    };
+
+    // Update active resumeData if it matches
     setResumeData((prev) => {
-      if (prev.pendingTransactionId === txId || (!prev.isPaid && prev.paymentStatus === 'pending')) {
-        const snapshot = createPaidSnapshot(prev, txId);
-        return {
-          ...prev,
-          paymentStatus: 'approved',
-          isPaid: true,
-          paidSnapshot: snapshot,
-          hasUnpaidEdits: false,
-          lastPaidDate: snapshot.paidAt,
-          downloadsRemaining: 99,
-        };
+      if (isCvMatching(prev)) {
+        const unlocked = unlockCv(prev);
+        try {
+          const serialized = JSON.stringify(unlocked);
+          const encrypted = encryptSensitiveData(serialized);
+          localStorage.setItem('cv_resume_encrypted_v1', encrypted);
+          saveResumeToCloud(unlocked);
+        } catch {}
+        return unlocked;
       }
       return prev;
     });
 
     // Update all matching CVs in userResumes list
-    setUserResumes((prev) =>
-      prev.map((c) => {
-        if (c.pendingTransactionId === txId || (!c.isPaid && c.paymentStatus === 'pending')) {
-          const snapshot = createPaidSnapshot(c, txId);
-          return {
-            ...c,
-            paymentStatus: 'approved',
-            isPaid: true,
-            paidSnapshot: snapshot,
-            hasUnpaidEdits: false,
-            lastPaidDate: snapshot.paidAt,
-            downloadsRemaining: 99,
-          };
+    setUserResumes((prev) => {
+      const updatedList = prev.map((c) => {
+        if (isCvMatching(c)) {
+          const unlocked = unlockCv(c);
+          saveResumeToCloud(unlocked);
+          return unlocked;
         }
         return c;
-      })
-    );
+      });
+      try {
+        const serialized = JSON.stringify(updatedList);
+        const encrypted = encryptSensitiveData(serialized);
+        localStorage.setItem('cv_all_resumes_v1', encrypted);
+      } catch {}
+      return updatedList;
+    });
 
     // Notify Discord channel of approval
     if (targetTx) {
@@ -474,16 +787,18 @@ export function App() {
               note: reason,
             },
           ];
-          return {
+          const updatedTx: Transaction = {
             ...t,
             status: 'Cancelado',
             rejectionReason: reason,
             rejectedAttemptsCount: newRejectedCount,
             isSuspicious,
             auditLogs: updatedLogs,
-            rejectedAt: new Date().toLocaleString(),
-            rejectedBy: currentUser?.name || 'Admin Prospekta',
+            reviewedAt: new Date().toLocaleString(),
+            reviewedBy: currentUser?.name || 'Admin Prospekta',
           };
+          saveTransactionToCloud(updatedTx);
+          return updatedTx;
         }
         return t;
       })
@@ -552,6 +867,7 @@ export function App() {
   // Save settings
   const handleSaveSettings = (newSettings: SystemSettings) => {
     setSettings(newSettings);
+    saveSettingsToCloud(newSettings);
     showToast('Definições guardadas com sucesso.');
   };
 
@@ -583,14 +899,20 @@ export function App() {
   ) => {
     const activeCv = (targetCvId ? userResumes.find((c) => c.id === targetCvId) : null) || resumeData;
 
+    const candidateName =
+      activeCv.personalInfo.fullName?.trim() ||
+      data.senderName?.trim() ||
+      currentUser?.name ||
+      'Candidato CV IA';
+
     const newTx: Transaction = {
       id: data.txId,
       userId: currentUser?.id || activeCv.userId || 'usr-guest',
-      userName: activeCv.personalInfo.fullName || currentUser?.name || 'Candidato CV IA',
+      userName: candidateName,
       userEmail: activeCv.personalInfo.email || currentUser?.email || 'cliente@email.ao',
       userPhone: activeCv.personalInfo.phone || '+244 923 845 779',
       userAvatar: activeCv.personalInfo.photoUrl,
-      userInitials: 'CV',
+      userInitials: candidateName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || 'CV',
       amount: settings.basePriceKz,
       method: data.method,
       date: 'Hoje',
@@ -600,7 +922,7 @@ export function App() {
       templateName: templates.find((t) => t.id === activeCv.templateId)?.name || 'Lumina Modern',
       referenceCode: data.referenceCode,
       senderLast4: data.senderLast4,
-      senderName: data.senderName,
+      senderName: data.senderName || candidateName,
       receiptFileName: data.receiptFileName,
       receiptFileSize: data.receiptFileSize,
       receiptMimeType: data.receiptMimeType,
@@ -614,21 +936,22 @@ export function App() {
           id: `log-${Date.now()}-sub`,
           action: 'submetido',
           timestamp: new Date().toLocaleString(),
-          by: activeCv.personalInfo.fullName || 'Utilizador',
+          by: candidateName,
           role: 'Cliente',
         },
       ],
     };
 
     setTransactions((prev) => [newTx, ...prev]);
+    saveTransactionToCloud(newTx);
 
     // Update the specific CV in userResumes
     setUserResumes((prev) =>
       prev.map((c) => {
         if (c.id === activeCv.id) {
-          return {
+          const updated = {
             ...c,
-            paymentStatus: 'pending',
+            paymentStatus: 'pending' as const,
             pendingTransactionId: data.txId,
             submittedPaymentMethod: data.method,
             submittedReference: data.referenceCode,
@@ -636,6 +959,8 @@ export function App() {
             downloadsRemaining: 0,
             rejectionReason: undefined,
           };
+          saveResumeToCloud(updated);
+          return updated;
         }
         return c;
       })
@@ -717,21 +1042,25 @@ export function App() {
     showToast('Pagamento validado com sucesso!');
   };
 
-  const userCVsForCurrentAccount = userResumes.filter(
-    (c) => !currentUser || !c.userId || c.userId === currentUser.id
-  );
+  const userCVsForCurrentAccount = userResumes.filter((c) => {
+    if (!currentUser) return true;
+    if (currentUser.role === 'admin') return true;
+    if (c.userId && c.userId === currentUser.id) return true;
+    if (
+      currentUser.email &&
+      c.personalInfo?.email &&
+      currentUser.email.toLowerCase().trim() === c.personalInfo.email.toLowerCase().trim()
+    ) {
+      return true;
+    }
+    if (!c.userId || c.userId === 'usr-guest' || c.userId === 'guest_user') return true;
+    return false;
+  });
 
   return (
     <div className="min-h-screen bg-surface text-on-surface font-sans antialiased flex flex-col selection:bg-primary-fixed-dim selection:text-primary">
-      {/* Global Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-inverse-surface text-inverse-on-surface px-5 py-3 rounded-2xl shadow-xl border border-outline/20 text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <span className="material-symbols-outlined text-primary-fixed-dim text-[18px]">
-            info
-          </span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      {/* Global High-Contrast Accessible Toast Notification */}
+      <ToastNotification toast={activeToast} onClose={() => setActiveToast(null)} />
 
       {/* Notifications Modal for Admin */}
       {showNotificationsModal && (
@@ -784,32 +1113,54 @@ export function App() {
         </div>
       )}
 
-      {/* ADMIN MODE - Strictly accessible ONLY when authenticated as admin.prospekta@gmail.com */}
+      {/* ADMIN MODE - Strictly accessible ONLY when authenticated as cv.ia.angola@gmail.com */}
       {appMode === 'admin' && isSpecificAdmin && (
         <Suspense fallback={<LoadingFallback message="A carregar Painel Administrativo..." minHeight="min-h-screen" />}>
-          <div className="flex min-h-screen">
-            {/* Fixed Sidebar */}
+          <div className="flex min-h-screen relative w-full overflow-x-hidden">
+            {/* Sidebar (Overlay on Mobile, Fixed on Desktop) */}
             <AdminSidebar
               activeTab={adminTab}
-              setActiveTab={setAdminTab}
+              setActiveTab={(tab) => {
+                setAdminTab(tab);
+                setAdminMobileSidebarOpen(false);
+              }}
               pendingCount={transactions.filter((t) => t.status === 'Pendente').length}
-              onExitAdmin={() => setAppMode('user')}
+              onExitAdmin={() => {
+                setAdminMobileSidebarOpen(false);
+                setAppMode('user');
+              }}
+              onNavigateMyCVs={() => {
+                setAdminMobileSidebarOpen(false);
+                setAppMode('user');
+                setUserView('my-cvs');
+              }}
               currentUser={currentUser}
+              isOpenOnMobile={adminMobileSidebarOpen}
+              onCloseMobile={() => setAdminMobileSidebarOpen(false)}
             />
 
-            {/* Main Content Area */}
-            <div className="flex-1 ml-72 flex flex-col min-h-screen">
+            {/* Main Content Area - 100% width on mobile (ml-0), offset on desktop (md:ml-72) */}
+            <div className="flex-1 ml-0 md:ml-72 flex flex-col min-h-screen w-full max-w-full">
               <AdminHeader
                 searchQuery={adminSearch}
                 setSearchQuery={setAdminSearch}
-                onOpenUserApp={() => setAppMode('user')}
+                onOpenUserApp={() => {
+                  setAdminMobileSidebarOpen(false);
+                  setAppMode('user');
+                }}
+                onNavigateMyCVs={() => {
+                  setAdminMobileSidebarOpen(false);
+                  setAppMode('user');
+                  setUserView('my-cvs');
+                }}
                 unreadCount={transactions.filter((t) => t.status === 'Pendente').length}
                 onOpenNotifications={() => setShowNotificationsModal(true)}
                 currentUser={currentUser}
+                onToggleMobileSidebar={() => setAdminMobileSidebarOpen((prev) => !prev)}
               />
 
               {/* View Switching */}
-              <main className="flex-1 mt-20 p-4 sm:p-6 pb-20 overflow-y-auto">
+              <main className="flex-1 mt-16 sm:mt-20 p-3 sm:p-5 md:p-6 pb-20 overflow-y-auto w-full">
                 {adminTab === 'pending-payments' && (
                   <PendingPaymentsView
                     transactions={transactions}
@@ -874,7 +1225,7 @@ export function App() {
 
                 {adminTab === 'audit' && (
                   <DataPrivacyAuditView
-                    currentUserEmail={currentUser?.email || 'admin.prospekta@gmail.com'}
+                    currentUserEmail={currentUser?.email || 'cv.ia.angola@gmail.com'}
                     onDeleteUserAccount={handleDeleteUser}
                     onToast={showToast}
                   />
@@ -906,6 +1257,8 @@ export function App() {
             onOpenAuth={handleOpenAuth}
             onOpenAccountModal={() => setShowAccountModal(true)}
             savedCVsCount={userCVsForCurrentAccount.length}
+            onNavigateAdmin={() => setAppMode('admin')}
+            isSpecificAdmin={isSpecificAdmin}
           />
 
           <main className="flex-1">
@@ -936,6 +1289,8 @@ export function App() {
                   templates={templates}
                   currentUser={currentUser}
                   basePriceKz={settings.basePriceKz}
+                  transactions={transactions}
+                  onApproveTransaction={handleApproveTransaction}
                   onSelectResume={handleSelectCVToEdit}
                   onCreateNewResume={handleCreateNewCV}
                   onDuplicateResume={handleDuplicateCV}
@@ -981,6 +1336,9 @@ export function App() {
                   resume={resumeData}
                   setResume={setResumeData}
                   templates={templates}
+                  currentUser={currentUser}
+                  transactions={transactions}
+                  onApproveTransaction={handleApproveTransaction}
                   basePriceKz={settings.basePriceKz}
                   onPaymentSuccess={handleUserPaymentSuccess}
                   onPaymentSubmitted={handleUserPaymentSubmitted}
@@ -1002,7 +1360,8 @@ export function App() {
             setCurrentUser={(user) => {
               if (user) {
                 const isUserAdmin =
-                  user.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com' &&
+                  (user.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+                   user.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com') &&
                   user.role === 'admin';
 
                 setCurrentUser(user);
@@ -1074,6 +1433,10 @@ export function App() {
             onNavigateMyCVs={() => {
               setShowAccountModal(false);
               setUserView('my-cvs');
+            }}
+            onNavigateAdmin={() => {
+              setShowAccountModal(false);
+              setAppMode('admin');
             }}
             onLogout={() => {
               setCurrentUser(null);

@@ -39,7 +39,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8 gap-6 sm:gap-8">
+    <div className="flex flex-col w-full max-w-[1240px] mx-auto p-0 sm:p-2 lg:p-4 gap-6 sm:gap-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

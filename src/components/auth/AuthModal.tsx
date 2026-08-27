@@ -254,7 +254,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       : 'AO';
 
     const emailValue = activeSession.type === 'email' ? activeSession.target : `${activeSession.target.replace(/[^0-9]/g, '')}@cviaangola.ao`;
-    const isAdminAccount = emailValue.toLowerCase().trim() === 'admin.prospekta@gmail.com';
+    const isAdminAccount =
+      emailValue.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+      emailValue.toLowerCase().trim() === 'admin.prospekta@gmail.com';
 
     const newUser: AppUser = {
       id: `usr-${Date.now()}`,
@@ -422,7 +424,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     // Match by email or phone
     const cleanInput = input.replace(/\s+/g, '').toLowerCase();
-    const isAdminEmail = cleanInput === 'admin.prospekta@gmail.com';
+    const isAdminEmail = cleanInput === 'cv.ia.angola@gmail.com' || cleanInput === 'admin.prospekta@gmail.com';
 
     let user = users.find((u) => {
       const userEmail = u.email?.toLowerCase().trim();
@@ -432,13 +434,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     if (!user && isAdminEmail) {
       user = {
-        id: 'usr-admin-prospekta',
-        name: 'Admin Prospekta',
-        email: 'admin.prospekta@gmail.com',
-        phone: '+244 923 845 779',
+        id: 'usr-admin-cviaangola',
+        name: 'Admin CV IA Angola',
+        email: 'cv.ia.angola@gmail.com',
+        phone: '+244 957 427 090',
         password: loginPassword,
         role: 'admin',
-        initials: 'AP',
+        initials: 'CV',
         registrationDate: '01 Jan 2024',
         cvsGenerated: 0,
         status: 'Ativo',
@@ -1360,7 +1362,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <div className="pt-2 flex flex-col gap-2">
-              {(currentUser.role === 'admin' || currentUser.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com') && onNavigateAdmin && (
+              {(currentUser.role === 'admin' ||
+                currentUser.email?.toLowerCase().trim() === 'cv.ia.angola@gmail.com' ||
+                currentUser.email?.toLowerCase().trim() === 'admin.prospekta@gmail.com') && onNavigateAdmin && (
                 <button
                   type="button"
                   onClick={() => {
