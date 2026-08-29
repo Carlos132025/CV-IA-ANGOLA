@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { sendPaymentDiscordNotification } from '../../utils/discordNotification';
@@ -31,7 +32,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   userName = 'Cliente Luanda',
   userEmail = 'cliente@email.ao',
   templateName = 'Lumina Modern',
-  onPaymentSuccess,
   onPaymentSubmitted,
   onClose,
 }) => {
@@ -239,7 +239,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[20px]">payments</span>
+              <Icon name="payments" className="text-[20px]" />
             </div>
             <div>
               <h3 className="font-display text-base font-bold text-on-surface">
@@ -254,14 +254,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <Icon name="close" className="text-[20px]" />
           </button>
         </div>
 
         {paymentSuccess ? (
           <div className="py-8 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner ring-8 ring-amber-50">
-              <span className="material-symbols-outlined text-[36px]">hourglass_top</span>
+              <Icon name="hourglass_top" className="text-[36px]" />
             </div>
             <div className="space-y-1">
               <h4 className="font-display text-lg font-bold text-on-surface">
@@ -291,14 +291,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="flex justify-between items-center pt-1 border-t border-surface-border/60">
                 <span className="text-on-surface-variant">Notificação Discord:</span>
                 <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[13px]">check</span>
+                  <Icon name="check" className="text-[13px]" />
                   Enviada ao Admin
                 </span>
               </div>
             </div>
 
             <div className="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-3 rounded-xl max-w-sm mx-auto flex items-start gap-2 text-left">
-              <span className="material-symbols-outlined text-[16px] text-amber-700 shrink-0 mt-0.5">info</span>
+              <Icon name="info" className="text-[16px] text-amber-700 shrink-0 mt-0.5" />
               <span>
                 Assim que o administrador confirmar o recebimento no painel, o seu currículo será desbloqueado automaticamente para download em PDF.
               </span>
@@ -316,7 +316,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
               <div className="text-right">
                 <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">
-                  <span className="material-symbols-outlined text-[14px]">verified</span>
+                  <Icon name="verified" className="text-[14px]" />
                   1 Download PDF
                 </span>
                 <p className="text-[10px] text-on-surface-variant mt-1">
@@ -343,7 +343,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    <span className="material-symbols-outlined text-[24px]">credit_card</span>
+                    <Icon name="credit_card" className="text-[24px]" />
                   </div>
                   <div className="text-center">
                     <span className="text-xs font-bold block">Multicaixa Xpress</span>
@@ -362,7 +362,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
-                    <span className="material-symbols-outlined text-[24px]">account_balance</span>
+                    <Icon name="account_balance" className="text-[24px]" />
                   </div>
                   <div className="text-center">
                     <span className="text-xs font-bold block">Transferência BAI</span>
@@ -393,9 +393,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       onClick={() => copyToClipboard('923845779', 'mcx-num')}
                       className="px-2.5 py-1 text-[11px] font-bold bg-primary text-white rounded-md hover:bg-primary/90 transition-colors flex items-center gap-1 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[14px]">
-                        {copiedField === 'mcx-num' ? 'check' : 'content_copy'}
-                      </span>
+                      <Icon name={copiedField === 'mcx-num' ? 'check' : 'content_copy'} className="text-[14px]" />
                       {copiedField === 'mcx-num' ? 'Copiado!' : 'Copiar'}
                     </button>
                   </div>
@@ -498,9 +496,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       onClick={() => copyToClipboard('004000006273982010109', 'bai-iban')}
                       className="px-2.5 py-1 text-[11px] font-bold bg-secondary text-white rounded-md hover:bg-secondary/90 transition-colors flex items-center gap-1 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[14px]">
-                        {copiedField === 'bai-iban' ? 'check' : 'content_copy'}
-                      </span>
+                      <Icon name={copiedField === 'bai-iban' ? 'check' : 'content_copy'} className="text-[14px]" />
                       {copiedField === 'bai-iban' ? 'Copiado!' : 'Copiar'}
                     </button>
                   </div>
@@ -576,9 +572,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             : 'border-surface-border text-on-surface-variant hover:border-primary'
                         }`}
                       >
-                        <span className="material-symbols-outlined text-[18px]">
-                          {receiptFileName ? 'verified' : 'add_photo_alternate'}
-                        </span>
+                        <Icon name={receiptFileName ? 'verified' : 'add_photo_alternate'} className="text-[18px]" />
                         <span className="truncate max-w-[280px]">
                           {receiptFileName ? `${receiptFileName} (${receiptFileSize || 'OK'})` : 'Carregar imagem do comprovativo (JPG / PNG)'}
                         </span>
@@ -587,7 +581,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                     {fileError && (
                       <p className="text-[11px] text-red-600 mt-1 flex items-center gap-1 font-medium">
-                        <span className="material-symbols-outlined text-[14px]">error</span>
+                        <Icon name="error" className="text-[14px]" />
                         {fileError}
                       </p>
                     )}
@@ -612,14 +606,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               >
                 {isProcessing ? (
                   <>
-                    <span className="material-symbols-outlined text-[18px] animate-spin">
-                      progress_activity
-                    </span>
+                    <Icon name="progress_activity" className="text-[18px] animate-spin" />
                     A enviar notificação para o Discord & a registar comprovativo...
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined text-[18px]">send</span>
+                    <Icon name="send" className="text-[18px]" />
                     Submeter Comprovativo de {amount.toLocaleString()} Kz
                   </>
                 )}

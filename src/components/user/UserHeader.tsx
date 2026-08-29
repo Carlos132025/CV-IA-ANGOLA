@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState, useEffect } from 'react';
 import { AppUser, UserView } from '../../types';
 import { subscribeInstallPrompt, promptPWAInstall, isStandalone } from '../../utils/pwaManager';
@@ -82,7 +83,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
               onClick={() => handleNavClick('home')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+              <Icon name="arrow_back" className="text-[16px]" />
               <span>Voltar à Página Principal</span>
             </button>
           ) : (
@@ -130,9 +131,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                     : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
                 }`}
               >
-                <span className="material-symbols-outlined text-[15px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  star
-                </span>
+                <Icon name="star" className="text-[15px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }} />
                 <span>Avaliações</span>
               </button>
 
@@ -161,9 +160,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all shadow-xs group cursor-pointer"
               title="Instalar CV IA Angola no ecrã inicial"
             >
-              <span className="material-symbols-outlined text-[16px] text-blue-600 group-hover:scale-110 transition-transform">
-                install_mobile
-              </span>
+              <Icon name="install_mobile" className="text-[16px] text-blue-600 group-hover:scale-110 transition-transform" />
               <span>Instalar App</span>
             </button>
           )}
@@ -194,9 +191,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                   className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-900 font-bold text-xs shadow-xs transition-all cursor-pointer group"
                   title="Aceder ao Painel de Administração"
                 >
-                  <span className="material-symbols-outlined text-[16px] text-amber-600 group-hover:scale-110 transition-transform">
-                    admin_panel_settings
-                  </span>
+                  <Icon name="admin_panel_settings" className="text-[16px] text-amber-600 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:inline">Painel Admin</span>
                 </button>
               )}
@@ -212,7 +207,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                     : 'bg-surface-container-low hover:bg-surface-container border-surface-border text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">folder_shared</span>
+                <Icon name="folder_shared" className="text-[16px]" />
                 <span className="hidden xs:inline">Meus CVs</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
                   currentView === 'my-cvs' ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
@@ -260,7 +255,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                 onClick={() => onOpenAuth('register_input')}
                 className="flex items-center gap-1 px-3.5 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[15px]">person_add</span>
+                <Icon name="person_add" className="text-[15px]" />
                 <span>Cadastrar</span>
               </button>
             </div>
@@ -273,9 +268,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
             className="lg:hidden p-2 rounded-xl text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
             aria-label="Abrir Menu de Navegação"
           >
-            <span className="material-symbols-outlined text-[22px]">
-              {mobileMenuOpen ? 'close' : 'menu'}
-            </span>
+            <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-[22px]" />
           </button>
         </div>
       </div>
@@ -301,7 +294,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                 }}
                 className="w-full p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 border border-amber-500/30 shadow-xs transition-all cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[18px] text-amber-600">admin_panel_settings</span>
+                <Icon name="admin_panel_settings" className="text-[18px] text-amber-600" />
                 <span>Aceder ao Painel Administrativo</span>
               </button>
             )}
@@ -313,7 +306,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                   currentView === 'home' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[18px]">home</span>
+                <Icon name="home" className="text-[18px]" />
                 Início
               </button>
               <button
@@ -322,7 +315,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                   currentView === 'reviews' ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[18px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                <Icon name="star" className="text-[18px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }} />
                 Avaliações
               </button>
             </div>
@@ -370,7 +363,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                   }}
                   className="w-full py-2.5 px-3 bg-blue-50 text-blue-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-blue-200"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-blue-600">install_mobile</span>
+                  <Icon name="install_mobile" className="text-[18px] text-blue-600" />
                   Instalar App no Telemóvel
                 </button>
               )}
@@ -381,7 +374,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                 rel="noopener noreferrer"
                 className="w-full py-2.5 px-3 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-emerald-200"
               >
-                <span className="material-symbols-outlined text-[18px] text-emerald-600">support_agent</span>
+                <Icon name="support_agent" className="text-[18px] text-emerald-600" />
                 Suporte WhatsApp: 957 427 090
               </a>
 
@@ -394,7 +387,7 @@ export const UserHeader: React.FC<UserHeaderProps> = ({
                   }}
                   className="w-full py-2.5 px-3 bg-surface-container-high text-on-surface font-bold text-xs rounded-xl flex items-center justify-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-[18px]">login</span>
+                  <Icon name="login" className="text-[18px]" />
                   Já Tenho Conta (Entrar)
                 </button>
               )}

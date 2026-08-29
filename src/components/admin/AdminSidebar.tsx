@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React from 'react';
 import { AdminTab, AppUser } from '../../types';
 import { Logo } from '../common/Logo';
@@ -78,7 +79,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             title="Fechar menu lateral"
             aria-label="Fechar menu"
           >
-            <span className="material-symbols-outlined text-[22px]">close</span>
+            <Icon name="close" className="text-[22px]" />
           </button>
         </div>
 
@@ -97,9 +98,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[20px]">
-                    {item.icon}
-                  </span>
+                  <Icon name={item.icon} className="text-[20px]" />
                   <span>{item.label}</span>
                 </div>
                 {item.badge !== undefined && item.badge > 0 && (
@@ -138,7 +137,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 }}
                 className="w-full py-2 px-3 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-primary/20"
               >
-                <span className="material-symbols-outlined text-[16px]">folder_shared</span>
+                <Icon name="folder_shared" className="text-[16px]" />
                 <span>Aceder aos Meus CVs</span>
               </button>
             )}
@@ -152,7 +151,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 }}
                 className="w-full py-2 px-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-semibold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-surface-border"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <Icon name="arrow_back" className="text-[16px]" />
                 <span>Voltar à Landing Page</span>
               </button>
             )}

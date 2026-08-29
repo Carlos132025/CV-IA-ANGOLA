@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { Transaction } from '../../types';
 import { RejectPaymentModal } from './RejectPaymentModal';
@@ -361,7 +362,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             disabled={isExportingPDF}
             className="bg-surface-container-low border border-surface-border text-on-surface px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 sm:gap-2 hover:bg-surface-container-high transition-all active:scale-[0.98] cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px] text-red-600">picture_as_pdf</span>
+            <Icon name="picture_as_pdf" className="text-[18px] text-red-600" />
             <span>{isExportingPDF ? 'A gerar...' : 'Exportar PDF'}</span>
           </button>
           <button
@@ -369,7 +370,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             onClick={handleExportCSV}
             className="bg-primary text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 sm:gap-2 shadow-sm hover:shadow-md hover:bg-primary/95 transition-all active:scale-[0.98] cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">table_view</span>
+            <Icon name="table_view" className="text-[18px]" />
             <span>Exportar CSV</span>
           </button>
         </div>
@@ -384,14 +385,14 @@ export const SalesView: React.FC<SalesViewProps> = ({
               Receita Total
             </span>
             <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-[20px]">payments</span>
+              <Icon name="payments" className="text-[20px]" />
             </div>
           </div>
           <h2 className="text-3xl font-extrabold text-on-surface font-display">
             {totalRevenue.toLocaleString('pt-AO')} <span className="text-sm font-medium text-on-surface-variant">KZS</span>
           </h2>
           <div className="flex items-center gap-1.5 mt-3 text-xs font-semibold text-emerald-600">
-            <span className="material-symbols-outlined text-[16px]">trending_up</span>
+            <Icon name="trending_up" className="text-[16px]" />
             <span>+18.4% vs mês anterior</span>
           </div>
         </div>
@@ -403,14 +404,14 @@ export const SalesView: React.FC<SalesViewProps> = ({
               Total de Transações
             </span>
             <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+              <Icon name="receipt_long" className="text-[20px]" />
             </div>
           </div>
           <h2 className="text-3xl font-extrabold text-on-surface font-display">
             {totalTransactionsCount.toLocaleString()}
           </h2>
           <div className="flex items-center gap-1.5 mt-3 text-xs font-semibold text-emerald-600">
-            <span className="material-symbols-outlined text-[16px]">trending_up</span>
+            <Icon name="trending_up" className="text-[16px]" />
             <span>+8.2% vs mês anterior</span>
           </div>
         </div>
@@ -422,14 +423,14 @@ export const SalesView: React.FC<SalesViewProps> = ({
               Ticket Médio
             </span>
             <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[20px]">shopping_bag</span>
+              <Icon name="shopping_bag" className="text-[20px]" />
             </div>
           </div>
           <h2 className="text-3xl font-extrabold text-on-surface font-display">
             {averageTicket.toLocaleString()} <span className="text-sm font-medium text-on-surface-variant">KZS</span>
           </h2>
           <div className="flex items-center gap-1.5 mt-3 text-xs font-semibold text-emerald-600">
-            <span className="material-symbols-outlined text-[16px]">trending_up</span>
+            <Icon name="trending_up" className="text-[16px]" />
             <span>+9.5% vs mês anterior</span>
           </div>
         </div>
@@ -581,7 +582,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
       {toastMessage && (
         <div className="fixed top-20 inset-x-3 mx-auto w-[calc(100vw-24px)] max-w-sm sm:max-w-md sm:inset-x-auto sm:right-6 z-50 bg-slate-900 text-white px-4 sm:px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="material-symbols-outlined text-emerald-400 text-[22px] shrink-0">check_circle</span>
+            <Icon name="check_circle" className="text-emerald-400 text-[22px] shrink-0" />
             <span className="text-xs font-medium text-slate-100 break-words">{toastMessage}</span>
           </div>
           <button
@@ -590,7 +591,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             aria-label="Fechar notificação"
             className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+            <Icon name="close" className="text-[18px]" />
           </button>
         </div>
       )}
@@ -619,7 +620,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
             <div className="flex items-center gap-3">
               <div className="relative w-full sm:w-64">
                 <span className="absolute inset-y-0 left-3 flex items-center text-on-surface-variant pointer-events-none">
-                  <span className="material-symbols-outlined text-[18px]">search</span>
+                  <Icon name="search" className="text-[18px]" />
                 </span>
                 <input
                   type="text"
@@ -737,7 +738,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                       </span>
                       {t.notifiedDiscord && (
                         <span className="inline-flex items-center gap-1 text-[10px] text-indigo-600 font-semibold bg-indigo-50 px-1.5 py-0.5 rounded mt-1">
-                          <span className="material-symbols-outlined text-[12px]">notifications_active</span>
+                          <Icon name="notifications_active" className="text-[12px]" />
                           Discord
                         </span>
                       )}
@@ -761,9 +762,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                     <td className="py-4 px-6">
                       <div className="space-y-1">
                         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-on-surface">
-                          <span className="material-symbols-outlined text-[16px] text-primary">
-                            {t.method === 'Multicaixa' ? 'credit_card' : 'account_balance'}
-                          </span>
+                          <Icon name={t.method === 'Multicaixa' ? 'credit_card' : 'account_balance'} className="text-[16px] text-primary" />
                           {t.method === 'Multicaixa' ? 'Multicaixa Xpress' : 'Transferência BAI'}
                         </span>
                         {t.referenceCode && (
@@ -773,7 +772,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                         )}
                         {t.receiptFileName && (
                           <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 font-semibold px-1.5 py-0.5 rounded">
-                            <span className="material-symbols-outlined text-[11px]">attach_file</span>
+                            <Icon name="attach_file" className="text-[11px]" />
                             Comprovativo
                           </span>
                         )}
@@ -822,7 +821,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                               className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                               title="Aprovar e desbloquear CV do utilizador"
                             >
-                              <span className="material-symbols-outlined text-[16px]">check</span>
+                              <Icon name="check" className="text-[16px]" />
                               Aprovar
                             </button>
                             <button
@@ -831,7 +830,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                               className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                               title="Rejeitar comprovativo e notificar cliente"
                             >
-                              <span className="material-symbols-outlined text-[16px]">close</span>
+                              <Icon name="close" className="text-[16px]" />
                               Rejeitar
                             </button>
                             <button
@@ -840,7 +839,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                               className="p-1.5 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer"
                               title="Ver Comprovativo & Detalhes"
                             >
-                              <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                              <Icon name="receipt_long" className="text-[18px]" />
                             </button>
                           </>
                         ) : (
@@ -850,7 +849,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                             className="px-3 py-1.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all flex items-center gap-1 cursor-pointer"
                             title="Ver Detalhes do Pagamento"
                           >
-                            <span className="material-symbols-outlined text-[16px]">visibility</span>
+                            <Icon name="visibility" className="text-[16px]" />
                             Detalhes
                           </button>
                         )}
@@ -882,7 +881,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                 onClick={() => setViewReceiptTx(null)}
                 className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
@@ -950,7 +949,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                 <div className="p-4 bg-emerald-500/5 border border-emerald-500/30 rounded-2xl space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-emerald-900 flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px] text-emerald-700">image</span>
+                      <Icon name="image" className="text-[16px] text-emerald-700" />
                       Ficheiro de Comprovativo Anexado:
                     </span>
                     <span className="text-[10px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
@@ -958,9 +957,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                     </span>
                   </div>
                   <div className="bg-surface-container-lowest p-3 rounded-xl border border-emerald-200 text-center flex flex-col items-center justify-center py-6 text-xs text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[36px] text-emerald-600 mb-1">
-                      receipt_long
-                    </span>
+                    <Icon name="receipt_long" className="text-[36px] text-emerald-600 mb-1" />
                     <p className="font-medium text-on-surface">{viewReceiptTx.receiptFileName}</p>
                     <p className="text-[10px] text-on-surface-variant mt-0.5">Comprovativo arquivado no servidor seguro</p>
                   </div>
@@ -991,7 +988,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                     onClick={() => handleApprove(viewReceiptTx.id)}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                    <Icon name="check_circle" className="text-[16px]" />
                     Aprovar & Desbloquear CV
                   </button>
                   <button
@@ -1001,7 +998,7 @@ export const SalesView: React.FC<SalesViewProps> = ({
                     }}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[16px]">cancel</span>
+                    <Icon name="cancel" className="text-[16px]" />
                     Rejeitar Comprovativo
                   </button>
                 </>

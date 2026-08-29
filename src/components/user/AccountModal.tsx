@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { AppUser, ResumeData } from '../../types';
 import { recordDeletionRequest, recordAuditLog } from '../../utils/security';
@@ -96,7 +97,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -110,7 +111,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-900 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[22px] text-amber-700">admin_panel_settings</span>
+                    <Icon name="admin_panel_settings" className="text-[22px] text-amber-700" />
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-xs sm:text-sm text-amber-950">
@@ -130,7 +131,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                   className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold font-display shadow-xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
                 >
                   <span>Abrir Painel</span>
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  <Icon name="arrow_forward" className="text-[16px]" />
                 </button>
               </div>
             )}
@@ -139,7 +140,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             <div className="p-4 rounded-2xl bg-surface-container-high/60 border border-surface-border flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[22px]">folder_shared</span>
+                  <Icon name="folder_shared" className="text-[22px]" />
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-xs sm:text-sm text-on-surface">
@@ -159,7 +160,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-xs font-bold font-display shadow-xs transition-all flex items-center gap-1 cursor-pointer"
               >
                 <span>Ver Meus CVs</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <Icon name="arrow_forward" className="text-[16px]" />
               </button>
             </div>
 
@@ -185,7 +186,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             {/* Data Protection & Encryption Badge (Lei 22/11) */}
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2 text-xs">
               <div className="flex items-center gap-2 text-primary font-bold">
-                <span className="material-symbols-outlined text-[18px]">lock</span>
+                <Icon name="lock" className="text-[18px]" />
                 Proteção de Dados Pessoais (Lei n.º 22/11)
               </div>
               <p className="text-slate-600 leading-relaxed text-[11px] sm:text-xs">
@@ -200,7 +201,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                   }}
                   className="hover:underline flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[14px]">policy</span>
+                  <Icon name="policy" className="text-[14px]" />
                   Política de Privacidade
                 </button>
                 <button
@@ -211,7 +212,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                   }}
                   className="hover:underline flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[14px]">gavel</span>
+                  <Icon name="gavel" className="text-[14px]" />
                   Termos de Uso
                 </button>
               </div>
@@ -220,7 +221,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             {/* Retention Policy Note */}
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
               <div className="flex items-center gap-1.5 font-bold">
-                <span className="material-symbols-outlined text-[16px] text-amber-700">schedule</span>
+                <Icon name="schedule" className="text-[16px] text-amber-700" />
                 Política de Retenção de Dados
               </div>
               <p className="text-[11px] leading-relaxed text-amber-800">
@@ -233,7 +234,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[18px]">install_mobile</span>
+                    <Icon name="install_mobile" className="text-[18px]" />
                   </div>
                   <div>
                     <h5 className="font-bold text-xs text-blue-950">
@@ -266,7 +267,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 onClick={() => setShowDeleteConfirm(true)}
                 className="w-full py-3 px-4 rounded-xl border border-error/30 bg-error-container/20 text-error hover:bg-error-container/40 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[18px]">delete_forever</span>
+                <Icon name="delete_forever" className="text-[18px]" />
                 Solicitar Eliminação dos Meus Dados (Lei 22/11)
               </button>
             </div>
@@ -277,7 +278,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               <form onSubmit={handleRequestDataDeletion} className="space-y-4">
                 <div className="p-4 rounded-2xl bg-error-container/20 border border-error/30 text-xs space-y-2">
                   <div className="flex items-center gap-2 text-error font-bold text-sm">
-                    <span className="material-symbols-outlined text-[20px]">warning</span>
+                    <Icon name="warning" className="text-[20px]" />
                     Direito à Eliminação de Dados Pessoais
                   </div>
                   <p className="text-slate-700 leading-relaxed">
@@ -318,7 +319,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                       <span>A submeter...</span>
                     ) : (
                       <>
-                        <span className="material-symbols-outlined text-[16px]">send</span>
+                        <Icon name="send" className="text-[16px]" />
                         Confirmar e Enviar Pedido
                       </>
                     )}
@@ -328,7 +329,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             ) : (
               <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3">
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
-                  <span className="material-symbols-outlined text-[24px]">check</span>
+                  <Icon name="check" className="text-[24px]" />
                 </div>
                 <h4 className="font-bold text-base text-emerald-900">
                   Pedido Registado com Sucesso!
@@ -355,7 +356,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             onClick={onLogout}
             className="text-xs font-bold text-error hover:underline flex items-center gap-1 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">logout</span>
+            <Icon name="logout" className="text-[16px]" />
             Terminar Sessão
           </button>
           <button

@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState, Suspense, lazy } from 'react';
 import { BuilderStep, CVTemplate, ResumeData, AppUser, Transaction } from '../../types';
 import { CVPreviewDoc } from './CVPreviewDoc';
@@ -16,7 +17,11 @@ import {
   checkIfCvHasUnpaidEdits,
   getPaidSnapshotAsResume,
   createPaidSnapshot,
+  isCvPaidOrApproved,
+  isCvPendingApproval,
+  isCvRejected,
 } from '../../utils/cvHelpers';
+import { getTemplateThumbnail } from '../../data/initialData';
 
 interface CVBuilderWizardProps {
   resume: ResumeData;
@@ -344,7 +349,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
   };
 
   const handleDownloadPDF = () => {
-    const isUnlocked = isAdmin || resume.isPaid || (resume.downloadsRemaining ?? 0) > 0 || resume.paymentStatus === 'approved';
+    const isUnlocked = isAdmin || isCvPaidOrApproved(resume, transactions, isAdmin);
     if (!isUnlocked) {
       setShowPaymentModal(true);
       return;
@@ -383,16 +388,11 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
 
   const isAdmin = currentUser?.role === 'admin';
   const hasUnpaidEdits = !isAdmin && checkIfCvHasUnpaidEdits(resume);
-  const isFullyPaid = isAdmin || ((resume.isPaid || resume.paymentStatus === 'approved') && !hasUnpaidEdits);
-  const isModifiedAfterPayment = !isAdmin && Boolean(resume.paidSnapshot) && hasUnpaidEdits;
+  const isFullyPaid = isCvPaidOrApproved(resume, transactions, isAdmin);
+  const isModifiedAfterPayment = !isAdmin && Boolean(resume.paidSnapshot) && hasUnpaidEdits && !isFullyPaid;
   const isUnlockedForDownload = isFullyPaid;
-  const isPendingPayment =
-    !isAdmin &&
-    !isFullyPaid &&
-    !isModifiedAfterPayment &&
-    (resume.paymentStatus === 'pending' ||
-      (Boolean(resume.pendingTransactionId) && resume.paymentStatus !== 'rejected'));
-  const isRejectedPayment = !isAdmin && !isFullyPaid && resume.paymentStatus === 'rejected';
+  const isPendingPayment = !isFullyPaid && !isModifiedAfterPayment && isCvPendingApproval(resume, transactions, isAdmin);
+  const isRejectedPayment = !isFullyPaid && isCvRejected(resume, transactions, isAdmin);
 
   // Snapshot print modal/target for downloading previous paid version for free
   const [snapshotToPrint, setSnapshotToPrint] = useState<ResumeData | null>(null);
@@ -478,7 +478,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
       <div className="bg-surface-container-lowest p-3.5 sm:p-4 rounded-2xl border border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined text-[18px]">description</span>
+            <Icon name="description" className="text-[18px]" />
           </div>
 
           <div className="flex-1 min-w-0">
@@ -488,17 +488,17 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               </span>
               {isUnlockedForDownload ? (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                  <span className="material-symbols-outlined text-[11px]">verified</span>
+                  <Icon name="verified" className="text-[11px]" />
                   Pago & Vitalício
                 </span>
               ) : isModifiedAfterPayment ? (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                  <span className="material-symbols-outlined text-[11px]">published_with_changes</span>
+                  <Icon name="published_with_changes" className="text-[11px]" />
                   Editado pós-pagamento (2.000 Kz para nova versão)
                 </span>
               ) : isPendingPayment ? (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                  <span className="material-symbols-outlined text-[11px]">hourglass_top</span>
+                  <Icon name="hourglass_top" className="text-[11px]" />
                   Em Validação
                 </span>
               ) : (
@@ -535,9 +535,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 <h2 className="font-display font-bold text-sm text-on-surface truncate">
                   {resume.title || 'Meu Currículo'}
                 </h2>
-                <span className="material-symbols-outlined text-[14px] text-on-surface-variant group-hover:text-primary transition-colors">
-                  edit
-                </span>
+                <Icon name="edit" className="text-[14px] text-on-surface-variant group-hover:text-primary transition-colors" />
               </div>
             )}
           </div>
@@ -550,7 +548,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             className="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface text-xs font-bold border border-surface-border transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
             title="Ver guia rápido de 4 passos"
           >
-            <span className="material-symbols-outlined text-[16px] text-amber-500">help</span>
+            <Icon name="help" className="text-[16px] text-amber-500" />
             <span className="hidden xs:inline">Como Funciona?</span>
           </button>
 
@@ -560,7 +558,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               onClick={onNavigateMyCVs}
               className="px-3.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold border border-surface-border transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <span className="material-symbols-outlined text-[16px] text-primary">folder_shared</span>
+              <Icon name="folder_shared" className="text-[16px] text-primary" />
               <span>Ver Todos os Meus CVs</span>
             </button>
           )}
@@ -591,9 +589,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/60 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-surface-border">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">
-                  account_box
-                </span>
+                <Icon name="account_box" className="text-primary text-[20px]" />
                 <h2 className="font-display text-base font-bold text-on-surface">
                   Foto Tipo Passe Profissional
                 </h2>
@@ -613,16 +609,14 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       alt="Foto Tipo Passe"
                       className="w-28 h-36 rounded-xl object-cover border-2 border-primary shadow-sm bg-surface-container"
                     />
-                    <span className="absolute bottom-1 right-1 bg-emerald-600 text-white p-1 rounded-md shadow-xs text-[12px] material-symbols-outlined">
-                      verified
-                    </span>
+                    <Icon name="verified" className="absolute bottom-1 right-1 bg-emerald-600 text-white p-1 rounded-md shadow-xs text-[12px]" />
                   </div>
                 ) : (
                   <div
                     className="w-28 h-36 rounded-xl border-2 border-dashed border-primary/40 flex flex-col items-center justify-center text-on-surface-variant bg-surface-container-low hover:bg-primary/5 transition-colors cursor-pointer"
                     onClick={() => setShowPhotoModal(true)}
                   >
-                    <span className="material-symbols-outlined text-[34px] text-primary">add_a_photo</span>
+                    <Icon name="add_a_photo" className="text-[34px] text-primary" />
                     <span className="text-[10px] font-bold text-primary mt-1">Carregar Foto</span>
                   </div>
                 )}
@@ -636,7 +630,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     onClick={() => setShowPhotoModal(true)}
                     className="flex-1 bg-primary text-white py-2.5 px-4 rounded-xl text-xs font-bold hover:bg-primary/95 transition-all text-center cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                   >
-                    <span className="material-symbols-outlined text-[16px]">crop</span>
+                    <Icon name="crop" className="text-[16px]" />
                     {resume.personalInfo.photoUrl ? 'Editar Enquadramento / Fundo' : 'Carregar & Ajustar Foto Passe'}
                   </button>
                   {resume.personalInfo.photoUrl && (
@@ -652,7 +646,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
 
                 <div className="bg-primary/5 p-3 rounded-xl border border-primary/15 text-[11px] text-on-surface-variant space-y-1">
                   <p className="font-semibold text-primary flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">auto_fix_high</span>
+                    <Icon name="auto_fix_high" className="text-[14px]" />
                     Formatador Automático de Foto Tipo Passe:
                   </p>
                   <p>
@@ -666,7 +660,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           {/* Card: Dados de Identificação & Contacto Completo */}
           <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/60 space-y-4">
             <h2 className="font-display text-base font-bold text-on-surface pb-2 border-b border-surface-border flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">badge</span>
+              <Icon name="badge" className="text-primary text-[20px]" />
               Dados Pessoais & Contactos
             </h2>
 
@@ -833,7 +827,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleOpenAISummary}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-emerald-600 text-white font-bold text-xs shadow-xs hover:opacity-95 transition-all"
               >
-                <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
+                <Icon name="auto_awesome" className="text-[16px]" />
                 Assistente IA
               </button>
             </div>
@@ -841,7 +835,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             {/* Sugestões Rápidas */}
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[11px] font-bold text-primary flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+                <Icon name="auto_awesome" className="text-[14px]" />
                 Sugestões Rápidas:
               </span>
               {[
@@ -909,9 +903,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-primary/10 border border-primary/20 p-4 rounded-2xl text-xs text-on-surface">
             <div className="flex items-start gap-3">
-              <span className="material-symbols-outlined text-primary text-[22px] flex-shrink-0">
-                work_history
-              </span>
+              <Icon name="work_history" className="text-primary text-[22px] flex-shrink-0" />
               <div>
                 <p className="font-bold text-on-surface">Múltiplas Experiências Profissionais:</p>
                 <p className="text-on-surface-variant text-[11px] mt-0.5 leading-relaxed">
@@ -924,7 +916,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               onClick={handleAddExperience}
               className="flex-shrink-0 bg-primary text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs hover:bg-primary/95 transition-all flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[16px]">add_circle</span>
+              <Icon name="add_circle" className="text-[16px]" />
               + Adicionar Experiência
             </button>
           </div>
@@ -932,9 +924,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           {/* List of Experiences */}
           {resume.experiences.length === 0 ? (
             <div className="bg-surface-container-lowest p-8 rounded-2xl border border-surface-border/60 text-center space-y-3">
-              <span className="material-symbols-outlined text-[40px] text-on-surface-variant/50">
-                work_off
-              </span>
+              <Icon name="work_off" className="text-[40px] text-on-surface-variant/50" />
               <p className="text-xs text-on-surface-variant">
                 Nenhuma experiência profissional adicionada. Se estiver no início de carreira ou primeiro emprego, pode prosseguir ou adicionar estágios e voluntariados.
               </p>
@@ -943,7 +933,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleAddExperience}
                 className="bg-primary text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs hover:bg-primary/90 transition-all inline-flex items-center gap-1.5"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <Icon name="add" className="text-[16px]" />
                 Adicionar Primeira Experiência
               </button>
             </div>
@@ -968,7 +958,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       onClick={() => handleOpenAIExperience(exp.id)}
                       className="px-2.5 py-1 bg-gradient-to-r from-primary/10 to-emerald-500/10 hover:from-primary hover:to-emerald-500 text-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 border border-primary/20"
                     >
-                      <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+                      <Icon name="auto_awesome" className="text-[14px]" />
                       Melhorar com IA
                     </button>
                     <button
@@ -977,7 +967,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       className="text-error text-xs font-semibold hover:bg-error/10 px-2 py-1 rounded-lg transition-colors flex items-center gap-0.5"
                       title="Remover experiência"
                     >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                      <Icon name="delete" className="text-[16px]" />
                       Remover
                     </button>
                   </div>
@@ -1097,7 +1087,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       onClick={() => handleOpenAIExperience(exp.id)}
                       className="text-[11px] text-primary hover:underline font-bold flex items-center gap-0.5"
                     >
-                      <span className="material-symbols-outlined text-[13px]">magic_button</span>
+                      <Icon name="magic_button" className="text-[13px]" />
                       Sugerir texto profissional com IA
                     </button>
                   </div>
@@ -1123,7 +1113,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             onClick={handleAddExperience}
             className="w-full py-3.5 border-2 border-dashed border-surface-border rounded-2xl text-xs font-bold text-primary hover:bg-primary/5 hover:border-primary transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">add_circle</span>
+            <Icon name="add_circle" className="text-[18px]" />
             + Adicionar Experiência
           </button>
         </div>
@@ -1135,9 +1125,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
       {step === 3 && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="bg-primary/10 border border-primary/20 p-4 rounded-2xl flex items-start gap-3 text-xs text-on-surface">
-            <span className="material-symbols-outlined text-primary text-[20px] flex-shrink-0">
-              school
-            </span>
+            <Icon name="school" className="text-primary text-[20px] flex-shrink-0" />
             <p className="leading-relaxed">
               <strong>Formação em Angola & Internacional:</strong> Indique as suas habilitações literárias (ex: UAN, UCAN, ISPTEC, Gregório Semedo, IMEL, etc.) e certificações profissionais.
             </p>
@@ -1154,7 +1142,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleAddEducation}
                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                <Icon name="add_circle" className="text-[16px]" />
                 Adicionar Formação
               </button>
             </div>
@@ -1174,7 +1162,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       onClick={() => handleRemoveEducation(edu.id)}
                       className="text-error text-xs font-semibold hover:underline flex items-center gap-1"
                     >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                      <Icon name="delete" className="text-[16px]" />
                       Remover
                     </button>
                   )}
@@ -1257,7 +1245,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               onClick={handleAddEducation}
               className="w-full py-3 border-2 border-dashed border-surface-border rounded-2xl text-xs font-bold text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[18px]">add_circle</span>
+              <Icon name="add_circle" className="text-[18px]" />
               Adicionar Outra Formação Académica
             </button>
           </div>
@@ -1273,7 +1261,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleAddCertification}
                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <Icon name="add" className="text-[16px]" />
                 + Adicionar Curso
               </button>
             </div>
@@ -1325,7 +1313,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       className="text-error p-1.5 hover:bg-error/10 rounded-lg transition-colors shrink-0"
                       title="Remover certificação"
                     >
-                      <span className="material-symbols-outlined text-[18px]">close</span>
+                      <Icon name="close" className="text-[18px]" />
                     </button>
                   </div>
                 </div>
@@ -1337,7 +1325,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               onClick={handleAddCertification}
               className="text-xs font-bold text-primary hover:underline flex items-center gap-1 pt-1"
             >
-              <span className="material-symbols-outlined text-[16px]">add</span>
+              <Icon name="add" className="text-[16px]" />
               + Adicionar Certificação / Curso
             </button>
           </div>
@@ -1352,9 +1340,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           {/* Informative Step Notice */}
           <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl flex items-center justify-between gap-3 text-xs text-on-surface">
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-emerald-600 text-[22px] flex-shrink-0">
-                verified
-              </span>
+              <Icon name="verified" className="text-emerald-600 text-[22px] flex-shrink-0" />
               <div>
                 <p className="font-bold text-emerald-800">
                   Estrutura Completa do CV: Competências, Idiomas & Referências
@@ -1370,9 +1356,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/60 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-surface-border">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">
-                  psychology
-                </span>
+                <Icon name="psychology" className="text-primary text-[20px]" />
                 <h2 className="font-display text-base font-bold text-on-surface">
                   1. Competências Técnicas & Interpessoais
                 </h2>
@@ -1383,7 +1367,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                   onClick={handleOpenAISkills}
                   className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[15px]">auto_awesome</span>
+                  <Icon name="auto_awesome" className="text-[15px]" />
                   Sugerir com IA
                 </button>
                 <span className="text-xs font-bold bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">
@@ -1412,7 +1396,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={() => handleAddSkill(newSkillInput)}
                 className="bg-primary text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-primary/90 transition-all flex items-center gap-1 shadow-xs cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <Icon name="add" className="text-[16px]" />
                 Adicionar
               </button>
             </div>
@@ -1420,7 +1404,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             {/* Suggested quick skills for Angola */}
             <div className="space-y-2 pt-1">
               <p className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px] text-amber-500">bolt</span>
+                <Icon name="bolt" className="text-[14px] text-amber-500" />
                 Sugestões Rápidas mais Procuradas em Angola:
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -1473,7 +1457,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                         className="hover:text-error hover:bg-error/10 p-0.5 rounded transition-colors"
                         title="Remover tag"
                       >
-                        <span className="material-symbols-outlined text-[14px]">close</span>
+                        <Icon name="close" className="text-[14px]" />
                       </button>
                     </span>
                   ))}
@@ -1486,9 +1470,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/60 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-surface-border">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">
-                  translate
-                </span>
+                <Icon name="translate" className="text-primary text-[20px]" />
                 <h2 className="font-display text-base font-bold text-on-surface">
                   2. Idiomas & Nível de Domínio
                 </h2>
@@ -1498,7 +1480,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={() => handleAddLanguage()}
                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                <Icon name="add_circle" className="text-[16px]" />
                 + Adicionar Idioma
               </button>
             </div>
@@ -1589,7 +1571,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       className="text-error p-2 hover:bg-error/10 rounded-lg transition-colors flex items-center gap-1 text-xs"
                       title="Remover idioma"
                     >
-                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                      <Icon name="delete" className="text-[18px]" />
                       <span className="sm:hidden font-semibold">Remover</span>
                     </button>
                   </div>
@@ -1602,9 +1584,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/60 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-surface-border">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">
-                  contact_page
-                </span>
+                <Icon name="contact_page" className="text-primary text-[20px]" />
                 <h2 className="font-display text-base font-bold text-on-surface">
                   3. Referências Profissionais (Opcional)
                 </h2>
@@ -1614,7 +1594,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleAddReference}
                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                <Icon name="add_circle" className="text-[16px]" />
                 + Adicionar Referência
               </button>
             </div>
@@ -1633,7 +1613,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                   onClick={handleAddReference}
                   className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[14px]">add</span>
+                  <Icon name="add" className="text-[14px]" />
                   Adicionar Referência
                 </button>
               </div>
@@ -1653,7 +1633,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                         onClick={() => handleRemoveReference(ref.id)}
                         className="text-error text-xs font-semibold hover:underline flex items-center gap-0.5"
                       >
-                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                        <Icon name="delete" className="text-[16px]" />
                         Remover
                       </button>
                     </div>
@@ -1746,9 +1726,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           {/* Download Success Notice if downloaded */}
           {downloadSuccessNotice && (
             <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-start gap-3 text-xs text-emerald-900 animate-in fade-in duration-200 shadow-sm">
-              <span className="material-symbols-outlined text-emerald-600 text-[22px] flex-shrink-0">
-                task_alt
-              </span>
+              <Icon name="task_alt" className="text-emerald-600 text-[22px] flex-shrink-0" />
               <div className="space-y-1">
                 <p className="font-bold text-sm">Download Concluído com Sucesso!</p>
                 <p className="text-emerald-800 leading-relaxed">
@@ -1806,7 +1784,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             {/* Mini CV Summary Snapshot Grid */}
             <div className="bg-surface-container-lowest/80 p-4 rounded-2xl border border-surface-border/60">
               <h3 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-primary">feed</span>
+                <Icon name="feed" className="text-[16px] text-primary" />
                 Resumo do Currículo a Emitir:
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
@@ -1841,9 +1819,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-md relative">
-                      <span className="material-symbols-outlined text-[28px] animate-spin">
-                        hourglass_top
-                      </span>
+                      <Icon name="hourglass_top" className="text-[28px] animate-spin" />
                       <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>
@@ -1882,7 +1858,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                                   resume.personalInfo.fullName &&
                                   t.userName.toLowerCase().trim() === resume.personalInfo.fullName.toLowerCase().trim())
                             );
-                            const targetTxId = matchingTx?.id || resume.pendingTransactionId || 'BAI-59842';
+                            const targetTxId = matchingTx?.id || resume.pendingTransactionId || `ADM-${Date.now()}`;
                             onApproveTransaction(targetTxId);
                             const snapshot = createPaidSnapshot(resume, targetTxId);
                             setResume((prev) => ({
@@ -1900,7 +1876,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                           className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                           title="Aprovar e desbloquear download imediatamente como Administrador"
                         >
-                          <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                          <Icon name="check_circle" className="text-[16px]" />
                           ⚡ Aprovar (Admin)
                         </button>
                       )}
@@ -1910,9 +1886,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       disabled={checkingStatus}
                       className="flex-1 sm:flex-initial px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-75"
                     >
-                      <span className={`material-symbols-outlined text-[16px] ${checkingStatus ? 'animate-spin' : ''}`}>
-                        sync
-                      </span>
+                      <Icon name="sync" className={`text-[16px] ${checkingStatus ? 'animate-spin' : ''}`} />
                       {checkingStatus ? 'A verificar...' : 'Verificar Estado'}
                     </button>
                     <button
@@ -1928,7 +1902,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
 
                 {statusCheckMessage && (
                   <div className="p-3 bg-surface-container-lowest border border-amber-300/80 rounded-xl text-xs text-amber-950 flex items-center gap-2 animate-in fade-in duration-150">
-                    <span className="material-symbols-outlined text-amber-700 text-[18px]">info</span>
+                    <Icon name="info" className="text-amber-700 text-[18px]" />
                     <span>{statusCheckMessage}</span>
                   </div>
                 )}
@@ -1955,7 +1929,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
 
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-amber-900 pt-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-amber-700">lock</span>
+                    <Icon name="lock" className="text-[16px] text-amber-700" />
                     <span className="font-semibold">O botão "Baixar CV" será desbloqueado assim que o administrador aprovar o pagamento.</span>
                   </div>
                   <a
@@ -1964,7 +1938,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-emerald-800 font-bold hover:underline"
                   >
-                    <span className="material-symbols-outlined text-[16px] text-emerald-600">chat</span>
+                    <Icon name="chat" className="text-[16px] text-emerald-600" />
                     Acelerar validação no WhatsApp (+244 923 845 779)
                   </a>
                 </div>
@@ -1979,7 +1953,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
-                      <span className="material-symbols-outlined text-[28px]">error</span>
+                      <Icon name="error" className="text-[28px]" />
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-base text-red-950">
@@ -1996,7 +1970,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     onClick={() => setShowPaymentModal(true)}
                     className="w-full sm:w-auto px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[18px]">replay</span>
+                    <Icon name="replay" className="text-[18px]" />
                     Reenviar Novo Comprovativo
                   </button>
                 </div>
@@ -2022,7 +1996,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start sm:items-center gap-3 text-left">
                     <div className="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
-                      <span className="material-symbols-outlined text-[28px]">published_with_changes</span>
+                      <Icon name="published_with_changes" className="text-[28px]" />
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-base text-amber-950">
@@ -2040,7 +2014,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                   <div className="p-4 rounded-xl bg-white border border-emerald-300 space-y-2 flex flex-col justify-between">
                     <div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        <span className="material-symbols-outlined text-[12px]">verified</span>
+                        <Icon name="verified" className="text-[12px]" />
                         Sem Custos
                       </span>
                       <h4 className="font-bold text-xs text-on-surface mt-1">Versão Original Paga ({resume.paidSnapshot?.paidAt})</h4>
@@ -2053,7 +2027,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       onClick={handleDownloadSnapshotPDF}
                       className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[16px]">history</span>
+                      <Icon name="history" className="text-[16px]" />
                       Baixar Versão Original
                     </button>
                   </div>
@@ -2062,7 +2036,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                   <div className="p-4 rounded-xl bg-white border border-primary/40 space-y-2 flex flex-col justify-between">
                     <div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        <span className="material-symbols-outlined text-[12px]">payments</span>
+                        <Icon name="payments" className="text-[12px]" />
                         Novo Download
                       </span>
                       <h4 className="font-bold text-xs text-on-surface mt-1">Nova Versão com Alterações Recentes</h4>
@@ -2075,7 +2049,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                       onClick={() => setShowPaymentModal(true)}
                       className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary/95 text-white font-display font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[16px]">payments</span>
+                      <Icon name="payments" className="text-[16px]" />
                       Pagar {basePriceKz.toLocaleString()} Kz (Nova Versão)
                     </button>
                   </div>
@@ -2090,7 +2064,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               <div className="bg-emerald-500/10 border-2 border-emerald-500/30 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 text-left">
                   <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
-                    <span className="material-symbols-outlined text-[28px]">download_done</span>
+                    <Icon name="download_done" className="text-[28px]" />
                   </div>
                   <div>
                     <h3 className="font-display font-bold text-base text-emerald-950">
@@ -2107,7 +2081,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                   onClick={handleDownloadPDF}
                   className="w-full sm:w-auto px-8 py-4 bg-emerald-600 text-white rounded-2xl font-display font-bold text-sm shadow-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[20px]">download</span>
+                  <Icon name="download" className="text-[20px]" />
                   Baixar PDF Oficial
                 </button>
               </div>
@@ -2120,7 +2094,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               <div className="space-y-4 pt-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-display text-sm font-bold text-on-surface flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-[18px]">account_balance_wallet</span>
+                    <Icon name="account_balance_wallet" className="text-primary text-[18px]" />
                     Opções de Pagamento Disponíveis:
                   </h3>
                   <span className="text-[11px] text-on-surface-variant font-medium hidden sm:inline">
@@ -2134,7 +2108,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center font-bold">
-                          <span className="material-symbols-outlined text-[22px]">smartphone</span>
+                          <Icon name="smartphone" className="text-[22px]" />
                         </div>
                         <div>
                           <h4 className="font-display font-bold text-sm text-on-surface">
@@ -2182,7 +2156,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center font-bold">
-                          <span className="material-symbols-outlined text-[22px]">account_balance</span>
+                          <Icon name="account_balance" className="text-[22px]" />
                         </div>
                         <div>
                           <h4 className="font-display font-bold text-sm text-on-surface">
@@ -2236,7 +2210,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 {/* Single Primary Payment Action Button */}
                 <div className="pt-3 flex flex-col sm:flex-row items-center gap-3 justify-between">
                   <div className="text-[11px] text-on-surface-variant flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px] text-emerald-600">shield</span>
+                    <Icon name="shield" className="text-[16px] text-emerald-600" />
                     <span>Pagamento 100% verificado com suporte via WhatsApp</span>
                   </div>
 
@@ -2245,7 +2219,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     onClick={() => setShowPaymentModal(true)}
                     className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-2xl font-display font-extrabold text-sm shadow-lg hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                   >
-                    <span className="material-symbols-outlined text-[20px]">payments</span>
+                    <Icon name="payments" className="text-[20px]" />
                     Pagar {basePriceKz.toLocaleString()} Kz
                   </button>
                 </div>
@@ -2256,7 +2230,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             <div className="pt-4 border-t border-surface-border/60">
               <div className="flex items-center justify-between mb-2.5">
                 <label className="block text-xs font-bold text-on-surface flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px] text-primary">palette</span>
+                  <Icon name="palette" className="text-[16px] text-primary" />
                   <span>Escolha o Modelo Visual para o Seu Currículo:</span>
                 </label>
                 <span className="text-[11px] text-on-surface-variant">
@@ -2279,7 +2253,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     >
                       <div className="relative h-28 w-full overflow-hidden bg-slate-100">
                         <img
-                          src={tpl.thumbnailUrl}
+                          src={getTemplateThumbnail(tpl)}
                           alt={tpl.name}
                           referrerPolicy="no-referrer"
                           className={`w-full h-full object-cover object-top transition-transform duration-300 ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
@@ -2294,7 +2268,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                         </span>
                         {isSelected && (
                           <span className="absolute bottom-1.5 right-1.5 bg-primary text-white p-0.5 rounded-full shadow-md flex items-center justify-center">
-                            <span className="material-symbols-outlined text-[14px]">check</span>
+                            <Icon name="check" className="text-[14px]" />
                           </span>
                         )}
                       </div>
@@ -2320,7 +2294,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1 flex-wrap gap-2">
               <span className="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-primary">visibility</span>
+                <Icon name="visibility" className="text-[16px] text-primary" />
                 Pré-visualização do Documento Completo:
               </span>
               <div className="flex items-center gap-2">
@@ -2332,12 +2306,12 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                     className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                     title="Exportar documento para PDF pronto a imprimir"
                   >
-                    <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                    <Icon name="picture_as_pdf" className="text-[16px]" />
                     <span>Baixar PDF Oficial</span>
                   </button>
                 ) : (
                   <span className="text-[11px] text-amber-800 font-bold bg-amber-100 border border-amber-300 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
-                    <span className="material-symbols-outlined text-[14px] text-amber-700">lock</span>
+                    <Icon name="lock" className="text-[14px] text-amber-700" />
                     Download Bloqueado (Requer Pagamento)
                   </span>
                 )}
@@ -2394,14 +2368,14 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
 
             {!isUnlockedForDownload && !isPendingPayment && (
               <div className="flex items-center gap-2 text-xs font-semibold text-primary bg-primary/10 px-4 py-2.5 rounded-xl border border-primary/20">
-                <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                <Icon name="verified_user" className="text-[18px]" />
                 <span>Taxa única de 2.000 Kz para descarregar o PDF completo</span>
               </div>
             )}
 
             {isPendingPayment && (
               <div className="text-xs font-semibold text-amber-800 flex items-center gap-1.5 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-200">
-                <span className="material-symbols-outlined text-[16px] text-amber-600 animate-spin">hourglass_top</span>
+                <Icon name="hourglass_top" className="text-[16px] text-amber-600 animate-spin" />
                 <span>Comprovativo enviado — aguarda aprovação</span>
               </div>
             )}
@@ -2412,7 +2386,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleDownloadPDF}
                 className="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl font-display font-bold text-xs shadow-md hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">download</span>
+                <Icon name="download" className="text-[16px]" />
                 Baixar CV
               </button>
             )}
@@ -2431,7 +2405,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
             onClick={() => setStep((prev) => Math.max(1, prev - 1) as BuilderStep)}
             className="px-5 py-2.5 rounded-xl border border-surface-border text-on-surface font-semibold text-xs hover:bg-surface-container-low disabled:opacity-40 disabled:hover:bg-transparent transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <Icon name="arrow_back" className="text-[16px]" />
             Passo Anterior
           </button>
 
@@ -2446,7 +2420,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               className="px-6 py-2.5 rounded-xl bg-primary text-white font-display font-bold text-xs hover:bg-primary/90 shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
             >
               Próximo Passo
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              <Icon name="arrow_forward" className="text-[16px]" />
             </button>
           ) : isModifiedAfterPayment ? (
             <div className="flex items-center gap-2">
@@ -2455,7 +2429,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={handleDownloadSnapshotPDF}
                 className="px-3 sm:px-4 py-2.5 rounded-xl font-display font-bold text-[11px] sm:text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white"
               >
-                <span className="material-symbols-outlined text-[15px]">history</span>
+                <Icon name="history" className="text-[15px]" />
                 Versão Original
               </button>
               <button
@@ -2463,7 +2437,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
                 onClick={() => setShowPaymentModal(true)}
                 className="px-4 sm:px-5 py-2.5 rounded-xl font-display font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer bg-primary hover:bg-primary/95 text-white"
               >
-                <span className="material-symbols-outlined text-[16px]">payments</span>
+                <Icon name="payments" className="text-[16px]" />
                 Pagar {basePriceKz.toLocaleString()} Kz
               </button>
             </div>
@@ -2473,7 +2447,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               onClick={handleDownloadPDF}
               className="px-6 py-2.5 rounded-xl font-display font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              <span className="material-symbols-outlined text-[16px]">download</span>
+              <Icon name="download" className="text-[16px]" />
               Baixar PDF Oficial
             </button>
           ) : isPendingPayment ? (
@@ -2483,9 +2457,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               disabled={checkingStatus}
               className="px-6 py-2.5 rounded-xl font-display font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-75"
             >
-              <span className={`material-symbols-outlined text-[16px] ${checkingStatus ? 'animate-spin' : ''}`}>
-                hourglass_top
-              </span>
+              <Icon name="hourglass_top" className={`text-[16px] ${checkingStatus ? 'animate-spin' : ''}`} />
               {checkingStatus ? 'A verificar aprovação...' : 'Aguardando Aprovação (Verificar)'}
             </button>
           ) : (
@@ -2494,7 +2466,7 @@ export const CVBuilderWizard: React.FC<CVBuilderWizardProps> = ({
               onClick={() => setShowPaymentModal(true)}
               className="px-6 py-2.5 rounded-xl font-display font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer bg-primary hover:bg-primary/95 text-white"
             >
-              <span className="material-symbols-outlined text-[16px]">payments</span>
+              <Icon name="payments" className="text-[16px]" />
               Pagar {basePriceKz.toLocaleString()} Kz
             </button>
           )}

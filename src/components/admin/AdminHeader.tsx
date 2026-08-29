@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React from 'react';
 import { AppUser } from '../../types';
 
@@ -34,18 +35,16 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           title="Abrir menu de navegação do Admin"
           aria-label="Abrir menu"
         >
-          <span className="material-symbols-outlined text-[24px]">menu</span>
+          <Icon name="menu" className="text-[24px]" />
         </button>
 
         {/* Desktop Sidebar Toggle Icon */}
-        <span className="hidden md:inline-block material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">
-          menu_open
-        </span>
+        <Icon name="menu_open" className="hidden md:inline-block text-on-surface-variant cursor-pointer hover:text-primary transition-colors" />
 
         {/* Search Input */}
         <div className="relative flex-1 max-w-xs sm:max-w-sm">
           <span className="absolute inset-y-0 left-3 flex items-center text-on-surface-variant pointer-events-none">
-            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">search</span>
+            <Icon name="search" className="text-[18px] sm:text-[20px]" />
           </span>
           <input
             className="w-full bg-surface-container-low border border-transparent focus:border-primary/20 rounded-full py-1.5 sm:py-2 pl-9 sm:pl-10 pr-3 sm:pr-4 text-xs sm:text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
@@ -65,7 +64,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
             className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 transition-colors border border-primary/20 cursor-pointer shadow-xs"
             title="Aceder à secção Meus CVs"
           >
-            <span className="material-symbols-outlined text-[17px]">folder_shared</span>
+            <Icon name="folder_shared" className="text-[17px]" />
             <span className="hidden xs:inline sm:inline">Meus CVs</span>
           </button>
         )}
@@ -76,7 +75,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-surface-container-low text-on-surface text-xs font-semibold hover:bg-surface-container-high transition-colors border border-surface-border cursor-pointer"
           title="Ver o site principal como utilizador"
         >
-          <span className="material-symbols-outlined text-[17px]">public</span>
+          <Icon name="public" className="text-[17px]" />
           <span className="hidden md:inline">Ver Site Principal</span>
         </button>
 
@@ -86,7 +85,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           className="relative text-on-surface-variant hover:text-primary transition-colors p-1.5 sm:p-2 rounded-full hover:bg-surface-container-low cursor-pointer"
           title="Notificações"
         >
-          <span className="material-symbols-outlined text-[20px] sm:text-[22px]">notifications</span>
+          <Icon name="notifications" className="text-[20px] sm:text-[22px]" />
           {unreadCount > 0 && (
             <span className="absolute top-1 right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-error text-white text-[9px] sm:text-[10px] rounded-full flex items-center justify-center font-bold">
               {unreadCount}

@@ -1,7 +1,9 @@
+import { Icon } from '../common/Icon';
 import React, { useState, useEffect } from 'react';
 import { CVTemplate } from '../../types';
 import { CVPreviewDoc } from './CVPreviewDoc';
 import { TEMPLATE_SAMPLE_MAP, SAMPLE_LUMINA_MODERN } from '../../data/templateSampleData';
+import { getTemplateThumbnail } from '../../data/initialData';
 import { PWAInstallModal } from '../common/PWAInstallModal';
 import { promptPWAInstall, isStandalone, subscribeInstallPrompt } from '../../utils/pwaManager';
 import { Logo } from '../common/Logo';
@@ -124,9 +126,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
           <div className="text-center space-y-4 sm:space-y-6 max-w-3xl mx-auto">
             {/* Top Pill Badge */}
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-[11px] sm:text-xs font-bold shadow-xs max-w-full">
-              <span className="material-symbols-outlined text-[15px] sm:text-[16px] shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
-                auto_awesome
-              </span>
+              <Icon name="auto_awesome" className="text-[15px] sm:text-[16px] shrink-0" style={{ fontVariationSettings: "'FILL' 1" }} />
               <span className="truncate sm:whitespace-normal">Inteligência Artificial para o Mercado de Angola</span>
             </div>
 
@@ -148,7 +148,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={onStartBuilder}
                 className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-primary text-white font-display font-bold text-xs sm:text-base rounded-2xl shadow-lg hover:bg-primary/95 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[20px] sm:text-[22px]">edit_document</span>
+                <Icon name="edit_document" className="text-[20px] sm:text-[22px]" />
                 <span>Criar Meu Currículo com IA</span>
               </button>
 
@@ -156,7 +156,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 href="#modelos"
                 className="w-full sm:w-auto px-5 sm:px-6 py-3.5 sm:py-4 bg-surface-container-low hover:bg-surface-container border border-surface-border text-on-surface font-display font-bold text-xs sm:text-sm rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[18px] sm:text-[20px] text-primary">visibility</span>
+                <Icon name="visibility" className="text-[18px] sm:text-[20px] text-primary" />
                 <span>Ver os 4 Modelos</span>
               </a>
             </div>
@@ -164,15 +164,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Trust Signals */}
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-x-6 text-[11px] sm:text-xs text-on-surface-variant pt-2 font-medium">
               <div className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg">
-                <span className="material-symbols-outlined text-[15px] text-emerald-600">verified</span>
+                <Icon name="verified" className="text-[15px] text-emerald-600" />
                 <span>Apenas 2.000 Kz (Preço Único)</span>
               </div>
               <div className="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded-lg border border-surface-border/50">
-                <span className="material-symbols-outlined text-[15px] text-primary">smartphone</span>
+                <Icon name="smartphone" className="text-[15px] text-primary" />
                 <span>Multicaixa Xpress & BAI</span>
               </div>
               <div className="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded-lg border border-surface-border/50">
-                <span className="material-symbols-outlined text-[15px] text-primary">person_check</span>
+                <Icon name="person_check" className="text-[15px] text-primary" />
                 <span>Registo por Telemóvel ou E-mail</span>
               </div>
             </div>
@@ -207,7 +207,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-2xl bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/15 text-blue-900 shadow-xs backdrop-blur-xs transition-all group cursor-pointer"
                 >
                   <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-[16px]">install_mobile</span>
+                    <Icon name="install_mobile" className="text-[16px]" />
                   </div>
                   <div className="text-left text-xs">
                     <div className="font-extrabold text-blue-900 flex items-center gap-1">
@@ -273,7 +273,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
 
                   <div className="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold text-primary shadow-sm flex items-center gap-1.5 z-10">
-                    <span className="material-symbols-outlined text-[13px] sm:text-[14px]">stars</span>
+                    <Icon name="stars" className="text-[13px] sm:text-[14px]" />
                     <span>{activeTemplate.category}</span>
                   </div>
 
@@ -282,7 +282,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     onClick={() => setZoomedTemplate(activeTemplate)}
                     className="absolute bottom-3 right-3 bg-surface-container-lowest/95 backdrop-blur-md hover:bg-surface-container-lowest text-on-surface px-3 py-1.5 rounded-xl text-xs font-bold shadow-md flex items-center gap-1 transition-all z-10 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[16px] text-primary">zoom_in</span>
+                    <Icon name="zoom_in" className="text-[16px] text-primary" />
                     <span>Ver CV Completo</span>
                   </button>
                 </div>
@@ -300,15 +300,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center gap-2 text-on-surface">
-                      <span className="material-symbols-outlined text-emerald-600 text-[18px] shrink-0">check_circle</span>
+                      <Icon name="check_circle" className="text-emerald-600 text-[18px] shrink-0" />
                       <span>Enquadramento oficial de foto 3:4 com fundo neutro</span>
                     </div>
                     <div className="flex items-center gap-2 text-on-surface">
-                      <span className="material-symbols-outlined text-emerald-600 text-[18px] shrink-0">check_circle</span>
+                      <Icon name="check_circle" className="text-emerald-600 text-[18px] shrink-0" />
                       <span>Compatibilidade total com filtros ATS de empresas em Angola</span>
                     </div>
                     <div className="flex items-center gap-2 text-on-surface">
-                      <span className="material-symbols-outlined text-emerald-600 text-[18px] shrink-0">check_circle</span>
+                      <Icon name="check_circle" className="text-emerald-600 text-[18px] shrink-0" />
                       <span>Resumos e experiências aprimorados pelo assistente de IA</span>
                     </div>
                   </div>
@@ -321,7 +321,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                       }}
                       className="w-full py-3 px-4 bg-primary text-white text-xs font-display font-bold rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[18px]">edit_note</span>
+                      <Icon name="edit_note" className="text-[18px]" />
                       <span>Usar este Modelo Agora</span>
                     </button>
                   </div>
@@ -361,7 +361,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </p>
               </div>
               <div className="pt-3 border-t border-surface-border/60 text-[11px] font-bold text-primary flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">lock_reset</span>
+                <Icon name="lock_reset" className="text-[16px]" />
                 <span>Sem senhas complexas</span>
               </div>
             </div>
@@ -380,7 +380,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </p>
               </div>
               <div className="pt-3 border-t border-surface-border/60 text-[11px] font-bold text-teal-700 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
+                <Icon name="auto_awesome" className="text-[16px]" />
                 <span>Textos profissionais em 1 clique</span>
               </div>
             </div>
@@ -399,7 +399,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </p>
               </div>
               <div className="pt-3 border-t border-surface-border/60 text-[11px] font-bold text-indigo-700 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">face</span>
+                <Icon name="face" className="text-[16px]" />
                 <span>Padrão 100% corporativo</span>
               </div>
             </div>
@@ -418,7 +418,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 </p>
               </div>
               <div className="pt-3 border-t border-surface-border/60 text-[11px] font-bold text-emerald-700 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">download</span>
+                <Icon name="download" className="text-[16px]" />
                 <span>Download imediato em PDF</span>
               </div>
             </div>
@@ -484,7 +484,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     title={`Clique para ver o modelo ${tpl.name} em tamanho real`}
                   >
                     <img
-                      src={tpl.thumbnailUrl}
+                      src={getTemplateThumbnail(tpl)}
                       alt={`Pré-visualização real do modelo ${tpl.name}`}
                       referrerPolicy="no-referrer"
                       loading="lazy"
@@ -501,13 +501,13 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         }}
                         className="w-full py-2.5 bg-white text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-lg hover:bg-slate-50 transition-all cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-primary">zoom_in</span>
+                        <Icon name="zoom_in" className="text-[18px] text-primary" />
                         <span>Ver CV em Tamanho Real</span>
                       </button>
                     </div>
 
                     <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-extrabold shadow-md flex items-center gap-1 border ${badge.bg}`}>
-                      <span className="material-symbols-outlined text-[13px]">{badge.icon}</span>
+                      <Icon name={badge.icon} className="text-[13px]" />
                       <span>{tpl.category}</span>
                     </span>
                   </div>
@@ -533,7 +533,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         onClick={() => setZoomedTemplate(tpl)}
                         className="w-full py-2 bg-surface-container-low hover:bg-surface-container text-on-surface border border-surface-border font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[16px] text-primary">zoom_in</span>
+                        <Icon name="zoom_in" className="text-[16px] text-primary" />
                         <span>Pré-visualizar CV Real</span>
                       </button>
 
@@ -545,7 +545,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                         className="w-full py-2.5 bg-primary text-white font-display font-bold text-xs rounded-xl hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
                       >
                         <span>Usar este Modelo</span>
-                        <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        <Icon name="arrow_forward" className="text-[16px]" />
                       </button>
                     </div>
                   </div>
@@ -567,7 +567,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
               <div className="md:col-span-7 space-y-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                  <span className="material-symbols-outlined text-[16px]">price_check</span>
+                  <Icon name="price_check" className="text-[16px]" />
                   <span>Pagamento Único Sem Subscrição</span>
                 </div>
 
@@ -581,19 +581,19 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center gap-2 font-medium text-on-surface">
-                    <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+                    <Icon name="check_circle" className="text-emerald-600 text-[18px]" />
                     <span>Download ilimitado do PDF gerado</span>
                   </div>
                   <div className="flex items-center gap-2 font-medium text-on-surface">
-                    <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+                    <Icon name="check_circle" className="text-emerald-600 text-[18px]" />
                     <span>Acesso completo ao gerador e corretor de textos por IA</span>
                   </div>
                   <div className="flex items-center gap-2 font-medium text-on-surface">
-                    <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+                    <Icon name="check_circle" className="text-emerald-600 text-[18px]" />
                     <span>Enquadramento profissional da foto passe 3:4</span>
                   </div>
                   <div className="flex items-center gap-2 font-medium text-on-surface">
-                    <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+                    <Icon name="check_circle" className="text-emerald-600 text-[18px]" />
                     <span>Pagamento via Multicaixa Xpress (923 845 779) ou BAI</span>
                   </div>
                 </div>
@@ -616,7 +616,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   onClick={onStartBuilder}
                   className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
+                  <Icon name="rocket_launch" className="text-[18px]" />
                   <span>Começar a Criar Agora</span>
                 </button>
               </div>
@@ -632,9 +632,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center space-y-3 max-w-2xl mx-auto mb-12 sm:mb-16">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 text-xs font-bold border border-amber-500/20">
-              <span className="material-symbols-outlined text-[16px] text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }}>
-                grade
-              </span>
+              <Icon name="grade" className="text-[16px] text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }} />
               Avaliações Verificadas (4.9 / 5.0)
             </div>
             <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-on-surface tracking-tight">
@@ -687,9 +685,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={onNavigateReviews}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-surface-container hover:bg-surface-container-high border border-surface-border text-xs font-bold text-on-surface transition-all cursor-pointer"
               >
-                <span className="material-symbols-outlined text-primary text-[18px]">rate_review</span>
+                <Icon name="rate_review" className="text-primary text-[18px]" />
                 <span>Ver Todas as Avaliações & Deixar Opinião</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <Icon name="arrow_forward" className="text-[16px]" />
               </button>
             </div>
           )}
@@ -727,13 +725,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 font-display font-bold text-xs sm:text-sm text-on-surface hover:bg-surface-container-low transition-colors"
                   >
                     <span>{faq.question}</span>
-                    <span
-                      className={`material-symbols-outlined text-[20px] text-primary transition-transform duration-200 ${
+                    <Icon
+                      name="expand_more"
+                      className={`text-[20px] text-primary transition-transform duration-200 ${
                         isOpen ? 'rotate-180' : ''
                       }`}
-                    >
-                      expand_more
-                    </span>
+                    />
                   </button>
 
                   {isOpen && (
@@ -765,7 +762,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               onClick={onStartBuilder}
               className="w-full sm:w-auto px-8 py-4 bg-white text-primary font-display font-bold text-sm rounded-2xl shadow-xl hover:bg-white/95 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[20px]">edit_document</span>
+              <Icon name="edit_document" className="text-[20px]" />
               <span>Criar Meu Currículo com IA</span>
             </button>
 
@@ -774,7 +771,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => onOpenAuth('register_input')}
                 className="w-full sm:w-auto px-6 py-4 bg-primary-container/30 hover:bg-primary-container/40 border border-white/30 text-white font-display font-bold text-sm rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[20px]">person_add</span>
+                <Icon name="person_add" className="text-[20px]" />
                 <span>Criar Conta Gratuita</span>
               </button>
             )}
@@ -799,15 +796,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Direct Support & Entity */}
             <div className="space-y-1.5 text-xs text-on-surface">
               <p className="font-bold text-on-surface flex items-center justify-center md:justify-start gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-primary">apartment</span>
+                <Icon name="apartment" className="text-[16px] text-primary" />
                 Chinua Ndembo, Lda
               </p>
               <p className="text-on-surface-variant flex items-center justify-center md:justify-start gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-emerald-600">call</span>
+                <Icon name="call" className="text-[16px] text-emerald-600" />
                 Suporte & Linha Direta: <a href="tel:957427090" className="text-primary hover:underline font-mono font-bold">957 427 090</a>
               </p>
               <p className="text-on-surface-variant flex items-center justify-center md:justify-start gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-blue-600">mail</span>
+                <Icon name="mail" className="text-[16px] text-blue-600" />
                 Atendimento: <a href="mailto:chinua.ndembo@gmail.com" className="font-mono text-on-surface hover:text-primary hover:underline">chinua.ndembo@gmail.com</a>
               </p>
             </div>
@@ -815,7 +812,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Security and Trust Badge */}
             <div className="flex flex-col items-center md:items-end space-y-2">
               <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shadow-xs">
-                <span className="material-symbols-outlined text-[18px] text-emerald-700">verified_user</span>
+                <Icon name="verified_user" className="text-[18px] text-emerald-700" />
                 <span>Pagamento Seguro: Multicaixa Xpress & BAI</span>
               </div>
               <p className="text-[11px] text-on-surface-variant text-center md:text-right">
@@ -835,7 +832,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 }}
                 className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container border border-surface-border text-on-surface hover:text-primary text-[11px] sm:text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer min-h-[36px]"
               >
-                <span className="material-symbols-outlined text-[15px] text-primary">policy</span>
+                <Icon name="policy" className="text-[15px] text-primary" />
                 <span>Privacidade (Lei 22/11)</span>
               </button>
               <button
@@ -846,7 +843,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 }}
                 className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container border border-surface-border text-on-surface hover:text-primary text-[11px] sm:text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer min-h-[36px]"
               >
-                <span className="material-symbols-outlined text-[15px] text-primary">gavel</span>
+                <Icon name="gavel" className="text-[15px] text-primary" />
                 <span>Termos de Uso</span>
               </button>
               <button
@@ -856,7 +853,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 }}
                 className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container border border-surface-border text-on-surface hover:text-primary text-[11px] sm:text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer min-h-[36px]"
               >
-                <span className="material-symbols-outlined text-[15px] text-emerald-600">currency_exchange</span>
+                <Icon name="currency_exchange" className="text-[15px] text-emerald-600" />
                 <span>Reembolso</span>
               </button>
             </div>
@@ -925,7 +922,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <div className="p-3.5 sm:p-4 border-b border-surface-border flex items-center justify-between">
               <div className="flex items-center gap-2.5 sm:gap-3">
                 <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
-                  <span className="material-symbols-outlined text-[18px] sm:text-[20px]">description</span>
+                  <Icon name="description" className="text-[18px] sm:text-[20px]" />
                 </div>
                 <div>
                   <h3 className="font-display text-sm sm:text-base font-bold text-on-surface flex items-center gap-2">
@@ -941,7 +938,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 onClick={() => setZoomedTemplate(null)}
                 className="p-1.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer shrink-0"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <Icon name="close" className="text-[20px]" />
               </button>
             </div>
 
@@ -977,7 +974,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   }}
                   className="flex-1 sm:flex-initial px-5 py-2.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[16px]">edit_document</span>
+                  <Icon name="edit_document" className="text-[16px]" />
                   <span>Usar Este Modelo</span>
                 </button>
               </div>

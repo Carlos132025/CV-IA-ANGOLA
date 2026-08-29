@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { SupportTicket } from '../../types';
 
@@ -144,16 +145,14 @@ export const SupportView: React.FC<SupportViewProps> = ({
                   type="submit"
                   className="w-full bg-primary text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <span className="material-symbols-outlined text-[16px]">send</span>
+                  <Icon name="send" className="text-[16px]" />
                   Enviar Resposta & Fechar Ticket
                 </button>
               </form>
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center text-on-surface-variant py-12">
-              <span className="material-symbols-outlined text-[48px] opacity-40 mb-2">
-                mark_chat_read
-              </span>
+              <Icon name="mark_chat_read" className="text-[48px] opacity-40 mb-2" />
               <p className="text-xs font-medium">
                 Selecione um ticket ao lado para ver detalhes e responder.
               </p>

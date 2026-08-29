@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { AppUser } from '../../types';
 
@@ -76,7 +77,7 @@ export const UsersView: React.FC<UsersViewProps> = ({
           onClick={() => setShowAddModal(true)}
           className="bg-primary text-white px-5 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-2 shadow-sm hover:shadow-md hover:bg-primary/95 transition-all self-start md:self-auto"
         >
-          <span className="material-symbols-outlined text-[18px]">person_add</span>
+          <Icon name="person_add" className="text-[18px]" />
           Adicionar Utilizador
         </button>
       </div>
@@ -86,7 +87,7 @@ export const UsersView: React.FC<UsersViewProps> = ({
         {/* Search */}
         <div className="relative flex-1 min-w-[240px]">
           <span className="absolute inset-y-0 left-3 flex items-center text-on-surface-variant">
-            <span className="material-symbols-outlined text-[20px]">search</span>
+            <Icon name="search" className="text-[20px]" />
           </span>
           <input
             type="text"
@@ -221,9 +222,7 @@ export const UsersView: React.FC<UsersViewProps> = ({
                           className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
                           title="Ver detalhes"
                         >
-                          <span className="material-symbols-outlined text-[18px]">
-                            visibility
-                          </span>
+                          <Icon name="visibility" className="text-[18px]" />
                         </button>
                         <button
                           onClick={() => onToggleUserStatus(u.id)}
@@ -276,7 +275,7 @@ export const UsersView: React.FC<UsersViewProps> = ({
                 onClick={() => setShowAddModal(false)}
                 className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
@@ -372,7 +371,7 @@ export const UsersView: React.FC<UsersViewProps> = ({
                 onClick={() => setSelectedUser(null)}
                 className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 

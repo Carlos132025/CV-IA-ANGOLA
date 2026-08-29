@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -97,7 +98,7 @@ export const CVOnboardingModal: React.FC<CVOnboardingModalProps> = ({
           <div className="p-6 sm:p-7 pb-4">
             <div className="flex items-center justify-between gap-4 mb-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                <span className="material-symbols-outlined text-[14px]">school</span>
+                <Icon name="school" className="text-[14px]" />
                 {currentStep.badge}
               </span>
               <button
@@ -135,9 +136,7 @@ export const CVOnboardingModal: React.FC<CVOnboardingModalProps> = ({
                   <div
                     className={`w-12 h-12 rounded-2xl bg-linear-to-br ${currentStep.color} text-white flex items-center justify-center flex-shrink-0 shadow-md`}
                   >
-                    <span className="material-symbols-outlined text-[26px]">
-                      {currentStep.icon}
-                    </span>
+                    <Icon name={currentStep.icon} className="text-[26px]" />
                   </div>
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
@@ -155,9 +154,7 @@ export const CVOnboardingModal: React.FC<CVOnboardingModalProps> = ({
               </div>
 
               <div className="bg-surface-container-low p-3.5 rounded-2xl border border-surface-border/60 flex items-center gap-2.5 text-xs text-on-surface font-medium">
-                <span className="material-symbols-outlined text-primary text-[18px] flex-shrink-0">
-                  lightbulb
-                </span>
+                <Icon name="lightbulb" className="text-primary text-[18px] flex-shrink-0" />
                 <span>{currentStep.highlight}</span>
               </div>
             </div>
@@ -175,7 +172,7 @@ export const CVOnboardingModal: React.FC<CVOnboardingModalProps> = ({
                   : 'text-on-surface-variant hover:bg-surface-container-high cursor-pointer'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+              <Icon name="arrow_back" className="text-[16px]" />
               Anterior
             </button>
 
@@ -185,9 +182,7 @@ export const CVOnboardingModal: React.FC<CVOnboardingModalProps> = ({
               className="px-6 py-2.5 rounded-xl text-xs font-bold bg-primary text-white flex items-center gap-2 shadow-sm hover:shadow-md hover:bg-primary/95 transition-all cursor-pointer"
             >
               <span>{isLastStep ? 'Começar a Criar CV' : 'Seguinte'}</span>
-              <span className="material-symbols-outlined text-[16px]">
-                {isLastStep ? 'check_circle' : 'arrow_forward'}
-              </span>
+              <Icon name={isLastStep ? 'check_circle' : 'arrow_forward'} className="text-[16px]" />
             </button>
           </div>
         </motion.div>

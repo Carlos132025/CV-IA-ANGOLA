@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -25,19 +26,20 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(100);
   const duration = toast?.duration || 6000; // 6 seconds default for optimal readability
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number | null>(null);
   const remainingTimeRef = useRef<number>(duration);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!toast) return;
 
-    setProgress(100);
     remainingTimeRef.current = duration;
     startTimeRef.current = Date.now();
+    const frameId = requestAnimationFrame(() => {
+      setProgress(100);
+    });
 
     const interval = setInterval(() => {
-      if (!isPaused) {
+      if (!isPaused && startTimeRef.current !== null) {
         const elapsed = Date.now() - startTimeRef.current;
         const currentProgress = Math.max(0, 100 - (elapsed / duration) * 100);
         setProgress(currentProgress);
@@ -50,6 +52,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
     }, 50);
 
     return () => {
+      cancelAnimationFrame(frameId);
       clearInterval(interval);
     };
   }, [toast, duration, isPaused, onClose]);
@@ -139,12 +142,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
           <div
             className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border ${theme.iconBg} shadow-inner`}
           >
-            <span
-              className="material-symbols-outlined text-[20px] sm:text-[22px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              {theme.icon}
-            </span>
+            <Icon name={theme.icon} className="text-[20px] sm:text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }} />
           </div>
 
           {/* Text Content */}
@@ -175,7 +173,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
                   className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5 active:scale-95"
                 >
                   <span>{toast.actionLabel}</span>
-                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  <Icon name="arrow_forward" className="text-[14px]" />
                 </button>
               </div>
             )}
@@ -188,7 +186,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
             aria-label="Fechar notificação"
             className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors shrink-0 cursor-pointer -mr-1 -mt-1 active:scale-90"
           >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+            <Icon name="close" className="text-[18px]" />
           </button>
         </div>
 

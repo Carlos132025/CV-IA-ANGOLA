@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState, useEffect, useRef } from 'react';
 import { AppUser, VerificationSession } from '../../types';
 import { sanitizeInput } from '../../utils/sanitize';
@@ -569,7 +570,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           className="absolute top-5 right-5 text-on-surface-variant hover:text-on-surface p-1.5 rounded-xl hover:bg-surface-container transition-colors"
           title="Fechar"
         >
-          <span className="material-symbols-outlined text-[20px]">close</span>
+          <Icon name="close" className="text-[20px]" />
         </button>
 
         {/* Modal Brand Logo Header */}
@@ -581,9 +582,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {bannerAlert && (
           <div className="mb-4 p-3.5 bg-gradient-to-r from-emerald-500/15 via-primary/10 to-emerald-500/15 border border-emerald-500/30 rounded-2xl animate-in slide-in-from-top-2 duration-300">
             <div className="flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-emerald-600 text-[20px] flex-shrink-0 mt-0.5">
-                {bannerAlert.type === 'email' ? 'mark_email_read' : 'sms'}
-              </span>
+              <Icon name={bannerAlert.type === 'email' ? 'mark_email_read' : 'sms'} className="text-emerald-600 text-[20px] flex-shrink-0 mt-0.5" />
               <div className="flex-1 text-xs">
                 <p className="font-bold text-on-surface">{bannerAlert.message}</p>
                 <div className="flex items-center justify-between mt-1.5 bg-surface-container-lowest/90 px-2.5 py-1.5 rounded-xl border border-emerald-500/20">
@@ -598,7 +597,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={() => handleAutoFillOtp(bannerAlert.code)}
                     className="text-[10.5px] bg-primary text-white px-2 py-1 rounded-lg font-bold hover:bg-primary/90 transition-all flex items-center gap-1"
                   >
-                    <span className="material-symbols-outlined text-[13px]">content_paste</span>
+                    <Icon name="content_paste" className="text-[13px]" />
                     Preencher
                   </button>
                 </div>
@@ -610,9 +609,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* Error Alert */}
         {errorMessage && (
           <div className="mb-4 p-3 bg-error-container/40 border border-error/30 rounded-2xl flex items-center gap-2 text-xs text-on-error-container animate-in fade-in">
-            <span className="material-symbols-outlined text-error text-[18px] flex-shrink-0">
-              error
-            </span>
+            <Icon name="error" className="text-error text-[18px] flex-shrink-0" />
             <p className="leading-snug">{errorMessage}</p>
           </div>
         )}
@@ -624,7 +621,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-5">
             <div>
               <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[24px]">lock_person</span>
+                <Icon name="lock_person" className="text-[24px]" />
               </div>
               <h3 className="font-display text-xl font-bold text-on-surface">
                 Entrar na Conta
@@ -641,7 +638,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">person</span>
+                    <Icon name="person" className="text-[18px]" />
                   </span>
                   <input
                     type="text"
@@ -672,7 +669,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">key</span>
+                    <Icon name="key" className="text-[18px]" />
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -687,9 +684,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showPassword ? 'visibility_off' : 'visibility'}
-                    </span>
+                    <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-[18px]" />
                   </button>
                 </div>
               </div>
@@ -699,7 +694,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-2"
               >
                 <span>Entrar na Minha Conta</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <Icon name="arrow_forward" className="text-[16px]" />
               </button>
             </form>
 
@@ -728,7 +723,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-5">
             <div>
               <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[24px]">person_add</span>
+                <Icon name="person_add" className="text-[24px]" />
               </div>
               <h3 className="font-display text-xl font-bold text-on-surface">
                 Criar Nova Conta
@@ -752,7 +747,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">smartphone</span>
+                <Icon name="smartphone" className="text-[16px]" />
                 Número de Telemóvel (SMS)
               </button>
               <button
@@ -767,7 +762,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">mail</span>
+                <Icon name="mail" className="text-[16px]" />
                 E-mail
               </button>
             </div>
@@ -826,7 +821,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </div>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[18px]">mail</span>
+                      <Icon name="mail" className="text-[18px]" />
                     </span>
                     <input
                       type="email"
@@ -886,7 +881,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Enviar Código de Verificação</span>
-                <span className="material-symbols-outlined text-[16px]">send</span>
+                <Icon name="send" className="text-[16px]" />
               </button>
             </form>
 
@@ -919,7 +914,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={() => setMode('register_input')}
                 className="text-xs text-on-surface-variant hover:text-primary font-bold flex items-center gap-1 mb-2"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <Icon name="arrow_back" className="text-[16px]" />
                 Alterar {activeSession?.type === 'email' ? 'e-mail' : 'número'}
               </button>
               <h3 className="font-display text-xl font-bold text-on-surface">
@@ -951,9 +946,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {/* Timer Countdown & Resend Option */}
               <div className="flex items-center justify-between text-xs bg-surface-container p-3 rounded-xl border border-surface-border">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px] text-primary">
-                    timer
-                  </span>
+                  <Icon name="timer" className="text-[16px] text-primary" />
                   <span className="text-on-surface-variant">
                     {timeLeft > 0 ? (
                       <>Expira em: <strong className="text-primary font-mono">{formatTimer(timeLeft)}</strong></>
@@ -969,7 +962,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   disabled={resendCooldown > 0}
                   className="font-bold text-primary hover:underline disabled:opacity-50 disabled:no-underline flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[14px]">refresh</span>
+                  <Icon name="refresh" className="text-[14px]" />
                   {resendCooldown > 0 ? `Reenviar (${resendCooldown}s)` : 'Reenviar código'}
                 </button>
               </div>
@@ -979,7 +972,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Validar Código & Continuar</span>
-                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                <Icon name="check_circle" className="text-[16px]" />
               </button>
             </form>
           </div>
@@ -992,7 +985,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-5">
             <div>
               <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[24px]">key</span>
+                <Icon name="key" className="text-[24px]" />
               </div>
               <h3 className="font-display text-xl font-bold text-on-surface">
                 Criar a sua Palavra-passe
@@ -1009,7 +1002,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">lock</span>
+                    <Icon name="lock" className="text-[18px]" />
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -1024,9 +1017,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showPassword ? 'visibility_off' : 'visibility'}
-                    </span>
+                    <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-[18px]" />
                   </button>
                 </div>
               </div>
@@ -1037,7 +1028,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">lock_reset</span>
+                    <Icon name="lock_reset" className="text-[18px]" />
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -1052,7 +1043,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               {/* Password strength note */}
               <div className="text-[11px] text-on-surface-variant bg-surface-container p-2.5 rounded-xl flex items-center gap-2">
-                <span className="material-symbols-outlined text-emerald-600 text-[16px]">verified</span>
+                <Icon name="verified" className="text-emerald-600 text-[16px]" />
                 <span>Pode aceder mais tarde usando o seu {activeSession?.type === 'email' ? 'e-mail' : 'número de telemóvel'} e esta palavra-passe.</span>
               </div>
 
@@ -1061,7 +1052,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-2"
               >
                 <span>Concluir Cadastro & Entrar</span>
-                <span className="material-symbols-outlined text-[16px]">verified</span>
+                <Icon name="verified" className="text-[16px]" />
               </button>
             </form>
           </div>
@@ -1081,7 +1072,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className="text-xs text-on-surface-variant hover:text-primary font-bold flex items-center gap-1 mb-2"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <Icon name="arrow_back" className="text-[16px]" />
                 Voltar ao Login
               </button>
               <h3 className="font-display text-xl font-bold text-on-surface">
@@ -1106,7 +1097,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">smartphone</span>
+                <Icon name="smartphone" className="text-[16px]" />
                 Telemóvel (SMS)
               </button>
               <button
@@ -1121,7 +1112,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">mail</span>
+                <Icon name="mail" className="text-[16px]" />
                 E-mail
               </button>
             </div>
@@ -1133,9 +1124,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">
-                      {forgotIdentifierType === 'email' ? 'mail' : 'phone_android'}
-                    </span>
+                    <Icon name={forgotIdentifierType === 'email' ? 'mail' : 'phone_android'} className="text-[18px]" />
                   </span>
                   <input
                     type={forgotIdentifierType === 'email' ? 'email' : 'tel'}
@@ -1153,7 +1142,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-2"
               >
                 <span>Enviar Código de Recuperação</span>
-                <span className="material-symbols-outlined text-[16px]">send</span>
+                <Icon name="send" className="text-[16px]" />
               </button>
             </form>
           </div>
@@ -1170,7 +1159,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={() => setMode('forgot_input')}
                 className="text-xs text-on-surface-variant hover:text-primary font-bold flex items-center gap-1 mb-2"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <Icon name="arrow_back" className="text-[16px]" />
                 Alterar {activeSession?.type === 'email' ? 'e-mail' : 'número'}
               </button>
               <h3 className="font-display text-xl font-bold text-on-surface">
@@ -1202,9 +1191,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {/* Timer Countdown & Resend Option */}
               <div className="flex items-center justify-between text-xs bg-surface-container p-3 rounded-xl border border-surface-border">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px] text-primary">
-                    timer
-                  </span>
+                  <Icon name="timer" className="text-[16px] text-primary" />
                   <span className="text-on-surface-variant">
                     {timeLeft > 0 ? (
                       <>Expira em: <strong className="text-primary font-mono">{formatTimer(timeLeft)}</strong></>
@@ -1220,7 +1207,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   disabled={resendCooldown > 0}
                   className="font-bold text-primary hover:underline disabled:opacity-50 disabled:no-underline flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[14px]">refresh</span>
+                  <Icon name="refresh" className="text-[14px]" />
                   {resendCooldown > 0 ? `Reenviar (${resendCooldown}s)` : 'Reenviar código'}
                 </button>
               </div>
@@ -1230,7 +1217,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Validar Código</span>
-                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                <Icon name="check_circle" className="text-[16px]" />
               </button>
             </form>
           </div>
@@ -1243,7 +1230,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-5">
             <div>
               <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[24px]">lock_reset</span>
+                <Icon name="lock_reset" className="text-[24px]" />
               </div>
               <h3 className="font-display text-xl font-bold text-on-surface">
                 Definir Nova Palavra-passe
@@ -1260,7 +1247,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">lock</span>
+                    <Icon name="lock" className="text-[18px]" />
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -1275,9 +1262,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showPassword ? 'visibility_off' : 'visibility'}
-                    </span>
+                    <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-[18px]" />
                   </button>
                 </div>
               </div>
@@ -1288,7 +1273,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                    <span className="material-symbols-outlined text-[18px]">lock_reset</span>
+                    <Icon name="lock_reset" className="text-[18px]" />
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -1306,7 +1291,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-2"
               >
                 <span>Guardar Nova Palavra-passe & Entrar</span>
-                <span className="material-symbols-outlined text-[16px]">save</span>
+                <Icon name="save" className="text-[16px]" />
               </button>
             </form>
           </div>
@@ -1373,7 +1358,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   }}
                   className="w-full py-3 bg-primary text-white hover:bg-primary/95 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                 >
-                  <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                  <Icon name="admin_panel_settings" className="text-[18px]" />
                   <span>Aceder ao Painel Administrativo</span>
                 </button>
               )}
@@ -1387,7 +1372,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className="w-full py-3 bg-error/10 text-error hover:bg-error/20 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">logout</span>
+                <Icon name="logout" className="text-[16px]" />
                 Terminar Sessão
               </button>
             </div>

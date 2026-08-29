@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { Transaction } from '../../types';
 import { RejectPaymentModal } from './RejectPaymentModal';
@@ -16,6 +17,7 @@ import {
 
 interface DashboardViewProps {
   transactions: Transaction[];
+  usersCount?: number;
   onApproveTransaction: (id: string) => void;
   onRejectTransaction?: (id: string, reason: string) => void;
   onNavigateToSales: () => void;
@@ -31,6 +33,7 @@ const TEMPLATE_DISTRIBUTION = [
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   transactions,
+  usersCount = 1,
   onApproveTransaction,
   onRejectTransaction,
   onNavigateToSales,
@@ -41,10 +44,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [rejectingTx, setRejectingTx] = useState<Transaction | null>(null);
   const [activeMenuTxId, setActiveMenuTxId] = useState<string | null>(null);
 
-  const pendingTransactions = transactions.filter((t) => {
+  // Filter out any admin generated transactions from financial metrics
+  const customerTransactions = transactions.filter(
+    (t) =>
+      t.userEmail?.toLowerCase() !== 'cv.ia.angola@gmail.com' &&
+      t.userEmail?.toLowerCase() !== 'admin.prospekta@gmail.com' &&
+      t.userId !== 'usr-admin-cviaangola'
+  );
+
+  const pendingTransactions = customerTransactions.filter((t) => {
     const s = (t.status || '').toLowerCase();
     return s === 'pendente' || s === 'pending';
   });
+
+  const totalRevenue = customerTransactions.reduce(
+    (acc, t) => acc + (t.status === 'Concluído' ? t.amount : 0),
+    0
+  );
+  const totalApproved = customerTransactions.filter((t) => t.status === 'Concluído').length;
+  const totalRejected = customerTransactions.filter((t) => t.status === 'Cancelado').length;
+  const approvalRate =
+    totalApproved + totalRejected > 0
+      ? ((totalApproved / (totalApproved + totalRejected)) * 100).toFixed(1) + '%'
+      : '100%';
 
   const chartDataByPeriod = {
     Hoje: [
@@ -135,7 +157,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onClick={handleExport}
             className="bg-primary text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 sm:gap-2 shadow-xs hover:shadow-md hover:bg-primary/95 transition-all active:scale-[0.98] cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
+            <Icon name="download" className="text-[18px]" />
             <span>Exportar Relatório</span>
           </button>
         </div>
@@ -148,22 +170,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
           <div className="flex items-center gap-4 mb-4 relative z-10">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[24px]">payments</span>
+              <Icon name="payments" className="text-[24px]" />
             </div>
             <div>
               <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
                 Total de Vendas
               </p>
               <h2 className="text-2xl font-bold text-on-surface mt-0.5 font-display">
-                3.240.500 <span className="text-xs font-normal text-on-surface-variant">KZS</span>
+                {totalRevenue.toLocaleString('pt-AO')} <span className="text-xs font-normal text-on-surface-variant">KZS</span>
               </h2>
             </div>
           </div>
           <div className="flex items-center gap-1.5 relative z-10">
-            <span className="material-symbols-outlined text-success-green text-[16px]">
-              trending_up
-            </span>
-            <span className="text-xs font-semibold text-success-green">+18.4% vs mês anterior</span>
+            <Icon name="trending_up" className="text-success-green text-[16px]" />
+            <span className="text-xs font-semibold text-success-green">{customerTransactions.length} transações</span>
           </div>
         </div>
 
@@ -172,22 +192,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-secondary/5 rounded-full group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
           <div className="flex items-center gap-4 mb-4 relative z-10">
             <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
-              <span className="material-symbols-outlined text-[24px]">group</span>
+              <Icon name="group" className="text-[24px]" />
             </div>
             <div>
               <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
                 Utilizadores Ativos
               </p>
               <h2 className="text-2xl font-bold text-on-surface mt-0.5 font-display">
-                1.427
+                {usersCount}
               </h2>
             </div>
           </div>
           <div className="flex items-center gap-1.5 relative z-10">
-            <span className="material-symbols-outlined text-success-green text-[16px]">
-              trending_up
-            </span>
-            <span className="text-xs font-semibold text-success-green">+8.2% vs mês anterior</span>
+            <Icon name="verified_user" className="text-success-green text-[16px]" />
+            <span className="text-xs font-semibold text-success-green">Contas registadas</span>
           </div>
         </div>
 
@@ -196,24 +214,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
           <div className="flex items-center gap-4 mb-4 relative z-10">
             <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
-              <span className="material-symbols-outlined text-[24px]">
-                auto_awesome
-              </span>
+              <Icon name="auto_awesome" className="text-[24px]" />
             </div>
             <div>
               <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
                 CVs Emitidos
               </p>
               <h2 className="text-2xl font-bold text-on-surface mt-0.5 font-display">
-                1.620
+                {totalApproved}
               </h2>
             </div>
           </div>
           <div className="flex items-center gap-1.5 relative z-10">
-            <span className="material-symbols-outlined text-success-green text-[16px]">
-              trending_up
-            </span>
-            <span className="text-xs font-semibold text-success-green">+24% vs ontem</span>
+            <Icon name="check_circle" className="text-success-green text-[16px]" />
+            <span className="text-xs font-semibold text-success-green">Downloads pagos</span>
           </div>
         </div>
 
@@ -222,22 +236,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
           <div className="flex items-center gap-4 mb-4 relative z-10">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-              <span className="material-symbols-outlined text-[24px]">price_check</span>
+              <Icon name="price_check" className="text-[24px]" />
             </div>
             <div>
               <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
                 Taxa de Aprovação
               </p>
               <h2 className="text-2xl font-bold text-on-surface mt-0.5 font-display">
-                98.6%
+                {approvalRate}
               </h2>
             </div>
           </div>
           <div className="flex items-center gap-1.5 relative z-10">
-            <span className="material-symbols-outlined text-success-green text-[16px]">
-              trending_up
-            </span>
-            <span className="text-xs font-semibold text-success-green">+1.4% este mês</span>
+            <Icon name="trending_up" className="text-success-green text-[16px]" />
+            <span className="text-xs font-semibold text-success-green">Validação de compras</span>
           </div>
         </div>
       </div>
@@ -246,7 +258,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {pendingTransactions.length > 0 && (
         <div className="bg-error-container/30 border border-error/20 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-start gap-4">
           <div className="w-11 h-11 rounded-full bg-error flex items-center justify-center flex-shrink-0 text-white mt-0.5 shadow-xs">
-            <span className="material-symbols-outlined text-[22px]">warning</span>
+            <Icon name="warning" className="text-[22px]" />
           </div>
           <div className="flex-1">
             <h3 className="font-display text-lg font-bold text-on-error-container">
@@ -260,7 +272,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setSelectedReceiptTx(pendingTransactions[0])}
                 className="bg-error text-white px-4 py-2 rounded-xl font-semibold text-xs hover:bg-error/90 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">receipt_long</span>
+                <Icon name="receipt_long" className="text-[16px]" />
                 Rever Comprovativos ({pendingTransactions.length})
               </button>
               <button
@@ -268,7 +280,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 className="text-error font-semibold text-xs hover:underline inline-flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-error/5 cursor-pointer"
               >
                 Ver Todas Transações
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <Icon name="arrow_forward" className="text-[16px]" />
               </button>
             </div>
           </div>
@@ -445,11 +457,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-border/40">
-              {transactions.slice(0, 5).map((t) => (
-                <tr
-                  key={t.id}
-                  className="hover:bg-surface-container-low/30 transition-colors group cursor-pointer"
-                >
+              {customerTransactions.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-on-surface-variant text-sm">
+                    <Icon name="receipt_long" className="text-on-surface-variant/40 text-[32px] mb-2 block mx-auto" />
+                    Nenhuma venda ou transação registada até ao momento.
+                  </td>
+                </tr>
+              ) : (
+                customerTransactions.slice(0, 5).map((t) => (
+                  <tr
+                    key={t.id}
+                    className="hover:bg-surface-container-low/30 transition-colors group cursor-pointer"
+                  >
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
                       {t.userAvatar ? (
@@ -483,9 +503,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {t.amount.toLocaleString()} KZS
                     </p>
                     <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-0.5">
-                      <span className="material-symbols-outlined text-[14px]">
-                        {t.method === 'Multicaixa' ? 'credit_card' : 'account_balance'}
-                      </span>
+                      <Icon name={t.method === 'Multicaixa' ? 'credit_card' : 'account_balance'} className="text-[14px]" />
                       {t.method === 'Multicaixa' ? 'Multicaixa Xpress' : 'Transferência BAI'}
                     </p>
                   </td>
@@ -523,9 +541,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       }
                       className="text-on-surface-variant hover:text-primary p-1.5 rounded-lg hover:bg-surface-container-high transition-all cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[20px]">
-                        more_vert
-                      </span>
+                      <Icon name="more_vert" className="text-[20px]" />
                     </button>
 
                     {/* Quick action popup */}
@@ -539,9 +555,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             }}
                             className="w-full px-4 py-2 text-xs font-semibold text-success-green hover:bg-success-green/10 flex items-center gap-2 cursor-pointer"
                           >
-                            <span className="material-symbols-outlined text-[16px]">
-                              check_circle
-                            </span>
+                            <Icon name="check_circle" className="text-[16px]" />
                             Aprovar Pagamento
                           </button>
                         )}
@@ -552,16 +566,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           }}
                           className="w-full px-4 py-2 text-xs text-on-surface hover:bg-surface-container-low flex items-center gap-2 cursor-pointer"
                         >
-                          <span className="material-symbols-outlined text-[16px]">
-                            visibility
-                          </span>
+                          <Icon name="visibility" className="text-[16px]" />
                           Ver Detalhes
                         </button>
                       </div>
                     )}
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
@@ -573,9 +585,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="bg-surface-container-lowest rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-surface-border animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-surface-border pb-4">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[24px]">
-                  receipt_long
-                </span>
+                <Icon name="receipt_long" className="text-primary text-[24px]" />
                 <h3 className="font-display text-lg font-bold text-on-surface">
                   Validar Comprovativo Bancário
                 </h3>
@@ -584,7 +594,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setSelectedReceiptTx(null)}
                 className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
@@ -638,7 +648,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     }}
                     className="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-semibold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[16px]">cancel</span>
+                    <Icon name="cancel" className="text-[16px]" />
                     Rejeitar
                   </button>
                   <button
@@ -648,7 +658,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     }}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-success-green text-white font-semibold text-xs hover:bg-success-green/90 shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    <Icon name="check_circle" className="text-[18px]" />
                     Aprovar & Libertar CV
                   </button>
                 </>

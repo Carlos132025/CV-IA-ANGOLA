@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 
 interface PolicyModalProps {
@@ -24,7 +25,7 @@ export const PolicyModal: React.FC<PolicyModalProps> = ({
         <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[22px]">policy</span>
+              <Icon name="policy" className="text-[22px]" />
             </div>
             <div>
               <h3 className="font-display text-lg font-bold text-on-surface">
@@ -39,7 +40,7 @@ export const PolicyModal: React.FC<PolicyModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 

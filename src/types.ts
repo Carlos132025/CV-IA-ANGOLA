@@ -171,6 +171,8 @@ export interface Transaction {
   time: string;
   timestamp?: number; // epoch ms for sorting FIFO
   status: 'Concluído' | 'Pendente' | 'Cancelado';
+  cvId?: string;
+  targetCvId?: string;
   receiptUrl?: string;
   receiptFileName?: string;
   receiptFileSize?: string;

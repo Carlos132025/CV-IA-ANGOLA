@@ -1,11 +1,39 @@
 import { AppUser, CVTemplate, ResumeData, ReviewItem, SupportTicket, SystemSettings, Transaction } from '../types';
-import classicSimplePreview from '../assets/images/cv_classic_simple_preview_1787429311946.jpg';
-import creativeTechPreview from '../assets/images/cv_creative_tech_preview_1787429324684.jpg';
-import executiveClassicPreview from '../assets/images/cv_executive_classic_preview_1787429338291.jpg';
-import luminaModernPreview from '../assets/images/cv_lumina_modern_preview_1787429352322.jpg';
+import classicSimplePreview from '../assets/images/classic_simple_cv_1788008018989.jpg';
+import creativeTechPreview from '../assets/images/creative_tech_cv_1788008034328.jpg';
+import executiveClassicPreview from '../assets/images/executive_classic_cv_1788008047573.jpg';
+import luminaModernPreview from '../assets/images/lumina_modern_cv_1788008062814.jpg';
 
 export const APP_LOGO = '/logo-full.svg';
 export const APP_ICON = '/icon.svg';
+
+export const TEMPLATE_THUMBNAILS: Record<string, string> = {
+  'classic-simple': classicSimplePreview,
+  'creative-tech': creativeTechPreview,
+  'executive-classic': executiveClassicPreview,
+  'lumina-modern': luminaModernPreview,
+};
+
+export function getTemplateThumbnail(templateOrId?: CVTemplate | string | null): string {
+  if (!templateOrId) return luminaModernPreview;
+  const id = typeof templateOrId === 'string' ? templateOrId : templateOrId?.id;
+  const directThumbnail = typeof templateOrId === 'object' ? templateOrId?.thumbnailUrl : undefined;
+
+  // If a valid bundled module or base64 or valid URL is present
+  if (
+    directThumbnail &&
+    typeof directThumbnail === 'string' &&
+    directThumbnail.length > 5 &&
+    !directThumbnail.includes('cv_classic_simple_preview') &&
+    !directThumbnail.includes('cv_creative_tech_preview') &&
+    !directThumbnail.includes('cv_executive_classic_preview') &&
+    !directThumbnail.includes('cv_lumina_modern_preview')
+  ) {
+    return directThumbnail;
+  }
+
+  return (id && TEMPLATE_THUMBNAILS[id]) || luminaModernPreview;
+}
 
 export const INITIAL_SETTINGS: SystemSettings = {
   platformName: 'CV IA Angola',
@@ -85,309 +113,70 @@ export const INITIAL_USERS: AppUser[] = [
     cvsGenerated: 0,
     status: 'Ativo',
   },
-  {
-    id: 'usr-1',
-    name: 'João Silva',
-    email: 'joao.silva@email.com',
-    phone: '+244 923 123 456',
-    password: 'password123',
-    role: 'user',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDfgwY9V7lSiEHYbFxSeH-BSMbQjo25gT53ad2dvmHDihGaalSo8xF67UJu1jW2t7pPZDCvSITOp4-747po1UIb5w2YM7AEviKWTf2Ry1LKyUxHF-vytC8vgD981YfIMzBKhrKlQ6Oa-4uVBA9B5NJIQ-gf6VlkytpjN3Hl7pP_vwTVSA4wUGMFS7iZy1NEmsb9fQhfYpDHMh14tLuATZefituo9sXHyEQUbG5hdQZht6n3qWQGww-FyA',
-    initials: 'JS',
-    registrationDate: '15 Mar 2024',
-    cvsGenerated: 4,
-    status: 'Ativo',
-  },
-  {
-    id: 'usr-2',
-    name: 'Maria Fernandes',
-    email: 'maria.f@email.com',
-    phone: '+244 931 987 654',
-    initials: 'MF',
-    registrationDate: '12 Mar 2024',
-    cvsGenerated: 1,
-    status: 'Ativo',
-  },
-  {
-    id: 'usr-3',
-    name: 'Pedro António',
-    email: 'pedro.antonio@email.com',
-    phone: '+244 945 333 222',
-    initials: 'PA',
-    registrationDate: '10 Mar 2024',
-    cvsGenerated: 0,
-    status: 'Suspenso',
-  },
-  {
-    id: 'usr-4',
-    name: 'Ana Costa',
-    email: 'ana.costa@email.com',
-    phone: '+244 928 444 888',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAsfOLMg5bgh8VtI5OZlKIsdRzi5vJ0E3jfgyhNX4a_q3v-UdmpkpxDzwas2Ly6Ygsnf6CizFWfknxcgyFEdO0jH0xeqv6wUyRLmIm6NX9z-HA1cQMJY40YnVLFWiZPddTPkpiEbdRptXuvujkeHLgIFcT_whf7Y0yTOhDMJt-7cwzCwJ5k33jPC1CnRl2nT28wh3QPHJBD2ysu2hZLou-pdQqKLr6z00OhyLgmj9HfoANz_4BOutujJQ',
-    initials: 'AC',
-    registrationDate: '08 Mar 2024',
-    cvsGenerated: 2,
-    status: 'Ativo',
-  },
-  {
-    id: 'usr-5',
-    name: 'Carlos Miguel',
-    email: 'c.miguel@email.com',
-    phone: '+244 937 555 111',
-    initials: 'CM',
-    registrationDate: '05 Mar 2024',
-    cvsGenerated: 3,
-    status: 'Ativo',
-  },
-  {
-    id: 'usr-6',
-    name: 'Sofia Costa',
-    email: 's.costa.design@email.com',
-    phone: '+244 922 999 333',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBLT-jtwdxcPur4j2SU2n5fzed4_I5bqD1Rzfn7eNWzA5pgqDi24p3pEE7GCeuIOnZ3FPNBEA4s1ZuksqYA9DE1SQYdXN94cGfbnzo-jOHqv6rJVjI-vmZm382SXJkUK-MG3d8AuqOLh5v57UXIJPXRRNXSEBFB6qNkl-VA_0CX2pq1dLQ-u09WfFMx8g9oIPK1W-jJs9yU3hrIEOTIh42Nv_bqsg-preLtqCr2NBIoyVqLT-713hx8uQ',
-    initials: 'SC',
-    registrationDate: '02 Mar 2024',
-    cvsGenerated: 1,
-    status: 'Ativo',
-  },
-  {
-    id: 'usr-7',
-    name: 'João Miguel',
-    email: 'joao.miguel@email.com',
-    phone: '+244 912 888 777',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCQEQnUF_KpD1rxBc9aMtzktK8aF_9p0fN438Su3JEwFpZKJnafNmMHslw4R8xROUhnh3VZs_0hDOJ_y0TndVcoW1gwAd9Q0gpnSSJ4sgF5WQQMTDO2ZJDW_ef3FY3LWWjpssMVu64l9JiFVsFpbTXcFtJLLQJUhi4SRJkK8p7Gpw2Cu3SefBJZes10PJDarshVR3aF8hf6n_-tgISg2Sq0gUonFb5EslNZU0Vp3zLY6UTMG--xrWj7Nw',
-    initials: 'JM',
-    registrationDate: '01 Mar 2024',
-    cvsGenerated: 5,
-    status: 'Ativo',
-  }
 ];
 
-export const INITIAL_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'TRX-8921A',
-    userId: 'usr-1',
-    userName: 'João Silva',
-    userEmail: 'joao.silva@email.com',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    userInitials: 'JS',
-    amount: 2000,
-    method: 'Multicaixa',
-    date: 'Hoje',
-    time: '14:32',
-    status: 'Concluído',
-    templateName: 'Lumina Modern',
-  },
-  {
-    id: 'TRX-8920B',
-    userId: 'usr-2',
-    userName: 'Maria Pedro',
-    userEmail: 'maria.p@email.com',
-    userInitials: 'MP',
-    amount: 2000,
-    method: 'Multicaixa',
-    date: 'Hoje',
-    time: '11:15',
-    status: 'Concluído',
-    templateName: 'Executive Classic',
-  },
-  {
-    id: 'TRX-8919C',
-    userId: 'usr-4',
-    userName: 'Ana Costa',
-    userEmail: 'ana.costa@email.com',
-    userAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    userInitials: 'AC',
-    amount: 2000,
-    method: 'Transferência',
-    date: 'Ontem',
-    time: '18:45',
-    status: 'Pendente',
-    receiptUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=60',
-    templateName: 'Classic Simple',
-  },
-  {
-    id: 'TRX-8918D',
-    userId: 'usr-5',
-    userName: 'Carlos Miguel',
-    userEmail: 'c.miguel@email.com',
-    userInitials: 'CM',
-    amount: 2000,
-    method: 'Transferência',
-    date: 'Ontem',
-    time: '15:20',
-    status: 'Concluído',
-    templateName: 'Creative Tech',
-  },
-  {
-    id: 'TRX-8917E',
-    userId: 'usr-6',
-    userName: 'Sofia Costa',
-    userEmail: 's.costa.design@email.com',
-    userAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-    userInitials: 'SC',
-    amount: 2000,
-    method: 'Transferência',
-    date: 'Hoje',
-    time: '10:45',
-    status: 'Pendente',
-    receiptUrl: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&auto=format&fit=crop&q=60',
-    templateName: 'Lumina Modern',
-  }
-];
+export const INITIAL_TRANSACTIONS: Transaction[] = [];
 
 export const INITIAL_REVIEWS: ReviewItem[] = [
   {
     id: 'rev-1',
-    userId: 'usr-1',
-    userName: 'João Silva',
+    userId: 'usr-client-1',
+    userName: 'António Gaspar',
     userRole: 'Engenheiro de Software',
     userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     rating: 5,
-    comment: 'Consegui ser chamado para duas entrevistas bancárias em Luanda na mesma semana! O modelo Lumina Modern e as sugestões de IA adaptadas ao mercado angolano fizeram toda a diferença.',
+    comment: 'Consegui ser chamado para entrevistas na banca em Luanda! As sugestões de IA adaptadas ao mercado angolano e o layout Lumina Modern deram enorme destaque ao meu perfil.',
     date: 'Há 2 dias',
     isVerifiedBuyer: true,
     templateName: 'Lumina Modern',
   },
   {
     id: 'rev-2',
-    userId: 'usr-2',
-    userName: 'Maria Pedro',
+    userId: 'usr-client-2',
+    userName: 'Mariana Fernandes',
     userRole: 'Contabilista & Auditora',
     rating: 5,
-    comment: 'Paguei 2.000 Kz por Multicaixa Express e o processo foi super rápido e sem complicações. O CV ficou com uma aparência executiva impecável, pronto a imprimir ou enviar por e-mail.',
+    comment: 'Paguei 2.000 Kz por Multicaixa Express e o processo foi rápido e sem complicações. O CV ficou com uma aparência executiva impecável, pronto a imprimir e enviar.',
     date: 'Há 4 dias',
     isVerifiedBuyer: true,
     templateName: 'Executive Classic',
   },
-  {
-    id: 'rev-3',
-    userId: 'usr-5',
-    userName: 'Carlos Miguel',
-    userRole: 'Gestor de Projetos & Logística',
-    rating: 5,
-    comment: 'Excelente plataforma nacional! A foto tipo passe com corte automático e a formatação limpa das experiências deram ao meu CV um aspeto 100% profissional.',
-    date: 'Há 1 semana',
-    isVerifiedBuyer: true,
-    templateName: 'Creative Tech',
-  },
-  {
-    id: 'rev-4',
-    userId: 'usr-7',
-    userName: 'João Miguel',
-    userRole: 'Técnico de Recursos Humanos',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    rating: 5,
-    comment: 'Recomendo a todos os candidatos. O modelo Classic Simple é perfeito para candidaturas formais e concursos públicos sem erros de caracteres.',
-    date: 'Há 2 semanas',
-    isVerifiedBuyer: true,
-    templateName: 'Classic Simple',
-  },
 ];
 
 export const INITIAL_RESUME: ResumeData = {
-  id: 'res-default',
-  userId: 'usr-1',
-  title: 'Meu CV Principal',
-  createdAt: '15 Mar 2024',
-  updatedAt: 'Hoje às 14:30',
+  id: 'res-empty-default',
+  userId: 'usr-guest',
+  title: 'Meu Currículo',
+  createdAt: new Date().toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', year: 'numeric' }),
+  updatedAt: 'Criado agora',
   templateId: 'lumina-modern',
   accentColor: '#004ac6',
-  isPaid: true,
-  downloadsRemaining: 99,
-  downloadCount: 1,
-  paymentStatus: 'approved',
+  isPaid: false,
+  downloadsRemaining: 0,
+  downloadCount: 0,
+  paymentStatus: 'none',
   personalInfo: {
-    fullName: 'João Manuel Silva',
-    professionalTitle: 'Engenheiro de Software Sênior',
-    email: 'joao.silva@email.com',
-    phone: '+244 923 456 789',
-    location: 'Luanda, Talatona',
-    photoUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDfgwY9V7lSiEHYbFxSeH-BSMbQjo25gT53ad2dvmHDihGaalSo8xF67UJu1jW2t7pPZDCvSITOp4-747po1UIb5w2YM7AEviKWTf2Ry1LKyUxHF-vytC8vgD981YfIMzBKhrKlQ6Oa-4uVBA9B5NJIQ-gf6VlkytpjN3Hl7pP_vwTVSA4wUGMFS7iZy1NEmsb9fQhfYpDHMh14tLuATZefituo9sXHyEQUbG5hdQZht6n3qWQGww-FyA',
+    fullName: '',
+    professionalTitle: '',
+    email: '',
+    phone: '',
+    location: 'Luanda, Angola',
+    photoUrl: '',
     autoCropFace: true,
     neutralBackground: true,
-    professionalSummary: 'Profissional dedicado com mais de 8 anos de experiência no desenvolvimento de soluções tecnológicas inovadoras no mercado angolano e internacional. Especialista em liderança de equipas ágeis, arquitetura em nuvem e otimização de processos de software, com forte compromisso em entregar produtos de alta qualidade.',
-    linkedinUrl: 'linkedin.com/in/joaomanuelsilva',
+    professionalSummary: '',
+    linkedinUrl: '',
     nationality: 'Angolana',
-    driverLicense: 'Ligeiros & Pesados',
+    driverLicense: '',
   },
-  experiences: [
-    {
-      id: 'exp-1',
-      role: 'Tech Lead / Arquiteto de Software',
-      company: 'Tech Solutions Angola Lda.',
-      location: 'Luanda, Angola',
-      startDate: '2020',
-      endDate: 'Presente',
-      isCurrent: true,
-      description: 'Liderança técnica de uma equipa de 10 programadores no desenvolvimento de plataformas de serviços bancários e fintechs.',
-      highlights: [
-        'Liderança técnica de equipa ágil em projetos de alta escala com 100k+ acessos diários.',
-        'Arquitetura e migração de sistemas monolíticos legados para microserviços em Kubernetes.',
-        'Integração com gateway EMIS (Multicaixa Express) e APIs de pagamentos móveis.',
-      ],
-    },
-    {
-      id: 'exp-2',
-      role: 'Desenvolvedor Full Stack Sênior',
-      company: 'Inova Digital Angola',
-      location: 'Luanda, Angola',
-      startDate: '2016',
-      endDate: '2020',
-      isCurrent: false,
-      description: 'Desenvolvimento e manutenção de ecossistemas web corporativos utilizando React, Node.js e PostgreSQL.',
-      highlights: [
-        'Redução do tempo de carregamento da aplicação web principal em 40%.',
-        'Implementação de pipeline CI/CD reduzindo o ciclo de deploy em 60%.',
-      ],
-    },
-  ],
-  educations: [
-    {
-      id: 'edu-1',
-      degree: 'Licenciatura em Engenharia Informática / Economia',
-      institution: 'Universidade Agostinho Neto (UAN)',
-      location: 'Luanda',
-      completionYear: '2021',
-    },
-  ],
-  certifications: [
-    {
-      id: 'cert-1',
-      name: 'AWS Certified Solutions Architect',
-      institution: 'Amazon Web Services',
-      year: '2023',
-    },
-    {
-      id: 'cert-2',
-      name: 'Gestão de Projetos Ágeis (Scrum Master)',
-      institution: 'Scrum Alliance',
-      year: '2022',
-    },
-  ],
-  skills: [
-    { id: 'sk-1', name: 'TypeScript / React / Node.js', level: 'Especialista' },
-    { id: 'sk-2', name: 'Arquitetura Cloud & Microserviços', level: 'Avançado' },
-    { id: 'sk-3', name: 'Integrações EMIS / Multicaixa', level: 'Avançado' },
-    { id: 'sk-4', name: 'PostgreSQL & Docker', level: 'Avançado' },
-    { id: 'sk-5', name: 'Gestão de Equipas & Metodologia Ágil', level: 'Especialista' },
-  ],
+  experiences: [],
+  educations: [],
+  certifications: [],
+  skills: [],
   languages: [
-    { id: 'lang-1', language: 'Português', proficiency: 'Nativo' },
-    { id: 'lang-2', language: 'Inglês', proficiency: 'Fluente' },
-    { id: 'lang-3', language: 'Francês', proficiency: 'Intermédio' },
+    { id: 'lang-default-1', language: 'Português', proficiency: 'Nativo' },
   ],
-  references: [
-    {
-      id: 'ref-1',
-      name: 'Eng. Manuel Domingos',
-      role: 'Diretor de Tecnologia (CTO)',
-      company: 'Tech Solutions Angola',
-      phone: '+244 923 888 111',
-      email: 'm.domingos@techsolutions.ao',
-      relationship: 'Antigo Supervisor Direto',
-    },
-  ],
+  references: [],
 };
 
 export const INITIAL_USER_CVS: ResumeData[] = [];
@@ -464,26 +253,4 @@ export const AI_SUMMARY_SUGGESTIONS = [
   },
 ];
 
-export const INITIAL_TICKETS: SupportTicket[] = [
-  {
-    id: 'TCK-104',
-    userName: 'Carlos Miguel',
-    userEmail: 'c.miguel@email.com',
-    subject: 'Comprovativo de transferência Multicaixa enviado',
-    message: 'Enviei o comprovativo da transferência bancária para o CV Lumina Modern e aguardo a libertação do download sem marca de água.',
-    status: 'Aberto',
-    priority: 'Alta',
-    createdAt: 'Hoje, 14:10',
-  },
-  {
-    id: 'TCK-103',
-    userName: 'Maria Fernandes',
-    userEmail: 'maria.f@email.com',
-    subject: 'Como adicionar a foto tipo passe com recorte?',
-    message: 'Gostaria de saber se o recorte de rosto com fundo branco funciona para fotos tiradas pelo telemóvel.',
-    status: 'Em Resolução',
-    priority: 'Média',
-    createdAt: 'Ontem, 16:30',
-    reply: 'Olá Maria! Sim, a nossa ferramenta ajusta e remove o fundo original automaticamente ao marcar a opção.',
-  },
-];
+export const INITIAL_TICKETS: SupportTicket[] = [];

@@ -1,6 +1,8 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { CVTemplate, SystemSettings } from '../../types';
 import { testDiscordWebhookConnection } from '../../utils/discordNotification';
+import { purgeAllTestDataAndArtifacts } from '../../firebase/services';
 
 interface SettingsViewProps {
   settings: SystemSettings;
@@ -21,6 +23,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [smtpStatus, setSmtpStatus] = useState<string | null>(null);
   const [discordTesting, setDiscordTesting] = useState(false);
   const [discordStatus, setDiscordStatus] = useState<{ success: boolean; msg: string } | null>(null);
+  const [purging, setPurging] = useState(false);
+  const [purgeStatus, setPurgeStatus] = useState<string | null>(null);
+
+  const handleManualPurge = async () => {
+    if (!window.confirm('Tem a certeza de que deseja executar a limpeza profunda? Todos os registos de teste e dados temporários serão removidos da nuvem e do armazenamento local.')) {
+      return;
+    }
+    setPurging(true);
+    setPurgeStatus(null);
+    try {
+      const res = await purgeAllTestDataAndArtifacts();
+      setPurgeStatus(`Limpeza concluída com sucesso! Removidos: ${res.deletedResumes} CVs de teste, ${res.deletedTransactions} transações de teste, ${res.deletedUsers} utilizadores demo.`);
+    } catch {
+      setPurgeStatus('Erro ao executar limpeza da base de dados.');
+    } finally {
+      setPurging(false);
+    }
+  };
 
   const handleTestSmtp = () => {
     setSmtpTesting(true);
@@ -52,7 +72,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {saveSuccess && (
         <div className="bg-success-green/10 border border-success-green/30 text-success-green p-4 rounded-xl flex items-center gap-3 animate-in fade-in duration-200">
-          <span className="material-symbols-outlined text-[20px]">check_circle</span>
+          <Icon name="check_circle" className="text-[20px]" />
           <span className="text-xs font-bold">
             Configurações guardadas com sucesso na base de dados!
           </span>
@@ -63,9 +83,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         {/* Section 1: Definições Gerais */}
         <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-surface-border">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              tune
-            </span>
+            <Icon name="tune" className="text-primary text-[22px]" />
             <h2 className="font-display text-lg font-bold text-on-surface">
               Definições Gerais
             </h2>
@@ -130,9 +148,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         {/* Section 2: Integrações de Pagamento Angolanas */}
         <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/40 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-surface-border">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              account_balance_wallet
-            </span>
+            <Icon name="account_balance_wallet" className="text-primary text-[22px]" />
             <h2 className="font-display text-lg font-bold text-on-surface">
               Integrações de Pagamento (Angola)
             </h2>
@@ -143,7 +159,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                  <span className="material-symbols-outlined text-[18px]">credit_card</span>
+                  <Icon name="credit_card" className="text-[18px]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-on-surface">Multicaixa Xpress (EMIS)</h3>
@@ -213,7 +229,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
-                  <span className="material-symbols-outlined text-[18px]">account_balance</span>
+                  <Icon name="account_balance" className="text-[18px]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-on-surface">Transferência Bancária (Banco BAI)</h3>
@@ -284,7 +300,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="flex items-center justify-between pb-2 border-b border-surface-border">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[20px]">webhook</span>
+                <Icon name="webhook" className="text-[20px]" />
               </div>
               <div>
                 <h2 className="font-display text-lg font-bold text-on-surface">
@@ -345,12 +361,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               >
                 {discordTesting ? (
                   <>
-                    <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                    <Icon name="progress_activity" className="text-[16px] animate-spin" />
                     A testar...
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined text-[16px]">send</span>
+                    <Icon name="send" className="text-[16px]" />
                     Testar Webhook Discord
                   </>
                 )}
@@ -365,9 +381,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     : 'bg-red-50 text-red-900 border border-red-200'
                 }`}
               >
-                <span className="material-symbols-outlined text-[18px]">
-                  {discordStatus.success ? 'check_circle' : 'error'}
-                </span>
+                <Icon name={discordStatus.success ? 'check_circle' : 'error'} className="text-[18px]" />
                 <span>{discordStatus.msg}</span>
               </div>
             )}
@@ -377,9 +391,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         {/* Section 4: Notificações de E-mail */}
         <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-surface-border">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              mail
-            </span>
+            <Icon name="mail" className="text-primary text-[22px]" />
             <h2 className="font-display text-lg font-bold text-on-surface">
               Notificações do Sistema
             </h2>
@@ -409,7 +421,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             {smtpStatus && (
               <p className="text-xs text-success-green font-medium mt-2 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                <Icon name="check_circle" className="text-[16px]" />
                 {smtpStatus}
               </p>
             )}
@@ -463,9 +475,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         {/* Section 4: Gestão de Modelos de CV */}
         <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/40 space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-surface-border">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              style
-            </span>
+            <Icon name="style" className="text-primary text-[22px]" />
             <h2 className="font-display text-lg font-bold text-on-surface">
               Disponibilidade dos Modelos de CV
             </h2>
@@ -495,6 +505,39 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
 
+        {/* Section 5: Manutenção & Higienização da Base de Dados */}
+        <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-surface-border/40 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-surface-border">
+            <Icon name="cleaning_services" className="text-primary text-[22px]" />
+            <h2 className="font-display text-lg font-bold text-on-surface">
+              Manutenção & Higienização de Lançamento
+            </h2>
+          </div>
+
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            Elimina registos de testes anteriores, documentos de exemplo e transações de depuração tanto da nuvem (Firestore) quanto do armazenamento local do navegador para garantir um ambiente 100% limpo antes de partilhar com clientes reais.
+          </p>
+
+          {purgeStatus && (
+            <div className="bg-primary/10 border border-primary/20 text-primary p-3 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <Icon name="check_circle" className="text-[18px]" />
+              {purgeStatus}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleManualPurge}
+              disabled={purging}
+              className="px-4 py-2.5 bg-error/10 hover:bg-error/20 border border-error/30 text-error font-bold text-xs rounded-xl transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <Icon name={purging ? 'hourglass_top' : 'delete_sweep'} className="text-[18px]" />
+              {purging ? 'A higienizar base de dados...' : 'Executar Limpeza Profunda (Remover Testes)'}
+            </button>
+          </div>
+        </div>
+
         {/* Save Bar */}
         <div className="flex items-center justify-end gap-3 pt-4">
           <button
@@ -508,7 +551,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             type="submit"
             className="px-6 py-2.5 rounded-xl bg-primary text-white font-semibold text-xs shadow-md hover:bg-primary/90 transition-all active:scale-[0.98] flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[18px]">save</span>
+            <Icon name="save" className="text-[18px]" />
             Guardar Alterações
           </button>
         </div>

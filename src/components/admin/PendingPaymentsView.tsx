@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { Transaction } from '../../types';
 import { testDiscordWebhookConnection } from '../../utils/discordNotification';
@@ -90,7 +91,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[24px]">pending_actions</span>
+              <Icon name="pending_actions" className="text-[24px]" />
             </div>
             <div>
               <h2 className="font-display font-black text-xl text-on-surface flex items-center gap-2">
@@ -116,12 +117,12 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
           >
             {isTestingWebhook ? (
               <>
-                <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                <Icon name="progress_activity" className="text-[18px] animate-spin" />
                 A testar Discord...
               </>
             ) : (
               <>
-                <span className="material-symbols-outlined text-[18px]">webhook</span>
+                <Icon name="webhook" className="text-[18px]" />
                 Testar Webhook Discord
               </>
             )}
@@ -139,16 +140,14 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
           }`}
         >
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px]">
-              {webhookTestResult.success ? 'check_circle' : 'error'}
-            </span>
+            <Icon name={webhookTestResult.success ? 'check_circle' : 'error'} className="text-[20px]" />
             <span>{webhookTestResult.message}</span>
           </div>
           <button
             onClick={() => setWebhookTestResult(null)}
             className="p-1 hover:bg-black/5 rounded-lg"
           >
-            <span className="material-symbols-outlined text-[16px]">close</span>
+            <Icon name="close" className="text-[16px]" />
           </button>
         </div>
       )}
@@ -157,7 +156,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
       {suspiciousCount > 0 && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-red-900">
           <div className="w-8 h-8 rounded-xl bg-red-100 text-red-700 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[20px]">warning</span>
+            <Icon name="warning" className="text-[20px]" />
           </div>
           <div className="space-y-0.5 text-xs">
             <p className="font-bold text-red-950">
@@ -174,7 +173,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-container-lowest p-4 rounded-2xl border border-surface-border">
         <div className="relative w-full sm:w-80">
           <span className="absolute inset-y-0 left-3 flex items-center text-on-surface-variant pointer-events-none">
-            <span className="material-symbols-outlined text-[18px]">search</span>
+            <Icon name="search" className="text-[18px]" />
           </span>
           <input
             type="text"
@@ -226,7 +225,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
       {pendingTransactions.length === 0 ? (
         <div className="bg-surface-container-lowest rounded-3xl p-12 text-center border border-surface-border space-y-3">
           <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
-            <span className="material-symbols-outlined text-[32px]">task_alt</span>
+            <Icon name="task_alt" className="text-[32px]" />
           </div>
           <h3 className="font-display text-lg font-bold text-on-surface">
             Todos os comprovativos foram validados!
@@ -269,13 +268,13 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                         </span>
                         {index === 0 && (
                           <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-[12px]">priority_high</span>
+                            <Icon name="priority_high" className="text-[12px]" />
                             Mais Antigo (FIFO)
                           </span>
                         )}
                         {isSuspicious && (
                           <span className="text-[10px] font-bold bg-red-100 text-red-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[12px]">gpp_maybe</span>
+                            <Icon name="gpp_maybe" className="text-[12px]" />
                             🚨 Suspeito ({tx.rejectedAttemptsCount || 3} Rejeições)
                           </span>
                         )}
@@ -303,9 +302,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                               : 'bg-emerald-100 text-emerald-800'
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[13px]">
-                            {isMulticaixa ? 'credit_card' : 'account_balance'}
-                          </span>
+                          <Icon name={isMulticaixa ? 'credit_card' : 'account_balance'} className="text-[13px]" />
                           {isMulticaixa ? 'Multicaixa Xpress' : 'Transferência BAI'}
                         </span>
                         <span className="font-display font-black text-sm text-slate-900">
@@ -358,7 +355,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
                           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                            <span className="material-symbols-outlined text-[18px]">zoom_in</span>
+                            <Icon name="zoom_in" className="text-[18px]" />
                           </div>
                         </div>
                         <div className="text-[11px] leading-tight">
@@ -390,7 +387,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                       className="p-2.5 rounded-xl border border-surface-border hover:bg-surface-container-high text-on-surface-variant transition-colors cursor-pointer"
                       title="Ver Auditoria e Detalhes Completos"
                     >
-                      <span className="material-symbols-outlined text-[20px]">history</span>
+                      <Icon name="history" className="text-[20px]" />
                     </button>
 
                     <button
@@ -398,7 +395,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                       onClick={() => onRejectTransaction(tx.id)}
                       className="px-3.5 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors font-bold text-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[16px]">close</span>
+                      <Icon name="close" className="text-[16px]" />
                       Rejeitar
                     </button>
 
@@ -407,7 +404,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                       onClick={() => onApproveTransaction(tx.id)}
                       className="px-4 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                      <Icon name="check_circle" className="text-[16px]" />
                       Aprovar & Liberar CV
                     </button>
                   </div>
@@ -424,14 +421,14 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
           <div className="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-surface-border space-y-4">
             <div className="flex items-center justify-between border-b border-surface-border pb-3">
               <h3 className="font-bold text-sm text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
+                <Icon name="receipt_long" className="text-primary text-[20px]" />
                 {viewingReceiptImage.title}
               </h3>
               <button
                 onClick={() => setViewingReceiptImage(null)}
                 className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <Icon name="close" className="text-[20px]" />
               </button>
             </div>
 
@@ -465,7 +462,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
             <div className="flex items-center justify-between border-b border-surface-border pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">verified_user</span>
+                  <Icon name="verified_user" className="text-[20px]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-on-surface">
@@ -478,7 +475,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                 onClick={() => setInspectingTx(null)}
                 className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <Icon name="close" className="text-[20px]" />
               </button>
             </div>
 
@@ -515,9 +512,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                 </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-border flex items-start gap-2">
-                    <span className="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">
-                      arrow_upward
-                    </span>
+                    <Icon name="arrow_upward" className="text-[16px] text-primary shrink-0 mt-0.5" />
                     <div className="space-y-0.5 flex-1">
                       <div className="flex justify-between items-center">
                         <span className="font-bold text-on-surface">Submissão do Comprovativo</span>
@@ -538,9 +533,7 @@ export const PendingPaymentsView: React.FC<PendingPaymentsViewProps> = ({
                           : 'bg-red-50 border-red-200 text-red-900'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">
-                        {log.action === 'aprovado' ? 'check_circle' : 'cancel'}
-                      </span>
+                      <Icon name={log.action === 'aprovado' ? 'check_circle' : 'cancel'} className="text-[16px] shrink-0 mt-0.5" />
                       <div className="space-y-0.5 flex-1 text-[11px]">
                         <div className="flex justify-between items-center font-bold">
                           <span>Ação: {log.action.toUpperCase()}</span>

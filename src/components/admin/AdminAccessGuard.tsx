@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { AppUser } from '../../types';
 import { Logo } from '../common/Logo';
@@ -78,7 +79,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-error-container text-error shadow-inner mx-auto mb-2">
-            <span className="material-symbols-outlined text-[30px]">admin_panel_settings</span>
+            <Icon name="admin_panel_settings" className="text-[30px]" />
           </div>
 
           <div className="flex items-center justify-center py-1">
@@ -117,7 +118,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
             </div>
 
             <div className="p-3.5 rounded-2xl bg-error-container/40 border border-error/30 text-xs text-on-error-container flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">block</span>
+              <Icon name="block" className="text-error text-[18px] shrink-0 mt-0.5" />
               <p className="leading-snug">
                 Apenas <strong>cv.ia.angola@gmail.com</strong> tem autorização para gerir transações, utilizadores e configurações do sistema.
               </p>
@@ -129,7 +130,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
                 onClick={onSwitchUser}
                 className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">switch_account</span>
+                <Icon name="switch_account" className="text-[16px]" />
                 <span>Terminar Sessão e Entrar como Administrador</span>
               </button>
 
@@ -138,7 +139,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
                 onClick={onGoBackToHome}
                 className="w-full py-3 bg-surface-container-low hover:bg-surface-container text-on-surface font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-surface-border"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <Icon name="arrow_back" className="text-[16px]" />
                 <span>Voltar à Página Principal</span>
               </button>
             </div>
@@ -150,7 +151,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             {errorMsg && (
               <div className="p-3 bg-error-container/40 border border-error/30 rounded-2xl flex items-center gap-2 text-xs text-on-error-container animate-in fade-in">
-                <span className="material-symbols-outlined text-error text-[18px] shrink-0">error</span>
+                <Icon name="error" className="text-error text-[18px] shrink-0" />
                 <p className="leading-snug">{errorMsg}</p>
               </div>
             )}
@@ -161,7 +162,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                  <Icon name="verified_user" className="text-[18px]" />
                 </span>
                 <input
                   type="email"
@@ -183,7 +184,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[18px]">lock</span>
+                  <Icon name="lock" className="text-[18px]" />
                 </span>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -198,9 +199,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
-                    {showPassword ? 'visibility_off' : 'visibility'}
-                  </span>
+                  <Icon name={showPassword ? 'visibility_off' : 'visibility'} className="text-[18px]" />
                 </button>
               </div>
             </div>
@@ -209,7 +208,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
               type="submit"
               className="w-full py-3.5 bg-primary text-white font-display font-bold text-xs rounded-xl shadow-md hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-2"
             >
-              <span className="material-symbols-outlined text-[18px]">vpn_key</span>
+              <Icon name="vpn_key" className="text-[18px]" />
               <span>Autenticar como Administrador</span>
             </button>
 
@@ -219,7 +218,7 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({
                 onClick={onGoBackToHome}
                 className="text-xs text-on-surface-variant hover:text-on-surface font-semibold flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <Icon name="arrow_back" className="text-[16px]" />
                 <span>Voltar ao Site Principal</span>
               </button>
 

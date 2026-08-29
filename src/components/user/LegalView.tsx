@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 
 interface LegalViewProps {
@@ -19,7 +20,7 @@ export const LegalView: React.FC<LegalViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-surface-border">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-2">
-            <span className="material-symbols-outlined text-[16px]">verified_user</span>
+            <Icon name="verified_user" className="text-[16px]" />
             Conformidade com a Lei n.º 22/11 (República de Angola)
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface font-display tracking-tight">
@@ -41,7 +42,7 @@ export const LegalView: React.FC<LegalViewProps> = ({
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">policy</span>
+            <Icon name="policy" className="text-[16px]" />
             Política de Privacidade
           </button>
           <button
@@ -53,7 +54,7 @@ export const LegalView: React.FC<LegalViewProps> = ({
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">gavel</span>
+            <Icon name="gavel" className="text-[16px]" />
             Termos de Uso
           </button>
         </div>
@@ -383,7 +384,7 @@ export const LegalView: React.FC<LegalViewProps> = ({
             onClick={onNavigateHome}
             className="px-5 py-2.5 rounded-xl border border-surface-border bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <Icon name="arrow_back" className="text-[16px]" />
             Voltar à Página Inicial
           </button>
         )}
@@ -395,7 +396,7 @@ export const LegalView: React.FC<LegalViewProps> = ({
             className="px-6 py-2.5 rounded-xl bg-primary text-white hover:bg-primary-hover text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
           >
             <span>Criar Meu Currículo (2.000 Kz)</span>
-            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            <Icon name="arrow_forward" className="text-[16px]" />
           </button>
         )}
       </div>

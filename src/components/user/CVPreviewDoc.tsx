@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React from 'react';
 import { ResumeData, CVTemplate } from '../../types';
 
@@ -85,7 +86,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
           <div className="flex items-center justify-center gap-4 text-xs font-sans text-slate-600 mt-3 flex-wrap">
             {displayPhone && (
               <span className="flex items-center gap-1 font-mono">
-                <span className="material-symbols-outlined text-[14px]">call</span>
+                <Icon name="call" className="text-[14px]" />
                 {displayPhone}
               </span>
             )}
@@ -93,7 +94,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
               <>
                 <span>&bull;</span>
                 <span className="flex items-center gap-1 font-mono">
-                  <span className="material-symbols-outlined text-[14px]">mail</span>
+                  <Icon name="mail" className="text-[14px]" />
                   {displayEmail}
                 </span>
               </>
@@ -102,7 +103,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
               <>
                 <span>&bull;</span>
                 <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
+                  <Icon name="location_on" className="text-[14px]" />
                   {personalInfo.location}
                 </span>
               </>
@@ -111,7 +112,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
               <>
                 <span>&bull;</span>
                 <span className="flex items-center gap-1 font-mono">
-                  <span className="material-symbols-outlined text-[14px]">link</span>
+                  <Icon name="link" className="text-[14px]" />
                   {personalInfo.linkedinUrl}
                 </span>
               </>
@@ -666,31 +667,31 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
           <div className="flex items-center gap-4 text-xs text-white/85 mt-3 flex-wrap">
             {displayPhone && (
               <span className="flex items-center gap-1.5 font-mono">
-                <span className="material-symbols-outlined text-[16px]">call</span>
+                <Icon name="call" className="text-[16px]" />
                 {displayPhone}
               </span>
             )}
             {displayEmail && (
               <span className="flex items-center gap-1.5 font-mono">
-                <span className="material-symbols-outlined text-[16px]">mail</span>
+                <Icon name="mail" className="text-[16px]" />
                 {displayEmail}
               </span>
             )}
             {personalInfo.location && (
               <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">location_on</span>
+                <Icon name="location_on" className="text-[16px]" />
                 {personalInfo.location}
               </span>
             )}
             {personalInfo.linkedinUrl && (
               <span className="flex items-center gap-1.5 font-mono">
-                <span className="material-symbols-outlined text-[16px]">link</span>
+                <Icon name="link" className="text-[16px]" />
                 {personalInfo.linkedinUrl}
               </span>
             )}
             {personalInfo.nationality && (
               <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">flag</span>
+                <Icon name="flag" className="text-[16px]" />
                 {personalInfo.nationality}
               </span>
             )}
@@ -720,9 +721,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
           {personalInfo.professionalSummary && (
             <div className="cv-section">
               <div className="flex items-center gap-2 pb-1 mb-2 border-b-2" style={{ borderColor: activeColor }}>
-                <span className="material-symbols-outlined text-[18px]" style={{ color: activeColor }}>
-                  person
-                </span>
+                <Icon name="person" className="text-[18px]" style={{ color: activeColor }} />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
                   Resumo Profissional
                 </h2>
@@ -737,9 +736,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
           {experiences.length > 0 && (
             <div className="cv-section">
               <div className="flex items-center gap-2 pb-1 mb-3 border-b-2" style={{ borderColor: activeColor }}>
-                <span className="material-symbols-outlined text-[18px]" style={{ color: activeColor }}>
-                  work
-                </span>
+                <Icon name="work" className="text-[18px]" style={{ color: activeColor }} />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
                   Experiência Profissional
                 </h2>
@@ -781,9 +778,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
           {educations.length > 0 && (
             <div className="cv-section">
               <div className="flex items-center gap-2 pb-1 mb-3 border-b-2" style={{ borderColor: activeColor }}>
-                <span className="material-symbols-outlined text-[18px]" style={{ color: activeColor }}>
-                  school
-                </span>
+                <Icon name="school" className="text-[18px]" style={{ color: activeColor }} />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
                   Formação Académica
                 </h2>
@@ -805,9 +800,7 @@ export const CVPreviewDoc: React.FC<CVPreviewDocProps> = ({
           {references && references.length > 0 && (
             <div className="cv-section">
               <div className="flex items-center gap-2 pb-1 mb-3 border-b-2" style={{ borderColor: activeColor }}>
-                <span className="material-symbols-outlined text-[18px]" style={{ color: activeColor }}>
-                  badge
-                </span>
+                <Icon name="badge" className="text-[18px]" style={{ color: activeColor }} />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
                   Referências Profissionais
                 </h2>
@@ -906,7 +899,7 @@ const LockedHeaderBanner: React.FC<{ dark?: boolean }> = ({ dark = false }) => {
           : 'bg-amber-50 border-amber-200 text-amber-800'
       }`}
     >
-      <span className="material-symbols-outlined text-[16px] text-amber-600">lock</span>
+      <Icon name="lock" className="text-[16px] text-amber-600" />
       <span>
         <strong>Pré-visualização Parcial:</strong> Contactos omitidos e marca de água ativa até pagamento de 2.000 Kz.
       </span>

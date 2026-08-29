@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import React from 'react';
 
 interface ConfirmLogoutModalProps {
@@ -35,7 +36,7 @@ export const ConfirmLogoutModal: React.FC<ConfirmLogoutModalProps> = ({
         {/* Icon & Heading */}
         <div className="flex flex-col items-center text-center space-y-3">
           <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center shadow-inner">
-            <span className="material-symbols-outlined text-[28px]">logout</span>
+            <Icon name="logout" className="text-[28px]" />
           </div>
 
           <div className="space-y-1.5">
@@ -68,7 +69,7 @@ export const ConfirmLogoutModal: React.FC<ConfirmLogoutModalProps> = ({
             }}
             className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">logout</span>
+            <Icon name="logout" className="text-[16px]" />
             <span>{confirmLabel}</span>
           </button>
         </div>

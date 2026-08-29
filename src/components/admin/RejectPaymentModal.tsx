@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { Transaction } from '../../types';
 
@@ -43,7 +44,7 @@ export const RejectPaymentModal: React.FC<RejectPaymentModalProps> = ({
         <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[24px]">cancel</span>
+              <Icon name="cancel" className="text-[24px]" />
             </div>
             <div>
               <h3 className="font-display text-base font-bold text-on-surface">
@@ -59,7 +60,7 @@ export const RejectPaymentModal: React.FC<RejectPaymentModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <Icon name="close" className="text-[20px]" />
           </button>
         </div>
 
@@ -145,7 +146,7 @@ export const RejectPaymentModal: React.FC<RejectPaymentModalProps> = ({
           </div>
 
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 flex items-start gap-2">
-            <span className="material-symbols-outlined text-[16px] text-amber-700 shrink-0">info</span>
+            <Icon name="info" className="text-[16px] text-amber-700 shrink-0" />
             <span>
               Ao rejeitar, o utilizador verá este motivo no criador de CV e o estado no Discord será atualizado. O utilizador terá a opção de reenviar um novo comprovativo de imediato.
             </span>
@@ -165,7 +166,7 @@ export const RejectPaymentModal: React.FC<RejectPaymentModalProps> = ({
               disabled={isSubmitting}
               className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-bold text-xs shadow-md hover:bg-red-700 transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-70"
             >
-              <span className="material-symbols-outlined text-[18px]">close</span>
+              <Icon name="close" className="text-[18px]" />
               {isSubmitting ? 'A processar...' : 'Confirmar Rejeição'}
             </button>
           </div>

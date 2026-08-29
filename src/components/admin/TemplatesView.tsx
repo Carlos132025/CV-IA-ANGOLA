@@ -1,6 +1,8 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { CVTemplate, ResumeData } from '../../types';
 import { CVPreviewDoc } from '../user/CVPreviewDoc';
+import { getTemplateThumbnail } from '../../data/initialData';
 import {
   SAMPLE_LUMINA_MODERN,
   SAMPLE_EXECUTIVE_CLASSIC,
@@ -28,6 +30,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [previewingTemplate, setPreviewingTemplate] = useState<CVTemplate | null>(null);
   const [activeTabPreview, setActiveTabPreview] = useState<'preview' | 'details'>('preview');
+  const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({});
 
   const filteredTemplates = templates.filter((tpl) => {
     if (selectedCategory === 'Todos') return true;
@@ -36,6 +39,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
 
   const getSampleForTemplate = (templateId: string): ResumeData => {
     return TEMPLATE_SAMPLES[templateId] || SAMPLE_LUMINA_MODERN;
+  };
+
+  const handleImageError = (templateId: string) => {
+    setImageErrorMap((prev) => ({ ...prev, [templateId]: true }));
   };
 
   return (
@@ -79,12 +86,13 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
             >
               {/* Visual Preview Container */}
               <div className="relative h-72 bg-slate-100 overflow-hidden border-b border-surface-border group">
-                {tpl.thumbnailUrl ? (
+                {!imageErrorMap[tpl.id] ? (
                   <img
-                    src={tpl.thumbnailUrl}
+                    src={getTemplateThumbnail(tpl)}
                     alt={tpl.name}
                     referrerPolicy="no-referrer"
                     loading="lazy"
+                    onError={() => handleImageError(tpl.id)}
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
@@ -107,7 +115,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                     }}
                     className="w-full py-2 px-3 bg-white hover:bg-slate-100 text-slate-900 rounded-xl text-xs font-bold shadow-lg flex items-center justify-center gap-1.5 transition-all transform translate-y-2 group-hover:translate-y-0 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[16px] text-primary">visibility</span>
+                    <Icon name="visibility" className="text-[16px] text-primary" />
                     Pré-visualização Real
                   </button>
                   <button
@@ -117,9 +125,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                       tpl.isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[16px]">
-                      {tpl.isActive ? 'visibility_off' : 'check_circle'}
-                    </span>
+                    <Icon name={tpl.isActive ? 'visibility_off' : 'check_circle'} className="text-[16px]" />
                     {tpl.isActive ? 'Desativar Modelo' : 'Ativar no App'}
                   </button>
                 </div>
@@ -197,7 +203,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
             <div className="p-5 border-b border-surface-border flex items-center justify-between bg-surface-container-low/60">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                  <span className="material-symbols-outlined text-[20px]">palette</span>
+                  <Icon name="palette" className="text-[20px]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -231,7 +237,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                   onClick={() => setPreviewingTemplate(null)}
                   className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-surface-container-high transition-all cursor-pointer"
                 >
-                  <span className="material-symbols-outlined">close</span>
+                  <Icon name="close" />
                 </button>
               </div>
             </div>
@@ -247,7 +253,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                     : 'border-transparent text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">description</span>
+                <Icon name="description" className="text-[16px]" />
                 Renderização Real do Documento
               </button>
               <button
@@ -259,7 +265,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                     : 'border-transparent text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">info</span>
+                <Icon name="info" className="text-[16px]" />
                 Especificações Técnicas
               </button>
             </div>

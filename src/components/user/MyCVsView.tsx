@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { CVTemplate, ResumeData, AppUser, Transaction } from '../../types';
 import { CVPreviewDoc } from './CVPreviewDoc';
@@ -7,6 +8,10 @@ import {
   checkIfCvHasUnpaidEdits,
   getPaidSnapshotAsResume,
   duplicateResumeForFamily,
+  isCvPaidOrApproved,
+  isCvPendingApproval,
+  isCvRejected,
+  reconcileCvWithTransactions,
 } from '../../utils/cvHelpers';
 
 interface MyCVsViewProps {
@@ -78,7 +83,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-surface py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
         <div className="w-20 h-20 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mb-6 shadow-inner">
-          <span className="material-symbols-outlined text-[40px]">lock_person</span>
+          <Icon name="lock_person" className="text-[40px]" />
         </div>
         <h1 className="font-display font-black text-2xl sm:text-3xl text-on-surface tracking-tight mb-3">
           Aceda à sua Conta para ver os seus Currículos
@@ -92,7 +97,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
             onClick={() => onOpenAuth('login')}
             className="w-full py-3 px-6 rounded-xl bg-primary hover:bg-primary/95 text-white font-display font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">login</span>
+            <Icon name="login" className="text-[18px]" />
             Iniciar Sessão
           </button>
           <button
@@ -100,7 +105,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
             onClick={() => onOpenAuth('register_input')}
             className="w-full py-3 px-6 rounded-xl bg-surface-container-high hover:bg-surface-container border border-surface-border text-on-surface font-display font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">person_add</span>
+            <Icon name="person_add" className="text-[18px]" />
             Criar Conta
           </button>
         </div>
@@ -110,8 +115,11 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
 
   const isAdmin = currentUser?.role === 'admin';
 
+  // First reconcile all resumes against live transactions
+  const reconciledResumes = resumes.map((cv) => reconcileCvWithTransactions(cv, transactions));
+
   // Filter list by current user & search
-  const userFilteredCVs = resumes.filter((cv) => {
+  const userFilteredCVs = reconciledResumes.filter((cv) => {
     // Search query filter
     const titleMatch = cv.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const nameMatch = cv.personalInfo.fullName?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -121,9 +129,9 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
     }
 
     const hasUnpaidEdits = !isAdmin && checkIfCvHasUnpaidEdits(cv);
-    const isPaid = isAdmin || ((cv.isPaid === true || cv.paymentStatus === 'approved') && !hasUnpaidEdits);
-    const isModifiedAfterPayment = !isAdmin && Boolean(cv.paidSnapshot) && hasUnpaidEdits;
-    const isPending = !isAdmin && !isPaid && !isModifiedAfterPayment && !cv.isPaid && cv.paymentStatus !== 'approved' && (cv.paymentStatus === 'pending' || Boolean(cv.pendingTransactionId));
+    const isPaid = isCvPaidOrApproved(cv, transactions, isAdmin);
+    const isModifiedAfterPayment = !isAdmin && Boolean(cv.paidSnapshot) && hasUnpaidEdits && !isPaid;
+    const isPending = !isPaid && !isModifiedAfterPayment && isCvPendingApproval(cv, transactions, isAdmin);
     const isDraft = !isAdmin && !isPaid && !isModifiedAfterPayment && !isPending;
 
     if (filterStatus === 'paid') return isPaid;
@@ -134,10 +142,10 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
     return true;
   });
 
-  const totalCount = resumes.length;
-  const paidCount = resumes.filter((c) => isAdmin || ((c.isPaid === true || c.paymentStatus === 'approved') && !checkIfCvHasUnpaidEdits(c))).length;
-  const modifiedCount = isAdmin ? 0 : resumes.filter((c) => Boolean(c.paidSnapshot) && checkIfCvHasUnpaidEdits(c)).length;
-  const pendingCount = isAdmin ? 0 : resumes.filter((c) => !c.isPaid && c.paymentStatus !== 'approved' && (c.paymentStatus === 'pending' || Boolean(c.pendingTransactionId))).length;
+  const totalCount = reconciledResumes.length;
+  const paidCount = reconciledResumes.filter((c) => isCvPaidOrApproved(c, transactions, isAdmin)).length;
+  const modifiedCount = isAdmin ? 0 : reconciledResumes.filter((c) => Boolean(c.paidSnapshot) && checkIfCvHasUnpaidEdits(c) && !isCvPaidOrApproved(c, transactions, false)).length;
+  const pendingCount = isAdmin ? 0 : reconciledResumes.filter((c) => isCvPendingApproval(c, transactions, isAdmin)).length;
   const draftCount = Math.max(0, totalCount - paidCount - modifiedCount - pendingCount);
 
   // Handle creating new CV
@@ -195,10 +203,22 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
   const handleTriggerPrint = (cv: ResumeData, useSnapshot: boolean = false) => {
     const targetDoc = useSnapshot && cv.paidSnapshot ? getPaidSnapshotAsResume(cv) : cv;
     setCvToDownload(targetDoc);
+  };
 
-    setTimeout(() => {
-      window.print();
-    }, 400);
+  const handleExecutePrint = () => {
+    document.body.classList.add('is-printing');
+    const cvElements = document.querySelectorAll('.cv-document');
+    cvElements.forEach((el) => el.classList.add('is-printing'));
+
+    const cleanup = () => {
+      document.body.classList.remove('is-printing');
+      cvElements.forEach((el) => el.classList.remove('is-printing'));
+      window.removeEventListener('afterprint', cleanup);
+    };
+
+    window.addEventListener('afterprint', cleanup);
+    setTimeout(cleanup, 5000);
+    window.print();
   };
 
   return (
@@ -207,9 +227,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-surface-border">
         <div>
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[30px]">
-              folder_shared
-            </span>
+            <Icon name="folder_shared" className="text-primary text-[30px]" />
             <h1 className="font-display font-black text-2xl sm:text-3xl text-on-surface tracking-tight">
               Meus Currículos
             </h1>
@@ -230,7 +248,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
             }}
             className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-white font-display font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">add_circle</span>
+            <Icon name="add_circle" className="text-[18px]" />
             <span>+ Criar Novo CV</span>
           </button>
         </div>
@@ -240,7 +258,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
       <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-start sm:items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined text-[22px]">gavel</span>
+            <Icon name="gavel" className="text-[22px]" />
           </div>
           <div>
             <span className="font-bold text-on-surface block sm:inline">
@@ -322,9 +340,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
 
         {/* Search Field */}
         <div className="relative min-w-[240px] sm:w-72">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-            search
-          </span>
+          <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]" />
           <input
             type="text"
             value={searchQuery}
@@ -339,7 +355,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
       {userFilteredCVs.length === 0 ? (
         <div className="p-12 text-center rounded-3xl bg-surface-container-lowest border border-surface-border space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
-            <span className="material-symbols-outlined text-[36px]">folder_open</span>
+            <Icon name="folder_open" className="text-[36px]" />
           </div>
           <h3 className="font-display text-lg font-bold text-on-surface">
             Nenhum currículo encontrado
@@ -358,7 +374,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
             }}
             className="px-6 py-2.5 rounded-xl bg-primary text-white text-xs font-bold font-display shadow-md hover:bg-primary/95 transition-all inline-flex items-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <Icon name="add" className="text-[18px]" />
             Criar Meu Primeiro CV
           </button>
         </div>
@@ -367,15 +383,10 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
           {userFilteredCVs.map((cv) => {
             const template = templates.find((t) => t.id === cv.templateId) || templates[0];
             const hasUnpaidEdits = !isAdmin && checkIfCvHasUnpaidEdits(cv);
-            const isFullyPaid = isAdmin || ((cv.isPaid === true || cv.paymentStatus === 'approved') && !hasUnpaidEdits);
-            const isModifiedAfterPayment = !isAdmin && Boolean(cv.paidSnapshot) && hasUnpaidEdits;
-            const isPending =
-              !isAdmin &&
-              !isFullyPaid &&
-              !isModifiedAfterPayment &&
-              !cv.isPaid &&
-              cv.paymentStatus !== 'approved' &&
-              (cv.paymentStatus === 'pending' || Boolean(cv.pendingTransactionId));
+            const isFullyPaid = isCvPaidOrApproved(cv, transactions, isAdmin);
+            const isModifiedAfterPayment = !isAdmin && Boolean(cv.paidSnapshot) && hasUnpaidEdits && !isFullyPaid;
+            const isPending = !isFullyPaid && !isModifiedAfterPayment && isCvPendingApproval(cv, transactions, isAdmin);
+            const isRejected = !isFullyPaid && isCvRejected(cv, transactions, isAdmin);
 
             return (
               <div
@@ -387,6 +398,8 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                     ? 'border-amber-300 shadow-xs ring-1 ring-amber-200'
                     : isPending
                     ? 'border-blue-200/90'
+                    : isRejected
+                    ? 'border-red-200 shadow-xs'
                     : 'border-surface-border'
                 }`}
               >
@@ -407,7 +420,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                           className="text-on-surface-variant hover:text-primary p-1 rounded-md transition-colors"
                           title="Renomear identificador do CV"
                         >
-                          <span className="material-symbols-outlined text-[14px]">edit</span>
+                          <Icon name="edit" className="text-[14px]" />
                         </button>
                       </div>
                       <p className="text-[11px] text-on-surface-variant truncate">
@@ -418,22 +431,27 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                     {/* Status Pill */}
                     {isFullyPaid ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 flex-shrink-0">
-                        <span className="material-symbols-outlined text-[12px]">verified</span>
+                        <Icon name="verified" className="text-[12px]" />
                         Pago & Liberado
                       </span>
                     ) : isModifiedAfterPayment ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 flex-shrink-0">
-                        <span className="material-symbols-outlined text-[12px]">published_with_changes</span>
+                        <Icon name="published_with_changes" className="text-[12px]" />
                         Editado pós-pagamento
                       </span>
                     ) : isPending ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 flex-shrink-0">
-                        <span className="material-symbols-outlined text-[12px]">hourglass_top</span>
+                        <Icon name="hourglass_top" className="text-[12px]" />
                         Em Validação
+                      </span>
+                    ) : isRejected ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-800 flex-shrink-0">
+                        <Icon name="cancel" className="text-[12px]" />
+                        Rejeitado
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 flex-shrink-0">
-                        <span className="material-symbols-outlined text-[12px]">edit_note</span>
+                        <Icon name="edit_note" className="text-[12px]" />
                         Rascunho (Não Pago)
                       </span>
                     )}
@@ -452,9 +470,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="material-symbols-outlined text-on-surface-variant text-[22px]">
-                          person
-                        </span>
+                        <Icon name="person" className="text-on-surface-variant text-[22px]" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -487,7 +503,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                   {isModifiedAfterPayment && (
                     <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-tight space-y-1">
                       <div className="flex items-center gap-1 font-bold">
-                        <span className="material-symbols-outlined text-[14px] text-amber-700">info</span>
+                        <Icon name="info" className="text-[14px] text-amber-700" />
                         <span>Alterações não pagas detetadas</span>
                       </div>
                       <p className="text-amber-800 text-[10px]">
@@ -520,7 +536,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                       onClick={() => handleTriggerPrint(cv, false)}
                       className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[16px]">download</span>
+                      <Icon name="download" className="text-[16px]" />
                       Baixar PDF Oficial (Re-download Grátis)
                     </button>
                   ) : isModifiedAfterPayment ? (
@@ -530,7 +546,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                         onClick={() => setCvToPay(cv)}
                         className="w-full py-2 px-3 rounded-xl bg-primary hover:bg-primary/95 text-white font-display font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[15px]">payments</span>
+                        <Icon name="payments" className="text-[15px]" />
                         Pagar {basePriceKz.toLocaleString()} Kz (Nova Versão)
                       </button>
                       <button
@@ -539,7 +555,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                         className="w-full py-1.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-display font-semibold text-[11px] transition-all flex items-center justify-center gap-1 cursor-pointer"
                         title="Baixar a versão que já foi paga sem as edições recentes"
                       >
-                        <span className="material-symbols-outlined text-[14px]">history</span>
+                        <Icon name="history" className="text-[14px]" />
                         Baixar Versão Paga Anterior (Grátis)
                       </button>
                     </div>
@@ -550,7 +566,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                         onClick={() => onSelectResume(cv)}
                         className="w-full py-2 px-4 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-display font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[16px]">hourglass_top</span>
+                        <Icon name="hourglass_top" className="text-[16px]" />
                         Aguardando Validação (Ver)
                       </button>
                       {(currentUser?.role === 'admin' ||
@@ -570,14 +586,14 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                                     cv.personalInfo.fullName &&
                                     t.userName.toLowerCase().trim() === cv.personalInfo.fullName.toLowerCase().trim())
                               );
-                              const targetTxId = matchingTx?.id || cv.pendingTransactionId || 'BAI-59842';
+                              const targetTxId = matchingTx?.id || cv.pendingTransactionId || `ADM-${Date.now()}`;
                               onApproveTransaction(targetTxId);
                               onToast(`Pagamento do CV "${cv.title}" aprovado em modo Admin.`);
                             }}
                             className="w-full py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                             title="Aprovar e liberar download imediatamente como Administrador"
                           >
-                            <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                            <Icon name="check_circle" className="text-[14px]" />
                             ⚡ Aprovar Pagamento (Admin)
                           </button>
                         )}
@@ -589,7 +605,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                         onClick={() => onSelectResume(cv)}
                         className="flex-1 py-2 px-3 rounded-xl bg-surface-container-high hover:bg-surface-container border border-surface-border text-on-surface font-display font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
                       >
-                        <span className="material-symbols-outlined text-[15px]">edit</span>
+                        <Icon name="edit" className="text-[15px]" />
                         Editar
                       </button>
                       <button
@@ -598,7 +614,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                         className="flex-1 py-2 px-3 rounded-xl bg-primary hover:bg-primary/95 text-white font-display font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
                         title={`Pagar ${basePriceKz.toLocaleString()} Kz para desbloquear download`}
                       >
-                        <span className="material-symbols-outlined text-[15px]">payments</span>
+                        <Icon name="payments" className="text-[15px]" />
                         Pagar {basePriceKz.toLocaleString()} Kz
                       </button>
                     </div>
@@ -613,7 +629,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                           onClick={() => onSelectResume(cv)}
                           className="px-2 py-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-[11px] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
                         >
-                          <span className="material-symbols-outlined text-[13px]">edit</span>
+                          <Icon name="edit" className="text-[13px]" />
                           Editar
                         </button>
                       )}
@@ -627,7 +643,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                         className="px-2 py-1 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/10 text-[11px] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
                         title="Duplicar estrutura para preencher CV de outro familiar"
                       >
-                        <span className="material-symbols-outlined text-[13px]">family_restroom</span>
+                        <Icon name="family_restroom" className="text-[13px]" />
                         Duplicar p/ Familiar
                       </button>
                     </div>
@@ -638,7 +654,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                       className="text-on-surface-variant/70 hover:text-red-600 p-1 rounded-lg transition-colors cursor-pointer"
                       title="Eliminar este currículo"
                     >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                      <Icon name="delete" className="text-[16px]" />
                     </button>
                   </div>
                 </div>
@@ -657,7 +673,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
             <div className="flex items-center justify-between border-b border-surface-border pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[18px]">add</span>
+                  <Icon name="add" className="text-[18px]" />
                 </div>
                 <h3 className="font-display text-lg font-bold text-on-surface">
                   Criar Novo Currículo
@@ -668,7 +684,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                 onClick={() => setShowCreateModal(false)}
                 className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
@@ -718,7 +734,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
               </div>
 
               <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
-                <span className="material-symbols-outlined text-[16px] text-amber-700 mt-0.5">info</span>
+                <Icon name="info" className="text-[16px] text-amber-700 mt-0.5" />
                 <span>
                   Cada novo CV criado segue o fluxo completo de edição e pré-visualização, exigindo o seu próprio pagamento de <strong>{basePriceKz.toLocaleString()} Kz</strong> para desbloquear o download do PDF.
                 </span>
@@ -753,7 +769,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
             <div className="flex items-center justify-between border-b border-surface-border pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[18px]">family_restroom</span>
+                  <Icon name="family_restroom" className="text-[18px]" />
                 </div>
                 <h3 className="font-display text-lg font-bold text-on-surface">
                   Duplicar para Familiar
@@ -764,7 +780,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
                 onClick={() => setCvToDuplicate(null)}
                 className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg cursor-pointer"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
@@ -802,7 +818,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
 
               <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold">
-                  <span className="material-symbols-outlined text-[16px] text-amber-700">payments</span>
+                  <Icon name="payments" className="text-[16px] text-amber-700" />
                   <span>Novo Pagamento Independente Obrigatório</span>
                 </div>
                 <p className="text-[11px] text-amber-800 leading-tight">
@@ -875,7 +891,7 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-surface-container-lowest rounded-3xl max-w-md w-full p-6 shadow-2xl border border-surface-border animate-in zoom-in-95 duration-200 space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
-              <span className="material-symbols-outlined text-[28px]">delete_forever</span>
+              <Icon name="delete_forever" className="text-[28px]" />
             </div>
             <div className="text-center">
               <h3 className="font-display text-base font-bold text-on-surface">
@@ -929,7 +945,95 @@ export const MyCVsView: React.FC<MyCVsViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* HIDDEN PRINT CONTAINER FOR DIRECT RE-DOWNLOADS                             */}
+      {/* MODAL: DOWNLOAD & IMPRESSÃO DE PDF DO CV DESBLOQUEADO                     */}
+      {/* ========================================================================= */}
+      {cvToDownload && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-surface-container-lowest rounded-3xl max-w-4xl w-full max-h-[94vh] overflow-hidden flex flex-col shadow-2xl border border-surface-border">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-surface-border flex items-center justify-between bg-surface-container-lowest">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-md">
+                  <Icon name="download" className="text-[22px]" />
+                </div>
+                <div>
+                  <h3 className="font-display text-base font-bold text-on-surface flex items-center gap-2">
+                    <span>Descarregar Currículo PDF</span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-sans font-bold">
+                      Desbloqueado
+                    </span>
+                  </h3>
+                  <p className="text-xs text-on-surface-variant">
+                    {cvToDownload.personalInfo.fullName || cvToDownload.title} &bull; Modelo:{' '}
+                    {templates.find((t) => t.id === cvToDownload.templateId)?.name || 'Profissional'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCvToDownload(null)}
+                className="p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer transition-colors"
+                title="Fechar"
+              >
+                <Icon name="close" className="text-[22px]" />
+              </button>
+            </div>
+
+            {/* Print Guidance Note */}
+            <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-emerald-900">
+              <div className="flex items-center gap-2">
+                <Icon name="info" className="text-emerald-700 text-[18px] shrink-0" />
+                <span>
+                  <strong>Dica de Impressão:</strong> Na janela de impressão, selecione o Destino como{' '}
+                  <strong>&ldquo;Guardar como PDF&rdquo;</strong> e defina as Margens como{' '}
+                  <strong>&ldquo;Nenhuma&rdquo;</strong> para obter o melhor acabamento.
+                </span>
+              </div>
+            </div>
+
+            {/* Document Preview Area */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex justify-center bg-slate-100">
+              <div className="w-full max-w-[794px] bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
+                <CVPreviewDoc
+                  resumeData={cvToDownload}
+                  templates={templates}
+                  selectedTemplateId={cvToDownload.templateId}
+                  accentColor={cvToDownload.accentColor}
+                  showWatermark={false}
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="p-4 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-container-lowest">
+              <div className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                <Icon name="verified" className="text-emerald-600 text-[16px]" />
+                <span>Formatado de acordo com as normas ATS e RH de Angola</span>
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={() => setCvToDownload(null)}
+                  className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold text-on-surface hover:bg-surface-container border border-surface-border transition-all cursor-pointer"
+                >
+                  Fechar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecutePrint}
+                  className="flex-1 sm:flex-initial px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Icon name="print" className="text-[18px]" />
+                  <span>Imprimir / Guardar como PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* HIDDEN PRINT CONTAINER FOR DIRECT BROWSER PRINT ENGINE                    */}
       {/* ========================================================================= */}
       {cvToDownload && (
         <div className="hidden print:block fixed inset-0 z-[9999] bg-white">

@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { AI_SUMMARY_SUGGESTIONS } from '../../data/initialData';
 
@@ -145,9 +146,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
         <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                auto_awesome
-              </span>
+              <Icon name="auto_awesome" className="text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }} />
             </div>
             <div>
               <h3 className="font-display text-base font-bold text-on-surface">
@@ -164,7 +163,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -195,7 +194,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
               disabled={isGenerating}
               className="w-full py-2.5 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/95 hover:to-emerald-600/95 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[16px]">magic_button</span>
+              <Icon name="magic_button" className="text-[16px]" />
               {isGenerating ? 'A gerar texto profissional...' : 'Gerar Versão Otimizada com IA'}
             </button>
           </div>
@@ -216,7 +215,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
                     <div className="flex items-center justify-between text-xs font-bold text-on-surface group-hover:text-primary mb-1">
                       <span>{item.role}</span>
                       <span className="text-[10px] text-primary flex items-center gap-0.5">
-                        Usar frase <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
+                        Usar frase <Icon name="arrow_forward" className="text-[12px]" />
                       </span>
                     </div>
                     <p className="text-[11px] text-on-surface-variant leading-relaxed">
@@ -244,7 +243,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
                     <div className="flex items-center justify-between text-xs font-bold text-on-surface group-hover:text-primary mb-1">
                       <span>{item.role}</span>
                       <span className="text-[10px] text-primary flex items-center gap-0.5">
-                        Selecionar <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
+                        Selecionar <Icon name="arrow_forward" className="text-[12px]" />
                       </span>
                     </div>
                     <p className="text-[11px] text-on-surface-variant line-clamp-2">
@@ -282,9 +281,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
                           }`}
                         >
                           <span>{sk}</span>
-                          <span className="material-symbols-outlined text-[14px]">
-                            {isSelected ? 'check' : 'add'}
-                          </span>
+                          <Icon name={isSelected ? 'check' : 'add'} className="text-[14px]" />
                         </button>
                       );
                     })}
@@ -317,7 +314,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
                 disabled={isGenerating || !customPrompt.trim()}
                 className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-primary/90 disabled:opacity-50 transition-all flex items-center gap-1 shrink-0 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
+                <Icon name="auto_awesome" className="text-[16px]" />
                 <span>Gerar</span>
               </button>
             </div>
@@ -328,7 +325,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 animate-in fade-in duration-150">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-800 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                  <Icon name="check_circle" className="text-[16px]" />
                   Texto Otimizado Pronto:
                 </span>
                 <span className="text-[10px] text-emerald-700 font-semibold">Qualidade Verificada</span>
@@ -363,7 +360,7 @@ export const AISuggestionModal: React.FC<AISuggestionModalProps> = ({
             }}
             className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/95 disabled:opacity-50 shadow-md transition-all flex items-center justify-center gap-1.5"
           >
-            <span className="material-symbols-outlined text-[16px]">done_all</span>
+            <Icon name="done_all" className="text-[16px]" />
             {mode === 'skills'
               ? `Adicionar (${selectedSkills.length}) Competências`
               : 'Aplicar no Formulário'}

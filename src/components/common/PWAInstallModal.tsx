@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import React from 'react';
 import { isIOS, isStandalone, promptPWAInstall } from '../../utils/pwaManager';
 
@@ -37,7 +38,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
             className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition-colors cursor-pointer"
             aria-label="Fechar"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <Icon name="close" className="text-[20px]" />
           </button>
 
           {/* App Icon preview */}
@@ -72,7 +73,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
           {alreadyInstalled ? (
             <div className="text-center py-4 space-y-2">
               <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
-                <span className="material-symbols-outlined text-2xl">check_circle</span>
+                <Icon name="check_circle" className="text-2xl" />
               </div>
               <h4 className="font-bold text-base text-slate-900">Aplicação já instalada!</h4>
               <p className="text-xs text-slate-600">
@@ -83,7 +84,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
             /* iOS Safari Instructions */
             <div className="space-y-3">
               <div className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">apple</span>
+                <Icon name="apple" className="text-[16px]" />
                 Como instalar no iPhone / iPad (Safari):
               </div>
 
@@ -96,7 +97,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
                     No navegador <strong>Safari</strong>, toque no botão de{' '}
                     <strong>Partilhar</strong>{' '}
                     <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-white border border-slate-200 rounded text-primary font-bold shadow-xs">
-                      <span className="material-symbols-outlined text-[14px]">ios_share</span>
+                      <Icon name="ios_share" className="text-[14px]" />
                     </span>{' '}
                     na barra inferior.
                   </div>
@@ -110,7 +111,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
                     Deslize o menu para baixo e toque em{' '}
                     <strong className="text-slate-900">"Adicionar ao Ecrã Principal"</strong>{' '}
                     <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-white border border-slate-200 rounded text-primary font-bold shadow-xs">
-                      <span className="material-symbols-outlined text-[14px]">add_box</span>
+                      <Icon name="add_box" className="text-[14px]" />
                     </span>
                     .
                   </div>
@@ -138,13 +139,13 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
                 onClick={handleNativeInstall}
                 className="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[18px]">install_mobile</span>
+                <Icon name="install_mobile" className="text-[18px]" />
                 Instalar Agora no Ecrã Principal
               </button>
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
                 <div className="font-semibold text-slate-900 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px] text-blue-600">info</span>
+                  <Icon name="info" className="text-[14px] text-blue-600" />
                   Instalação manual no Chrome (Android ou PC):
                 </div>
                 <p>
@@ -157,15 +158,15 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
           {/* Features Highlights */}
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
             <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="material-symbols-outlined text-primary text-[20px]">bolt</span>
+              <Icon name="bolt" className="text-primary text-[20px]" />
               <div className="text-[10px] font-bold mt-0.5 text-slate-800">Ultra Rápido</div>
             </div>
             <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="material-symbols-outlined text-emerald-600 text-[20px]">offline_bolt</span>
+              <Icon name="offline_bolt" className="text-emerald-600 text-[20px]" />
               <div className="text-[10px] font-bold mt-0.5 text-slate-800">Cache Inteligente</div>
             </div>
             <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="material-symbols-outlined text-amber-600 text-[20px]">phone_iphone</span>
+              <Icon name="phone_iphone" className="text-amber-600 text-[20px]" />
               <div className="text-[10px] font-bold mt-0.5 text-slate-800">Ecrã Total</div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { DataAuditLog, DataDeletionRequest } from '../../types';
 import { getAuditLogs, getDeletionRequests, updateDeletionRequestStatus, recordAuditLog } from '../../utils/security';
@@ -58,7 +59,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-1">
-            <span className="material-symbols-outlined text-[16px]">security</span>
+            <Icon name="security" className="text-[16px]" />
             Conformidade com a Lei n.º 22/11 — Proteção de Dados de Angola
           </div>
           <h2 className="text-2xl font-bold text-on-surface font-display">
@@ -80,7 +81,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">receipt_long</span>
+            <Icon name="receipt_long" className="text-[16px]" />
             Logs de Auditoria ({auditLogs.length})
           </button>
           <button
@@ -92,7 +93,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">person_remove</span>
+            <Icon name="person_remove" className="text-[16px]" />
             Pedidos de Eliminação
             {pendingDeletionCount > 0 && (
               <span className="w-5 h-5 rounded-full bg-error text-white text-[10px] flex items-center justify-center font-bold">
@@ -107,7 +108,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-surface-container-low border border-surface-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[22px]">https</span>
+            <Icon name="https" className="text-[22px]" />
           </div>
           <div>
             <div className="text-xs font-bold text-on-surface">Protocolo HTTPS</div>
@@ -117,7 +118,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
 
         <div className="p-4 rounded-2xl bg-surface-container-low border border-surface-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <span className="material-symbols-outlined text-[22px]">lock</span>
+            <Icon name="lock" className="text-[22px]" />
           </div>
           <div>
             <div className="text-xs font-bold text-on-surface">Encriptação em Repouso</div>
@@ -127,7 +128,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
 
         <div className="p-4 rounded-2xl bg-surface-container-low border border-surface-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+            <Icon name="admin_panel_settings" className="text-[22px]" />
           </div>
           <div>
             <div className="text-xs font-bold text-on-surface">Acesso Restrito DPO</div>
@@ -205,7 +206,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                        <span className="material-symbols-outlined text-[13px]">lock</span>
+                        <Icon name="lock" className="text-[13px]" />
                         Cifrado
                       </span>
                     </td>
@@ -278,7 +279,7 @@ export const DataPrivacyAuditView: React.FC<DataPrivacyAuditViewProps> = ({
                               onClick={() => handleProcessDeletion(req, true)}
                               className="px-3 py-1.5 rounded-xl bg-error text-white text-[11px] font-bold hover:bg-error/90 transition-all shadow-xs cursor-pointer flex items-center gap-1"
                             >
-                              <span className="material-symbols-outlined text-[14px]">delete_forever</span>
+                              <Icon name="delete_forever" className="text-[14px]" />
                               Eliminar Dados
                             </button>
                             <button

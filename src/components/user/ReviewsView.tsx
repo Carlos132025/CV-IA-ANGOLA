@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState } from 'react';
 import { AppUser, ReviewItem, Transaction } from '../../types';
 import { sanitizeInput } from '../../utils/sanitize';
@@ -94,9 +95,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       {/* Header Banner */}
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-xs font-bold">
-          <span className="material-symbols-outlined text-[16px] text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }}>
-            grade
-          </span>
+          <Icon name="grade" className="text-[16px] text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }} />
           Opiniões Verificadas de Candidatos em Angola
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tight font-display">
@@ -113,13 +112,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             <div className="flex flex-col items-start">
               <div className="flex text-amber-500">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    className="material-symbols-outlined text-[20px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
+                  <Icon name="star" className="text-[20px]" key={star} style={{ fontVariationSettings: "'FILL' 1" }} />
                 ))}
               </div>
               <span className="text-xs text-on-surface-variant font-medium">
@@ -129,7 +122,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           </div>
           <div className="h-8 w-px bg-surface-border hidden sm:block"></div>
           <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold">
-            <span className="material-symbols-outlined text-[18px]">verified</span>
+            <Icon name="verified" className="text-[18px]" />
             100% Clientes com Pagamento Confirmado
           </div>
         </div>
@@ -140,7 +133,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         <div className="lg:col-span-5 bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-surface-border shadow-sm space-y-6">
           <div className="border-b border-surface-border pb-4">
             <h2 className="text-lg font-bold text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">rate_review</span>
+              <Icon name="rate_review" className="text-primary text-[20px]" />
               Deixar uma Avaliação
             </h2>
             <p className="text-xs text-on-surface-variant mt-1">
@@ -150,7 +143,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
           {!currentUser ? (
             <div className="p-5 rounded-xl bg-surface border border-surface-border text-center space-y-3">
-              <span className="material-symbols-outlined text-3xl text-on-surface-variant">lock</span>
+              <Icon name="lock" className="text-3xl text-on-surface-variant" />
               <p className="text-xs text-on-surface-variant">
                 Inicie sessão na sua conta para avaliar a plataforma após a aprovação do seu currículo.
               </p>
@@ -164,7 +157,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             </div>
           ) : !isVerifiedBuyer ? (
             <div className="p-5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 space-y-3 text-center">
-              <span className="material-symbols-outlined text-3xl text-amber-600">verified_user</span>
+              <Icon name="verified_user" className="text-3xl text-amber-600" />
               <div className="space-y-1">
                 <p className="text-xs font-bold">Apenas Compradores Verificados</p>
                 <p className="text-[11px] text-amber-800 leading-relaxed">
@@ -183,7 +176,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             <form onSubmit={handleSubmitReview} className="space-y-4">
               {showSuccessBadge && (
                 <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-                  <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+                  <Icon name="check_circle" className="text-emerald-600 text-[18px]" />
                   Avaliação registada com sucesso!
                 </div>
               )}
@@ -199,12 +192,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       onClick={() => setRating(star)}
                       className="p-1 text-amber-400 hover:text-amber-500 transition-colors focus:outline-none"
                     >
-                      <span
-                        className="material-symbols-outlined text-[28px]"
-                        style={{ fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0" }}
-                      >
-                        star
-                      </span>
+                      <Icon name="star" className="text-[28px]" style={{ fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0" }} />
                     </button>
                   ))}
                   <span className="text-xs font-bold text-on-surface ml-2">
@@ -266,7 +254,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined text-[18px]">send</span>
+                    <Icon name="send" className="text-[18px]" />
                     Publicar Avaliação Verificada
                   </>
                 )}
@@ -309,12 +297,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs font-bold text-on-surface">{rev.userName}</span>
                         {rev.isVerifiedBuyer && (
-                          <span
-                            className="material-symbols-outlined text-[16px] text-emerald-600"
-                            title="Comprador Verificado"
-                          >
-                            verified
-                          </span>
+                          <Icon name="verified" className="text-[16px] text-emerald-600" title="Comprador Verificado" />
                         )}
                       </div>
                       <p className="text-[11px] text-on-surface-variant">
@@ -328,13 +311,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 {/* Stars */}
                 <div className="flex items-center gap-1 text-amber-500">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className="material-symbols-outlined text-[16px]"
-                      style={{ fontVariationSettings: star <= rev.rating ? "'FILL' 1" : "'FILL' 0" }}
-                    >
-                      star
-                    </span>
+                    <Icon name="star" className="text-[16px]" key={star} style={{ fontVariationSettings: star <= rev.rating ? "'FILL' 1" : "'FILL' 0" }} />
                   ))}
                 </div>
 

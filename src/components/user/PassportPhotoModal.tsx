@@ -1,3 +1,4 @@
+import { Icon } from '../common/Icon';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 interface PassportPhotoModalProps {
@@ -155,7 +156,7 @@ export const PassportPhotoModal: React.FC<PassportPhotoModalProps> = ({
         <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[22px]">badge</span>
+              <Icon name="badge" className="text-[22px]" />
             </div>
             <div>
               <h3 className="font-display text-base font-bold text-on-surface">
@@ -170,7 +171,7 @@ export const PassportPhotoModal: React.FC<PassportPhotoModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
@@ -201,7 +202,7 @@ export const PassportPhotoModal: React.FC<PassportPhotoModalProps> = ({
                 </>
               ) : (
                 <div className="text-center p-4 text-on-surface-variant space-y-2">
-                  <span className="material-symbols-outlined text-[40px] text-primary">add_a_photo</span>
+                  <Icon name="add_a_photo" className="text-[40px] text-primary" />
                   <p className="text-xs font-semibold">Nenhuma foto carregada</p>
                   <p className="text-[10px]">Carregue uma selfie ou foto de rosto para começar.</p>
                 </div>
@@ -221,7 +222,7 @@ export const PassportPhotoModal: React.FC<PassportPhotoModalProps> = ({
               onClick={() => fileInputRef.current?.click()}
               className="mt-3 w-[210px] py-2 bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 border border-surface-border"
             >
-              <span className="material-symbols-outlined text-[16px]">upload_file</span>
+              <Icon name="upload_file" className="text-[16px]" />
               {imageSrc ? 'Carregar Outra Foto' : 'Selecionar Foto'}
             </button>
 
@@ -231,7 +232,7 @@ export const PassportPhotoModal: React.FC<PassportPhotoModalProps> = ({
                 onClick={handleAutoFitPassport}
                 className="mt-2 w-[210px] py-1.5 bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1"
               >
-                <span className="material-symbols-outlined text-[14px]">auto_fix_high</span>
+                <Icon name="auto_fix_high" className="text-[14px]" />
                 Auto-Centrar & Otimizar
               </button>
             )}
@@ -398,7 +399,7 @@ export const PassportPhotoModal: React.FC<PassportPhotoModalProps> = ({
             onClick={handleSaveAndApply}
             className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/95 disabled:opacity-50 shadow-md transition-all flex items-center justify-center gap-1.5"
           >
-            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+            <Icon name="check_circle" className="text-[16px]" />
             {isProcessing ? 'A Processar...' : 'Aplicar Foto no Currículo'}
           </button>
         </div>

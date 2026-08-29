@@ -1,3 +1,4 @@
+import { Icon } from './components/common/Icon';
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { AdminTab, AppUser, CVTemplate, ResumeData, ReviewItem, SupportTicket, SystemSettings, Transaction, UserView } from './types';
 import { INITIAL_RESUME, INITIAL_REVIEWS, INITIAL_SETTINGS, INITIAL_TEMPLATES, INITIAL_TICKETS, INITIAL_TRANSACTIONS, INITIAL_USERS, INITIAL_USER_CVS, createNewEmptyResume } from './data/initialData';
@@ -38,6 +39,7 @@ import {
   duplicateResumeForFamily,
   reconcileCvWithTransactions,
   reconcileAllResumesWithTransactions,
+  isCvMatchingTransaction,
 } from './utils/cvHelpers';
 import { testFirestoreConnection } from './firebase/config';
 import {
@@ -51,6 +53,10 @@ import {
   subscribeAllUsers,
   subscribeReviews,
   subscribeAllResumes,
+  unlockResumeInCloudByTransaction,
+  rejectResumeInCloudByTransaction,
+  purgeAllTestDataAndArtifacts,
+  purgeLocalTestData,
 } from './firebase/services';
 
 export function App() {
@@ -239,12 +245,15 @@ export function App() {
     }
   }, [currentUser, showToast]);
 
-  // Validate connection to Firestore at initial boot and sync initial state
+  // Validate connection to Firestore at initial boot
   useEffect(() => {
+    // Purge local storage debug flags
+    purgeLocalTestData();
+
     testFirestoreConnection().then((connected) => {
       if (connected) {
         console.log('Connected to Firebase Firestore successfully.');
-        // Ensure pending initial transactions (like BAI-59842) are registered in Firestore
+        // Ensure initial transactions are registered in Firestore
         INITIAL_TRANSACTIONS.forEach((tx) => {
           saveTransactionToCloud(tx);
         });
@@ -272,6 +281,12 @@ export function App() {
           const map = new Map(prev.map((c) => [c.id, c]));
           cloudResumes.forEach((c) => {
             const existing = map.get(c.id);
+            // Real-time notification if status transitions while user is on page
+            if (existing && existing.paymentStatus === 'pending' && c.paymentStatus === 'approved') {
+              showToast('Pagamento aprovado! O seu currículo foi desbloqueado para download.');
+            } else if (existing && existing.paymentStatus === 'pending' && c.paymentStatus === 'rejected') {
+              showToast(`Comprovativo rejeitado: ${c.rejectionReason || 'Verifique os dados.'}`);
+            }
             map.set(c.id, existing ? { ...existing, ...c } : c);
           });
           return Array.from(map.values());
@@ -285,6 +300,9 @@ export function App() {
               matchingCloud.isPaid !== prev.isPaid ||
               matchingCloud.pendingTransactionId !== prev.pendingTransactionId)
           ) {
+            if (prev.paymentStatus === 'pending' && matchingCloud.paymentStatus === 'approved') {
+              showToast('Pagamento aprovado! O download do seu CV está agora liberado.');
+            }
             return { ...prev, ...matchingCloud };
           }
           return prev;
@@ -324,51 +342,57 @@ export function App() {
   useEffect(() => {
     if (!transactions || transactions.length === 0) return;
 
-    setUserResumes((prev) => {
-      let hasChange = false;
-      const reconciled = prev.map((cv) => {
-        const nextCv = reconcileCvWithTransactions(cv, transactions);
-        if (
-          nextCv.paymentStatus !== cv.paymentStatus ||
-          nextCv.isPaid !== cv.isPaid ||
-          nextCv.pendingTransactionId !== cv.pendingTransactionId ||
-          Boolean(nextCv.paidSnapshot) !== Boolean(cv.paidSnapshot)
-        ) {
-          hasChange = true;
-          saveResumeToCloud(nextCv);
-          return nextCv;
+    queueMicrotask(() => {
+      setUserResumes((prev) => {
+        let hasChange = false;
+        const reconciled = prev.map((cv) => {
+          const nextCv = reconcileCvWithTransactions(cv, transactions);
+          if (
+            nextCv.paymentStatus !== cv.paymentStatus ||
+            nextCv.isPaid !== cv.isPaid ||
+            nextCv.pendingTransactionId !== cv.pendingTransactionId ||
+            Boolean(nextCv.paidSnapshot) !== Boolean(cv.paidSnapshot)
+          ) {
+            hasChange = true;
+            saveResumeToCloud(nextCv);
+            return nextCv;
+          }
+          return cv;
+        });
+
+        if (hasChange) {
+          try {
+            const serialized = JSON.stringify(reconciled);
+            const encrypted = encryptSensitiveData(serialized);
+            localStorage.setItem('cv_all_resumes_v1', encrypted);
+          } catch (error) {
+            console.error('Error persisting reconciled resumes:', error);
+          }
+          return reconciled;
         }
-        return cv;
+        return prev;
       });
 
-      if (hasChange) {
-        try {
-          const serialized = JSON.stringify(reconciled);
-          const encrypted = encryptSensitiveData(serialized);
-          localStorage.setItem('cv_all_resumes_v1', encrypted);
-        } catch {}
-        return reconciled;
-      }
-      return prev;
-    });
-
-    setResumeData((prev) => {
-      const nextCv = reconcileCvWithTransactions(prev, transactions);
-      if (
-        nextCv.paymentStatus !== prev.paymentStatus ||
-        nextCv.isPaid !== prev.isPaid ||
-        nextCv.pendingTransactionId !== prev.pendingTransactionId ||
-        Boolean(nextCv.paidSnapshot) !== Boolean(prev.paidSnapshot)
-      ) {
-        try {
-          const serialized = JSON.stringify(nextCv);
-          const encrypted = encryptSensitiveData(serialized);
-          localStorage.setItem('cv_resume_encrypted_v1', encrypted);
-          saveResumeToCloud(nextCv);
-        } catch {}
-        return nextCv;
-      }
-      return prev;
+      setResumeData((prev) => {
+        const nextCv = reconcileCvWithTransactions(prev, transactions);
+        if (
+          nextCv.paymentStatus !== prev.paymentStatus ||
+          nextCv.isPaid !== prev.isPaid ||
+          nextCv.pendingTransactionId !== prev.pendingTransactionId ||
+          Boolean(nextCv.paidSnapshot) !== Boolean(prev.paidSnapshot)
+        ) {
+          try {
+            const serialized = JSON.stringify(nextCv);
+            const encrypted = encryptSensitiveData(serialized);
+            localStorage.setItem('cv_resume_encrypted_v1', encrypted);
+            saveResumeToCloud(nextCv);
+          } catch (error) {
+            console.error('Error persisting active reconciled resume:', error);
+          }
+          return nextCv;
+        }
+        return prev;
+      });
     });
   }, [transactions]);
 
@@ -634,6 +658,7 @@ export function App() {
 
   // Approve manual transaction with Discord sync & audit logs
   const handleApproveTransaction = async (txId: string) => {
+    let updatedTx: Transaction | null = null;
     const targetTx = transactions.find((t) => t.id === txId);
 
     setTransactions((prev) =>
@@ -649,7 +674,7 @@ export function App() {
               role: 'Administrador',
             },
           ];
-          const updatedTx: Transaction = {
+          updatedTx = {
             ...t,
             status: 'Concluído',
             auditLogs: updatedLogs,
@@ -663,45 +688,24 @@ export function App() {
       })
     );
 
+    const effectiveTx = updatedTx || targetTx || ({ id: txId, status: 'Concluído' } as Transaction);
+
+    // Direct Firestore update of all matching resumes in the cloud collection
+    unlockResumeInCloudByTransaction(effectiveTx);
+
     const isCvMatching = (c: ResumeData) => {
-      if (c.pendingTransactionId && c.pendingTransactionId === txId) return true;
-      if (c.id === txId) return true;
-      if (targetTx) {
-        if (targetTx.userId && c.userId === targetTx.userId) return true;
-        if (
-          targetTx.userName &&
-          c.personalInfo.fullName &&
-          c.personalInfo.fullName.toLowerCase().trim() === targetTx.userName.toLowerCase().trim()
-        ) {
-          return true;
-        }
-        if (
-          targetTx.userEmail &&
-          c.personalInfo.email &&
-          c.personalInfo.email.toLowerCase().trim() === targetTx.userEmail.toLowerCase().trim()
-        ) {
-          return true;
-        }
-        if (
-          targetTx.userName &&
-          targetTx.userName.toLowerCase().includes('test') &&
-          (c.title.toLowerCase().includes('test') || c.personalInfo.fullName.toLowerCase().includes('test'))
-        ) {
-          return true;
-        }
-      }
-      return (!c.isPaid && c.paymentStatus === 'pending');
+      return isCvMatchingTransaction(c, effectiveTx);
     };
 
     const unlockCv = (c: ResumeData): ResumeData => {
-      const snapshot = createPaidSnapshot(c, txId);
+      const snapshot = c.paidSnapshot || createPaidSnapshot(c, txId);
       return {
         ...c,
         paymentStatus: 'approved',
         isPaid: true,
         paidSnapshot: snapshot,
         hasUnpaidEdits: false,
-        lastPaidDate: snapshot.paidAt,
+        lastPaidDate: snapshot.paidAt || new Date().toLocaleDateString('pt-AO'),
         downloadsRemaining: 99,
         pendingTransactionId: undefined,
         rejectionReason: undefined,
@@ -717,7 +721,9 @@ export function App() {
           const encrypted = encryptSensitiveData(serialized);
           localStorage.setItem('cv_resume_encrypted_v1', encrypted);
           saveResumeToCloud(unlocked);
-        } catch {}
+        } catch (error) {
+          console.error('Error saving active resume after approval:', error);
+        }
         return unlocked;
       }
       return prev;
@@ -737,7 +743,9 @@ export function App() {
         const serialized = JSON.stringify(updatedList);
         const encrypted = encryptSensitiveData(serialized);
         localStorage.setItem('cv_all_resumes_v1', encrypted);
-      } catch {}
+      } catch (error) {
+        console.error('Error saving updated resumes list after approval:', error);
+      }
       return updatedList;
     });
 
@@ -798,6 +806,7 @@ export function App() {
             reviewedBy: currentUser?.name || 'Admin Prospekta',
           };
           saveTransactionToCloud(updatedTx);
+          rejectResumeInCloudByTransaction(updatedTx, reason);
           return updatedTx;
         }
         return t;
@@ -907,6 +916,8 @@ export function App() {
 
     const newTx: Transaction = {
       id: data.txId,
+      cvId: activeCv.id,
+      targetCvId: activeCv.id,
       userId: currentUser?.id || activeCv.userId || 'usr-guest',
       userName: candidateName,
       userEmail: activeCv.personalInfo.email || currentUser?.email || 'cliente@email.ao',
@@ -992,6 +1003,8 @@ export function App() {
 
     const newTx: Transaction = {
       id: txId,
+      cvId: activeCv.id,
+      targetCvId: activeCv.id,
       userId: currentUser?.id || activeCv.userId || 'usr-guest',
       userName: activeCv.personalInfo.fullName || currentUser?.name || 'Candidato CV IA',
       userEmail: activeCv.personalInfo.email || currentUser?.email || 'cliente@email.ao',
@@ -1007,6 +1020,7 @@ export function App() {
     };
 
     setTransactions((prev) => [newTx, ...prev]);
+    saveTransactionToCloud(newTx);
 
     setUserResumes((prev) =>
       prev.map((c) => {
@@ -1042,7 +1056,7 @@ export function App() {
     showToast('Pagamento validado com sucesso!');
   };
 
-  const userCVsForCurrentAccount = userResumes.filter((c) => {
+  const userCVsForCurrentAccount = reconcileAllResumesWithTransactions(userResumes, transactions).filter((c) => {
     if (!currentUser) return true;
     if (currentUser.role === 'admin') return true;
     if (c.userId && c.userId === currentUser.id) return true;
@@ -1068,9 +1082,7 @@ export function App() {
           <div className="bg-surface-container-lowest rounded-2xl max-w-md w-full p-6 shadow-2xl border border-surface-border animate-in fade-in duration-150">
             <div className="flex items-center justify-between border-b border-surface-border pb-3">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">
-                  notifications
-                </span>
+                <Icon name="notifications" className="text-primary text-[20px]" />
                 <h3 className="font-display text-base font-bold text-on-surface">
                   Notificações do Sistema
                 </h3>
@@ -1079,13 +1091,13 @@ export function App() {
                 onClick={() => setShowNotificationsModal(false)}
                 className="text-on-surface-variant p-1 rounded-lg hover:bg-surface-container"
               >
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" />
               </button>
             </div>
 
             <div className="py-4 space-y-3 text-xs">
               <div className="p-3 rounded-xl bg-error-container/30 border border-error/20 flex gap-3">
-                <span className="material-symbols-outlined text-error text-[18px]">warning</span>
+                <Icon name="warning" className="text-error text-[18px]" />
                 <div>
                   <p className="font-bold text-on-error-container">
                     {transactions.filter((t) => t.status === 'Pendente').length} Comprovativos Pendentes
@@ -1095,7 +1107,7 @@ export function App() {
               </div>
 
               <div className="p-3 rounded-xl bg-surface-container-low border border-surface-border flex gap-3">
-                <span className="material-symbols-outlined text-emerald-600 text-[18px]">payments</span>
+                <Icon name="payments" className="text-emerald-600 text-[18px]" />
                 <div>
                   <p className="font-bold text-on-surface">Canal de Notificações Discord</p>
                   <p className="text-on-surface-variant text-[11px] mt-0.5">Webhook sincronizado para novos comprovativos (@everyone).</p>
@@ -1172,6 +1184,7 @@ export function App() {
                 {adminTab === 'dashboard' && (
                   <DashboardView
                     transactions={transactions}
+                    usersCount={users.length}
                     onApproveTransaction={handleApproveTransaction}
                     onRejectTransaction={handleConfirmRejectTransaction}
                     onNavigateToSales={() => setAdminTab('sales')}

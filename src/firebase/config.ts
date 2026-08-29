@@ -11,7 +11,7 @@ import firebaseConfigData from '../../firebase-applet-config.json';
 
 // Suppress benign verbose offline retry warnings in the console
 try {
-  setLogLevel('error');
+  setLogLevel('silent');
 } catch {
   // Ignore if unsupported in environment
 }
@@ -33,14 +33,14 @@ const customDbId =
     ? firebaseConfigData.firestoreDatabaseId
     : undefined;
 
-// Initialize Firestore with experimentalForceLongPolling and ignoreUndefinedProperties
-// This avoids WebSocket failures, proxy timeouts, and ensures instant connectivity
+// Initialize Firestore with resilient connection options and ignoreUndefinedProperties
 export const db = (() => {
   try {
     return initializeFirestore(
       app,
       {
         experimentalForceLongPolling: true,
+        experimentalAutoDetectLongPolling: true,
         ignoreUndefinedProperties: true,
       },
       customDbId
